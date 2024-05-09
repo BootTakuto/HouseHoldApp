@@ -16,8 +16,6 @@ struct ContentView: View {
     @State var incAmtTotal = IncomeConsumeService().getIncOrConsAmtTotal(date: Date(), incFlg: true)
     @State var consAmtTotal = IncomeConsumeService().getIncOrConsAmtTotal(date: Date(), incFlg: false)
     /** ビュー関連 */
-    // レイアウト
-    let screen = UIScreen.main.bounds
     var body: some View {
     @State var accentColors = GradientAccentcColors.gradients[accentColorsIndex]
         ZStack(alignment: .bottom) {
@@ -46,9 +44,7 @@ struct ContentView: View {
                 }
                 self.firstOpenFlg = false
             }
-        }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
-        .ignoresSafeArea()
+        }.ignoresSafeArea()
     }
 }
 

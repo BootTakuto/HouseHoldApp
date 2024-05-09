@@ -46,7 +46,7 @@ struct ContentTabBar: View {
                                 }) {
                                     ZStack {
                                         generalView.ButtonGradientCircle(colors: accentColors)
-                                            .shadow(color: .changeableShadow, radius: 2, x: 2, y: 2)
+                                            .shadow(color: .changeableShadow, radius: 3)
                                         Image(systemName: "square.and.pencil")
                                             .foregroundStyle(.white)
                                             .font(.system(size: screen.width / 20, weight: .semibold))
@@ -71,7 +71,7 @@ struct ContentTabBar: View {
                 }.frame(height: screen.height / 9)
                 .ignoresSafeArea()
         }.compositingGroup() // ← HStack内部を含めて一つの要素と捉えたものに対して影を付与する
-            .shadow(color: .changeableShadow, radius: 5)
+            .shadow(color: .changeableShadow, radius: 3)
             .fullScreenCover(isPresented: $registIncConsFlg) {
                 RegistIncConsFormView(showFlg: $registIncConsFlg, accentColors: accentColors)
             }
@@ -103,7 +103,7 @@ struct TabBarButton: View {
                     ZStack {
                         if selectedContent == contentIndex {
                             generalView.ButtonGradientCircle(colors: accentColors)
-                                .shadow(color: .changeableShadow, radius: 2, x: 2, y: 2)
+                                .shadow(color: .changeableShadow, radius: 3)
                                 .frame(width: screen.width / 12)
                         }
                         Image(systemName: image)

@@ -10,8 +10,8 @@ import RealmSwift
 
 class BalanceService: CommonService {
 
-    func getBalData() -> Results<BalanceModel> {
-        let results = realm.objects(BalanceModel.self)
+    func getBalanceResults() -> Results<BalanceModel> {
+        @ObservedResults(BalanceModel.self) var results
         return results
     }
     
@@ -19,14 +19,29 @@ class BalanceService: CommonService {
      @param 残高名
      @return --
      */
-    func registBalance(balanceNm: String, assetsFlg: Bool) {
+    func registBalance(balanceNm: String, assetsFlg: Bool, balAmt: Int, colorIndex: Int) {
         let balance = BalanceModel()
         balance.balanceKey = UUID().uuidString
-        balance.assetsFlg = assetsFlg
         balance.balanceNm = balanceNm
-        balance.balanceAmt = 0
+        balance.balanceAmt = balAmt
+        balance.colorIndex = colorIndex
         try! realm.write() {
             realm.add(balance)
+        }
+    }
+    
+    /** 残高の名称、カラーの変更
+     @param 名称
+     @param カラーインデックス
+     @return --
+     */
+    func updateBalance(balKey: String, balNm: String, colorIndex: Int) {
+        let result = realm.object(ofType: BalanceModel.self, forPrimaryKey: balKey)
+        try! realm.write() {
+            if let object = result {
+                object.balanceNm = balNm
+                object.colorIndex = colorIndex
+            }
         }
     }
     
@@ -57,8 +72,8 @@ class BalanceService: CommonService {
      @param 資産or負債
      @return 残高合計
      */
-    func getAssDebtBalTotal(assetsFlg: Bool) -> Int {
-        let results = realm.objects(BalanceModel.self).where({$0.assetsFlg == assetsFlg})
+    func getBalanceTotal() -> Int {
+        let results = realm.objects(BalanceModel.self)
         var total = 0
         if !results.isEmpty {
             results.forEach { result in

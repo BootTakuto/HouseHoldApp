@@ -75,11 +75,8 @@ class GeneralComponentView {
             }
         }
     }
-    
-    
 }
 
-
 #Preview {
-    SampleView()
+    ContentView()
 }

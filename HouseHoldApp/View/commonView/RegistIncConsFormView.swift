@@ -37,8 +37,8 @@ struct RegistIncConsFormView: View {
     @ObservedResults(IncConsSectionModel.self) var incConsSecResults
     @ObservedResults(IncConsSectionModel.self, where: {$0.incFlg}) var incSecResults
     @ObservedResults(IncConsSectionModel.self, where: {!$0.incFlg}) var consSecResults
-    @ObservedResults(BalanceModel.self, where: {$0.assetsFlg}) var asstsBalResults
-    @ObservedResults(BalanceModel.self, where: {!$0.assetsFlg}) var debtBalResults
+    @ObservedResults(BalanceModel.self) var asstsBalResults
+    @ObservedResults(BalanceModel.self) var debtBalResults
     // 汎用ビュー
     let generalView = GeneralComponentView()
     // service
@@ -83,7 +83,7 @@ struct RegistIncConsFormView: View {
             }
             Button("追加") {
                 if balanceNm != "" {
-                    self.balanceService.registBalance(balanceNm: balanceNm, assetsFlg: self.assetsFlg)
+//                    self.balanceService.registBalance(balanceNm: balanceNm, assetsFlg: self.assetsFlg)
                     self.selectBalKeys.append("")
                     self.balanceNm = ""
                 }
@@ -374,7 +374,7 @@ struct RegistIncConsFormView: View {
         let height = geomProxy.frame(in: .local).height + 10
         let notAblePullDown = (self.assetsFlg && self.asstsBalResults.isEmpty) ||
                               (!self.assetsFlg && self.debtBalResults.isEmpty)
-        let balTotal = balanceService.getAssDebtBalTotal(assetsFlg: assetsFlg)
+        let balTotal = balanceService.getBalanceTotal()
         let gapTotal = assetsFlg && selectIncFlg ?
                         balTotal + inputAmtTotal :
                        assetsFlg && !selectIncFlg ?

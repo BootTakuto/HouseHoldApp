@@ -10,333 +10,445 @@ import RealmSwift
 
 struct BalanceSummaryView: View {
     var accentColors: [Color]
-    // 残高金額
-    @State var asstsbalTotal = BalanceService().getAssDebtBalTotal(assetsFlg: true)
-    @State var debtBalTotal = BalanceService().getAssDebtBalTotal(assetsFlg: false)
-    // 残高登録情報
+    // results
+    let balResults = BalanceService().getBalanceResults()
+    // 表示
     @State var addBalAlertFlg = false
-    @State var balanceNm = ""
-    // 残高編集
-    @State var delBalAlertFlg = false
-    @State var balanceKey = ""
-    // result
-    @ObservedResults(BalanceModel.self, where: {$0.assetsFlg}) var assetsBalResults
-    @ObservedResults(BalanceModel.self, where: {!$0.assetsFlg}) var debtBalResults
-    // service instance
-    let service = BalanceService()
-    /** ビュー関連 */
-    // 表示切り替えフラグ
-    @State var selectAssets = true
+    @State var deleteBalAlertFlg = false
+    @FocusState var addBalNmTF
+    @FocusState var addBalInitAmountTF
+    @State var isEditMode = false
+    // 登録情報
+    @State var balNm = ""
+    @State var initBalAmount = "0"
+    @State var colorIndex = 0
+    // 変更・削除情報
+    @State var balKey = ""
+    // service
+    let balanceService = BalanceService()
+    /** ビュー関連 **/
     // レイアウト
-    let screen = UIScreen.main.bounds
-    let headerHeight = UIScreen.main.bounds.height / 20
-    let cardHeight: CGFloat = 100
+    let rectHeight: CGFloat = 150
     // 汎用ビュー
     let generalView = GeneralComponentView()
+    // チャート
+    let charts = FinanceCharts()
     var body: some View {
-        GeometryReader { geometry in
-            let width = geometry.size.width
-            let height = geometry.size.height
-            ZStack(alignment: .top) {
+        NavigationStack {
+            GeometryReader {
+                let size =  $0.size
                 ScrollView {
-                    VStack {
-                        BalanceTotalCard(w: width - 40, h: height / 6,
-                                         label: LabelsModel.totalAmtLable,
-                                         asstsTotal: asstsbalTotal, debtTotal: debtBalTotal)
-                        Text(LabelsModel.kindsOfBalLabel)
-                            .font(.caption2)
-                            .foregroundStyle(Color.changeableText)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack(spacing: 0) {
+                        BalanceTotalCard(size: size)
+                            .frame(height: rectHeight)
+                            .padding(.horizontal, 20)
+                        SubTitles(size: size)
                             .padding(.vertical, 10)
                             .padding(.horizontal, 20)
-                        HStack(spacing: 0) {
-                            AssetsDebtCard(w: width / 2 - 30,
-                                           h:height / 8,
-                                           label: "資 産 残 高", amt: asstsbalTotal,
-                                           isSelected: self.selectAssets ? true : false, isAssets: true)
-                            .padding(.trailing, 10)
-                            .onTapGesture {
-                                withAnimation(.easeInOut) {
-                                    self.selectAssets = true
-                                }
+                        BalanceList(size: size)
+                            .padding(.horizontal, 20)
+                    }.padding(.bottom, 80)
+                }.scrollIndicators(.hidden)
+            }.custumFullScreenCover(isPresented: $addBalAlertFlg, transition: .opacity) {
+                AddBalanceFormAlert()
+            }.custumFullScreenCover(isPresented: $deleteBalAlertFlg, transition: .opacity) {
+                DeleteBalanceAlert()
+            }.onDisappear {
+                self.isEditMode = false
+                self.addBalAlertFlg = false
+                self.deleteBalAlertFlg = false
+            }.toolbar {
+                ToolbarItem(placement: .keyboard) {
+                    HStack {
+                        Button(action: {
+                            if addBalNmTF {
+                                self.balNm = ""
+                                self.addBalNmTF = false
+                            } else if addBalInitAmountTF {
+                                self.initBalAmount = "0"
+                                self.addBalInitAmountTF = false
                             }
-                            AssetsDebtCard(w: width / 2 - 30,
-                                           h: height / 8,
-                                           label: LabelsModel.debtTotalAmtlable, amt: debtBalTotal,
-                                           isSelected: !self.selectAssets ? true : false, isAssets: false)
-                            .padding(.leading, 10)
-                            .onTapGesture {
-                                withAnimation {
-                                    self.selectAssets = false
+                        }) {
+                            Text("キャンセル")
+                        }
+                        Spacer()
+                        Button(action: {
+                            if addBalNmTF {
+                                self.addBalNmTF = false
+                            } else if addBalInitAmountTF {
+                                if self.initBalAmount == "" {
+                                    self.initBalAmount = "0"
                                 }
+                                self.addBalInitAmountTF = false
+                            }
+                        }) {
+                            Text("完了")
+                        }
+                    }
+                }
+            }.onChange(of: addBalInitAmountTF) {
+                if addBalInitAmountTF && self.initBalAmount == "0" {
+                    self.initBalAmount = ""
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func AddBalanceFormAlert() -> some View {
+        let rectWidth: CGFloat = 300
+        let rectHeight: CGFloat = 200
+        ZStack {
+            Color.black.opacity(0.25)
+            ZStack {
+                Color.changeable
+                VStack {
+                    VStack {
+                        Text(isEditMode ? "残高変更" : "残高登録")
+                            .fontWeight(.bold)
+                        HStack(spacing: 0) {
+                            Text("残高名(必須)")
+                                .font(.caption2.bold())
+                                .frame(width: rectWidth / 3, alignment: .leading)
+                            TextField("銀行名、ポイント名など", text: $balNm)
+                                .focused($addBalNmTF)
+                                .padding(5)
+                                .background(Color(uiColor: .systemGray5))
+                                .clipShape(RoundedRectangle(cornerRadius: 5))
+                                .font(.caption.bold())
+                                .frame(width: rectWidth * (2 / 3))
+                        }
+                        if !isEditMode {
+                            HStack(spacing: 0) {
+                                Text("金額初期設定")
+                                    .font(.caption2.bold())
+                                    .frame(width: rectWidth / 3, alignment: .leading)
+                                TextField("", text: $initBalAmount)
+                                    .focused($addBalInitAmountTF)
+                                    .padding(5)
+                                    .background(Color(uiColor: .systemGray5))
+                                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                                    .multilineTextAlignment(.trailing)
+                                    .font(.caption.bold())
+                                    .frame(width: rectWidth * (2 / 3))
+                                    .keyboardType(.numberPad)
                             }
                         }
-                        HStack {
-                            Text(LabelsModel.BalListLabel)
-                                .font(.caption2)
-                                .foregroundStyle(Color.changeableText)
-                                .padding(.vertical, 12)
-                            Spacer()
-                            AddBalanceButton(w: width / 5)
-                        }.padding(.horizontal, 20)
-                            ScrollView {
-                                LazyVStack(spacing: 10) {
-                                    if self.selectAssets {
-                                        if assetsBalResults.isEmpty {
-                                            Text("資産残高が存在しません。")
-                                                .font(.caption)
-                                                .padding(.top, 30)
-                                        } else {
-                                            ForEach(assetsBalResults, id: \.self) { result in
-                                                Menu {
-                                                    Button(action: {
-                                                        
-                                                    }) {
-                                                        Label("残高名変更", systemImage: "pencil")
+                        HStack(spacing: 0) {
+                            Text("識別カラー")
+                                .font(.caption2.bold())
+                                .frame(width: rectWidth / 3, alignment: .leading)
+                            ScrollView(.horizontal) {
+                                ScrollViewReader { proxy in
+                                    HStack {
+                                        ForEach(ColorAndImage.colors.indices, id: \.self) {index in
+                                            let color = ColorAndImage.colors[index]
+                                            Button(action: {
+                                                self.colorIndex = index
+                                            }) {
+                                                ZStack {
+                                                    Circle()
+                                                        .fill(color)
+                                                        .frame(width: 30)
+                                                    if self.colorIndex == index {
+                                                        Circle()
+                                                            .stroke(lineWidth: 3)
+                                                            .fill(.changeable)
+                                                            .frame(width: 20)
                                                     }
-                                                    Button(role: .destructive, action: {
-                                                        self.delBalAlertFlg = true
-                                                        self.balanceKey = result.balanceKey
-                                                    }) {
-                                                        Label("削除", systemImage: "trash")
-                                                    }
-                                                } label: {
-                                                    BalanceDetailCard(balNm: result.balanceNm, amt: result.balanceAmt)
-                                                        .frame(width: width - 40, height: 80)
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        if debtBalResults.isEmpty {
-                                            Text("負債残高が存在しません。")
-                                                .font(.caption)
-                                                .padding(.top, 30)
-                                        } else {
-                                            ForEach(debtBalResults, id: \.self) { result in
-                                                Menu {
-                                                    Button(action: {
-                                                        
-                                                    }) {
-                                                        Label("残高名変更", systemImage: "pencil")
-                                                    }
-                                                    Button(role: .destructive, action: {
-                                                        self.delBalAlertFlg = true
-                                                        self.balanceKey = result.balanceKey
-                                                    }) {
-                                                        Label("削除", systemImage: "trash")
-                                                    }
-                                                } label: {
-                                                    BalanceDetailCard(balNm: result.balanceNm, amt: result.balanceAmt)
-                                                        .frame(width: width - 40, height: 80)
-                                                        .padding(0)
                                                 }
                                             }
                                         }
                                     }
                                 }
+                            }.frame(width: rectWidth * (2 / 3))
+                                .scrollIndicators(.hidden)
+                                .id(self.colorIndex)
+                        }
+                    }.frame(height: rectHeight - 40)
+                        .padding(.horizontal, 15)
+                    HStack(spacing: 0) {
+                        Button(action: {
+                            withAnimation {
+                                self.addBalAlertFlg = false
+                                self.balNm = ""
+                                self.initBalAmount = "0"
+                                self.colorIndex = 0
                             }
-                    }.padding(.top, 60)
-                        .padding(.bottom, 80)
-                }.scrollIndicators(.hidden)
-            }
-        }.alert(self.selectAssets ? "資産残高の追加" : "負債残高の追加", isPresented: $addBalAlertFlg) {
-            TextField(self.selectAssets ? "銀行名、ICカード名" : "銀行名、クレジット名", text: $balanceNm)
-            Button("キャンセル") {
-                self.addBalAlertFlg = false
-            }
-            Button("追加") {
-                if balanceNm != "" {
-                    service.registBalance(balanceNm: balanceNm, assetsFlg: selectAssets)
-                }
-            }
-        }.alert("削除してよろしいですか。", isPresented: $delBalAlertFlg) {
-            Button("削除",role: .destructive) {
-                service.deleteBalance(balanceKey: balanceKey)
-                self.asstsbalTotal = service.getAssDebtBalTotal(assetsFlg: self.selectAssets)
-            }
-            Button("キャンセル", role: .cancel) {
-                self.delBalAlertFlg = false
-            }
-        }.onAppear {
-            // ▼レンダリングのタイミングで行う必要がない
-//            self.asstsbalTotal = service.getAssDebtBalTotal(assetsFlg: true)
-//            self.debtBalTotal = service.getAssDebtBalTotal(assetsFlg: false)
-        }
-    }
-    
-    @ViewBuilder
-    func AddBalanceButton(w: CGFloat) -> some View {
-        Button(action: {
-            self.addBalAlertFlg = true
-            self.balanceNm = ""
-        }) {
-            ZStack {
-                generalView.GradientCard(colors: accentColors, radius: 5)
-                    .frame(width: w, height: 25)
-                    .shadow(color: .changeableShadow, radius: 1, x: 2, y: 2)
-                HStack {
-                    Text(LabelsModel.addLabel)
-                    Image(systemName: "plus")
-                }.foregroundStyle(.white)
-                .font(.caption2.bold())
-            }
-        }
-    }
-    
-    @ViewBuilder
-    func AssetsDebtCard(w: CGFloat, h: CGFloat, label: String,
-                        amt: Int, isSelected: Bool, isAssets: Bool) -> some View {
-        ZStack {
-            generalView.GlassBlur(effect: isSelected ? .systemMaterial : .systemUltraThinMaterial, radius: 10)
-                    .frame(width: w, height: h)
-                    .shadow(color: isSelected ? .changeableShadow : .clear, radius: 3, x: 3, y: 3)
-            VStack {
-                HStack {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(isSelected ? .white : .changeableGlass.opacity(0.3))
-                            .shadow(color: .changeableShadow, radius: 2, x: 2, y: 2)
-                        Image(systemName: isAssets ? "arrow.up.right" : "arrow.down.right")
-                            .foregroundStyle(isAssets ? .blue : .red)
-                    }.frame(width: 25, height: 25)
-                    Text(label)
-                        .font(.caption2)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                Text("¥\(amt)")
-                    .font(.system(.subheadline, design: .rounded, weight: .bold))
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-            }.foregroundStyle(Color.changeableText)
-                .padding(.horizontal, 30)
-        }.frame(width: w, height: h)
-    }
-    
-    @ViewBuilder
-    func BalanceDetailCard(balNm: String, amt: Int) -> some View {
-        GeometryReader { geometry in
-            ZStack {
-                generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 5)
-                VStack {
-                    Text(balNm)
-                        .font(.caption2)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Text("¥\(amt)")
-                        .font(.system(.subheadline, design: .rounded, weight: .bold))
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                }.padding(.horizontal, 30)
-                    .foregroundStyle(Color.changeableText)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    func BalanceTotalCard(w: CGFloat, h: CGFloat, label: String, asstsTotal: Int, debtTotal: Int) -> some View {
-        ZStack {
-            generalView.GradientCard(colors: accentColors, radius: 10)
-                .shadow(color: .changeableShadow, radius: 2, x: 4, y: 4)
-                .frame(width: w, height: h)
-            HStack() {
-                VStack(alignment: .leading) {
-                    Text(label)
-                        .font(.caption.bold())
-                    Text("¥ \(asstsTotal - debtTotal)")
-                        .font(.system(.title2, design: .rounded, weight: .bold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                    Text("¥ \(asstsTotal)")
-                        .font(.system(.caption, design: .rounded, weight: .bold))
-                    Text("¥ \(debtTotal)")
-                        .font(.system(.caption, design: .rounded, weight: .bold))
-                }.foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                BalancePieChart(w: w, h: h,
-                                assetRate: 1.0, netRate: 0.8, debtRate: 0.2)
-            }.padding(.horizontal, 40)
-        }
-    }
-    
-    @ViewBuilder
-    func BalancePieChart(w: CGFloat, h: CGFloat,
-                         assetRate: Double, netRate: Double, debtRate: Double) -> some View {
-            ZStack {
-                UIGlassCard(effect: .systemUltraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
-                .shadow(color: Color(uiColor: .darkGray), radius: 2, x: 2, y: 2)
-                HStack(alignment: .top) {
-                    VStack(spacing: 3) {
-                        ZStack(alignment: .bottom) {
-                            HStack(spacing: 3) {
-                                Text("\(asstsbalTotal - debtBalTotal)")
-                                    .font(.system(size: 5))
-                                generalView.Border()
-                                    .frame(width: 5)
-                            }.frame(width: w / 12, height: (h / 1.5) * netRate,
-                                    alignment: .topTrailing)
-                            HStack(spacing: 3) {
-                                Text("\(asstsbalTotal)")
-                                    .font(.system(size: 5))
-                                generalView.Border()
-                                    .frame(width: 5)
-                            }.frame(width: w / 12, height: (h / 1.5) * assetRate,
-                                    alignment: .topTrailing)
-                            HStack(spacing: 3) {
-                                Text("\(debtBalTotal)")
-                                    .font(.system(size: 5))
-                                generalView.Border()
-                                    .frame(width: 5)
-                            }.frame(width: w / 12, height: (h / 1.5) * debtRate,
-                                    alignment: .topTrailing)
-                        }.frame(maxHeight: h / 1.5)
-                    }
-                    Group {
-                        VStack(spacing: 3) {
-                            UIGlassCard(effect: .systemMaterial)
-                                .clipShape(RoundedRectangle(cornerRadius: 5))
-                                .frame(width: w / 12, height: (h / 1.5) * netRate)
-                            Text("純資産")
-                                .font(.system(size: 5).bold())
+                        }) {
+                            ZStack {
+                                accentColors.last ?? .black
+                                Text(isEditMode ? "キャンセル" : "閉じる")
+                            }
                         }
-                        VStack(spacing: 3) {
-                            UIGlassCard(effect: .systemMaterial)
-                                .clipShape(RoundedRectangle(cornerRadius: 5))
-                                .frame(width: w / 12, height: (h / 1.5) * assetRate)
-                            Text("資産")
-                                .font(.system(size: 5).bold())
+                        generalView.Bar()
+                            .foregroundStyle(.changeable)
+                        Button(action: {
+                            withAnimation {
+                                if isEditMode {
+                                    balanceService.updateBalance(balKey: balKey, balNm: balNm,
+                                                                 colorIndex: colorIndex)
+                                } else {
+                                    balanceService.registBalance(balanceNm: balNm, assetsFlg: true,
+                                                                 balAmt: Int(initBalAmount) ?? 0, colorIndex: colorIndex)
+                                }
+                                self.addBalAlertFlg = false
+                                self.balNm = ""
+                                self.initBalAmount = "0"
+                                self.colorIndex = 0
+                            }
+                        }) {
+                            ZStack {
+                                accentColors.last ?? .black
+                                Text(isEditMode ? "変更" : "保存")
+                            }
                         }
-                        VStack(spacing: 3) {
-                            UIGlassCard(effect: .systemMaterial)
-                                .clipShape(RoundedRectangle(cornerRadius: 5))
-                                .frame(width: w / 12, height: (h / 1.5) * debtRate)
-                            Text("負債")
-                                .font(.system(size: 5).bold())
-                        }
-                    }.frame(maxHeight: h / 1.5, alignment: .bottom)
-                }.foregroundStyle(Color.changeableGlassStroke)
-                    .padding(.bottom, 5)
-                    .padding(.top, 15)
-            }.frame(width: w / 2 - 15, height: h - 30)
-    }
-    
-    @ViewBuilder
-    func ChartLabel(w: CGFloat, colors: [Color], text: String) -> some View {
-        HStack(spacing: 3) {
-            Circle()
-                .fill(
-                    .linearGradient(colors: colors,
-                                    startPoint: .topLeading, endPoint: .bottomTrailing)
-                ).frame(width: w)
-            Text(text)
-                .foregroundStyle(Color.changeableText)
-                .font(.caption2.bold())
-        }
-    }
-}
+                    }.frame(height: 40)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                }.foregroundStyle(Color.changeableText)
 
-#Preview {
-    @State var balAmtTotal = 0
-    return BalanceSummaryView(accentColors: GradientAccentcColors.gradients[0])
+            }.clipShape(RoundedRectangle(cornerRadius: 10))
+                .offset(y: addBalNmTF ? -40 : addBalInitAmountTF ? -30 : 0)
+                .animation(.linear, value: addBalNmTF)
+                .animation(.linear, value: addBalInitAmountTF)
+            .frame(width: rectWidth, height: rectHeight)
+        }.ignoresSafeArea()
+    }
+    
+    @ViewBuilder
+    func DeleteBalanceAlert() -> some View {
+        let rectWidth: CGFloat = 300
+        let rectHeight: CGFloat = 150
+        ZStack {
+            Color.black.opacity(0.25)
+            ZStack {
+                Color.changeable
+                VStack {
+                    VStack {
+                        Text("残高削除")
+                            .fontWeight(.bold)
+                        Text("残高を削除してよろしいですか。")
+                            .font(.caption.bold())
+                    }.frame(height: rectHeight - 40)
+                    HStack(spacing: 0) {
+                        Button(action: {
+                            withAnimation {
+                                self.deleteBalAlertFlg = false
+                            }
+                        }) {
+                            ZStack {
+                                accentColors.last ?? .black
+                                Text("キャンセル")
+                            }
+                        }
+                        generalView.Bar()
+                            .foregroundStyle(.changeable)
+                        Button(action: {
+                            withAnimation {
+                                balanceService.deleteBalance(balanceKey: balKey)
+                                self.deleteBalAlertFlg = false
+                            }
+                        }) {
+                            ZStack {
+                                Color.red
+                                Text("削除")
+                            }
+                        }
+                    }.frame(height: 40)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                }.foregroundStyle(Color.changeableText)
+            }.frame(width: rectWidth, height: rectHeight)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+        }.ignoresSafeArea()
+    }
+    
+    @ViewBuilder
+    func SubTitles(size: CGSize) -> some View {
+        let areaWidth = size.width - 40
+        VStack {
+            HStack {
+                Text(LabelsModel.BalListLabel)
+                    .padding(.vertical, 12)
+                Image(systemName: "list.bullet")
+                Spacer()
+                if !balResults.isEmpty {
+                    Button(action: {
+                        withAnimation {
+                            self.isEditMode.toggle()
+                        }
+                    }) {
+                        ZStack {
+                            if !isEditMode {
+                                generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 25)
+                                    .shadow(color: .changeableShadow, radius: 3)
+                            }
+                            Text(isEditMode ? "完了" : "編集")
+                                .foregroundStyle(accentColors.last ?? .changeableText)
+                        }
+                    }.frame(width: 80, height: 25)
+                }
+            }.font(.caption.bold())
+                .foregroundStyle(Color.changeableText)
+                .frame(maxWidth: abs(areaWidth))
+        }
+    }
+    
+    @ViewBuilder
+    func BalanceTotalCard(size: CGSize) -> some View {
+        let rectWidth = size.width - 40
+        let balTotal = balanceService.getBalanceTotal()
+        ZStack {
+//            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+            generalView.GradientCard(colors: accentColors, radius: 10)
+            VStack(spacing: 0) {
+                HStack {
+                    VStack {
+                        Text("¥\(balTotal)")
+                            .font(.system(.title3, design: .rounded, weight: .bold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                        Text("残 高 合 計")
+                            .font(.caption.bold())
+                    }
+                    .foregroundStyle(Color.white)
+                        .frame(maxWidth: abs(rectWidth * (3 / 5)), alignment: .center)
+                        .padding(.vertical, 10)
+                        .padding(.leading, 10)
+                    BalancePieChart()
+                        .frame(width: abs(rectWidth * (2 / 5)))
+                        .padding(10)
+                }
+                ZStack {
+                    generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 0)
+                        .frame(height: rectHeight / 5)
+                    HStack(spacing: 10) {
+                        Text("残高構成")
+                        Image(systemName: "chevron.right")
+                    }.frame(maxWidth: abs(rectWidth - 30), alignment: .trailing)
+                    .font(.caption.bold())
+                    .foregroundStyle(.white)
+                }
+            }
+        }.clipShape(RoundedRectangle(cornerRadius: 10))
+            .shadow(color: .changeableShadow, radius: 5)
+    }
+    
+    @ViewBuilder
+    func BalancePieChart() -> some View {
+        ZStack {
+            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+            charts.BalRateChart(assetsFlg: true)
+        }
+    }
+    
+    @ViewBuilder
+    func BalanceList(size: CGSize) -> some View {
+        VStack {
+            if balResults.isEmpty {
+                VStack {
+                    Text("残高が存在しません。")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.changeableText)
+                }.padding(.top, 50)
+            } else {
+                ForEach(balResults.indices, id: \.self) { index in
+                    let result = balResults[index]
+                    ZStack {
+                        generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+                        HStack(spacing: 0) {
+                            Rectangle().fill(ColorAndImage.colors[result.colorIndex]).frame(width: 10)
+                            VStack {
+                                Text(result.balanceNm)
+                                    .font(.caption.bold())
+                                    .foregroundStyle(Color.changeableText)
+                                    .frame(width: isEditMode ? size.width - 200 : size.width - 100,
+                                           alignment: .leading)
+                                Text("¥\(result.balanceAmt)")
+                                    .fontDesign(.rounded)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(result.balanceAmt > 0 ? .blue : .red)
+                                    .frame(width: isEditMode ? size.width - 200 : size.width - 100,
+                                           alignment: .trailing)
+                            }
+                            .frame(maxWidth: isEditMode ? size.width - 140 : size.width - 40)
+                            if isEditMode {
+                                Button(action: {
+                                    withAnimation {
+                                        self.balKey = result.balanceKey
+                                        self.balNm = result.balanceNm
+                                        self.colorIndex = result.colorIndex
+                                        self.addBalAlertFlg = true
+                                    }
+                                }) {
+                                    ZStack {
+                                        Rectangle().fill(.gray).frame(width: 50)
+                                        VStack {
+                                            Image(systemName: "pencil")
+                                            Text("変更")
+                                                .font(.caption.bold())
+                                        }.foregroundStyle(.white)
+                                    }
+                                }
+                                Button(action: {
+                                    withAnimation {
+                                        self.balKey = result.balanceKey
+                                        self.deleteBalAlertFlg = true
+                                    }
+                                }) {
+                                    ZStack {
+                                        Rectangle().fill(.red).frame(width: 50)
+                                        VStack {
+                                            Image(systemName: "trash")
+                                            Text("削除")
+                                                .font(.caption.bold())
+                                        }.foregroundStyle(.white)
+                                    }
+                                }
+                            }
+                        }
+                    }.frame(height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+            }
+            Button(action: {
+                withAnimation {
+                    self.addBalAlertFlg = true
+                }
+            }) {
+                if balResults.isEmpty {
+                    ZStack {
+                        generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 25)
+                            .shadow(color: .changeableShadow, radius: 3)
+                        HStack {
+                            Text("追加")
+                            Image(systemName: "plus")
+                        }.font(.caption.bold())
+                            .foregroundStyle(accentColors.last ?? .changeableText)
+                    }.frame(width: 100, height: 30)
+                } else {
+                    ZStack {
+                        UIGlassCard(effect: .systemUltraThinMaterial)
+                            .clipShape(Circle())
+                            .frame(width: 40, height: 40)
+                            .shadow(color: .changeableShadow, radius: 3)
+                        Image(systemName: "plus")
+                            .fontWeight(.bold)
+                            .foregroundStyle(accentColors.last ?? .changeableText)
+                    }.padding(.top, 10)
+                }
+            }
+        }
+    }
 }
 
 //#Preview {
-//    ContentView()
+//    @State var addBalScreenFlg = false
+//    return BalanceSummaryView(accentColors: GradientAccentcColors.gradients[0],
+//                              addBalScreenFlg: $addBalScreenFlg)
 //}
+
+#Preview {
+    ContentView()
+}

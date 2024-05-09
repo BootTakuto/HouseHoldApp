@@ -13,15 +13,15 @@ class FinanceCharts {
     // service
     let balService = BalanceService()
     let incConsService = IncomeConsumeService()
-    @ObservedResults(BalanceModel.self, where: {$0.assetsFlg}) var assetsResults
-    @ObservedResults(BalanceModel.self, where: {!$0.assetsFlg}) var debtResults
+    @ObservedResults(BalanceModel.self) var assetsResults
+    @ObservedResults(BalanceModel.self) var debtResults
     @ObservedResults(IncomeConsumeModel.self, where: {$0.incFlg}) var incResults
     @ObservedResults(IncomeConsumeModel.self, where: {!$0.incFlg}) var consResults
     // ▼資産と負債　純資産チャート
     @ViewBuilder
     func BalCompareChart() -> some View {
-        let assetsBalTotal = balService.getAssDebtBalTotal(assetsFlg: true)
-        let debtBalTotal = balService.getAssDebtBalTotal(assetsFlg: false)
+        let assetsBalTotal = balService.getBalanceTotal()
+        let debtBalTotal = balService.getBalanceTotal()
         let netWorth = assetsBalTotal - debtBalTotal
         Chart {
             BarMark(
@@ -42,6 +42,7 @@ class FinanceCharts {
     // ▼資産or負債の割合
     @ViewBuilder
     func BalRateChart(assetsFlg: Bool) -> some View {
+        let isEmpty = (assetsFlg && assetsResults.isEmpty) || (!assetsFlg && debtResults.isEmpty)
         ZStack {
             Chart {
                 ForEach(assetsFlg ? assetsResults.indices : debtResults.indices, id: \.self) {index in
@@ -64,7 +65,7 @@ class FinanceCharts {
                 Text(assetsFlg ? "資産総額" : "負債総額")
                     .font(.caption2)
                     .foregroundStyle(Color.changeableText)
-                Text("¥\(balService.getAssDebtBalTotal(assetsFlg: assetsFlg))")
+                Text("¥\(balService.getBalanceTotal())")
                     .font(.system(.caption, design: .rounded, weight: .bold))
                     .foregroundStyle(assetsFlg ? Color.blue : Color.red)
             }
