@@ -150,7 +150,7 @@ struct IncConsDetailView: View {
                                 .foregroundStyle(Color.changeableText)
                                 .fontWeight(.bold)
                             Spacer()
-                            Text("¥\(incConsObject.incConsAmtTotal)")
+                            Text("¥\(incConsObject.incConsAmtValue)")
                                 .foregroundStyle(incFlg ? .blue : .red)
                                 .font(.system(.title2, design: .rounded, weight: .bold))
                                 .frame(width: (size.width - 40) / 2, alignment: .trailing)
@@ -241,9 +241,9 @@ struct IncConsDetailView: View {
     
     @ViewBuilder
     func DetailForm() -> some View {
-        let incFlg = incConsObject.incFlg
+        let incFlg = incConsObject.houseHoldType == 0
         let disAble = false
-        @ObservedResults(IncConsSectionModel.self, where: {$0.incFlg == incFlg}) var incConsSecResults
+        @ObservedResults(IncConsSectionModel.self, where: {$0.houseHoldType == incConsObject.houseHoldType}) var incConsSecResults
         VStack {
             GeometryReader { _ in
                 AmtCard(incFlg: incFlg)

@@ -14,7 +14,37 @@ class IncomeConsumeService: CommonService {
     let dateFormatter = "yyyyMMdd"
     let calendarService = CalendarService()
     
-    /**収入・支出の登録
+    /** 収支登録　残高と連携しない
+     @param 残高データ主キー
+     @param 収入登録フラグ
+     @param 収入・支出カテゴリー主キー
+     @param 金額
+     @param 日付
+     @param メモ
+     @return 成功・失敗ステータス
+     */
+    func registIncConsNotLikBal(houseHoldType: Int,
+                                incConsSecKey: String,
+                                incConsCatgKey: String,
+                                inputAmt: Int,
+                                incConsDate: Date,
+                                memo: String) -> PopUpStatus {
+        let resultSize = realm.objects(IncomeConsumeModel.self).count
+        let incConsModel = IncomeConsumeModel()
+        incConsModel.incConsKey = UUID().uuidString
+        incConsModel.houseHoldType = houseHoldType
+        incConsModel.incConsSecKey = incConsSecKey
+        incConsModel.incConsCatgKey = incConsCatgKey
+        incConsModel.incConsAmtValue = inputAmt
+        incConsModel.incConsDate = getStringDate(date: incConsDate, format: dateFormatter)
+        incConsModel.memo = memo
+        try! realm.write() {
+            realm.add(incConsModel)
+        }
+        return resultSize < realm.objects(IncomeConsumeModel.self).count ? .success : .failed
+    }
+    
+    /** 収支登録　残高と連携
      @param 残高データ主キー
      @param 収入登録フラグ
      @param 収入・支出カテゴリー主キー
@@ -23,66 +53,54 @@ class IncomeConsumeService: CommonService {
      @param メモ
      @return --
      */
-    func registIncConsData(balanceKey: String,
-                           incFlg: Bool,
-                           incConsSecKey: String,
-                           incConsCatgKey: String,
-                           incConsAmt: Int,
-                           incConsDate: Date,
-                           memo: String) {
-        let incConsModel = IncomeConsumeModel()
-        incConsModel.incConsKey = UUID().uuidString
-        incConsModel.incFlg = incFlg
-        incConsModel.incConsSecKey = incConsSecKey
-        incConsModel.incConsCatgKey = incConsCatgKey
-        incConsModel.incConsDate = getStringDate(date: incConsDate, format: dateFormatter)
-        incConsModel.memo = memo
-        
-        let balResult = realm.object(ofType: BalanceModel.self, forPrimaryKey: balanceKey)
-        
-        try! realm.write() {
-            realm.add(incConsModel)
-            if incFlg {
-                balResult!.balanceAmt += incConsAmt
-            } else {
-                balResult!.balanceAmt -= incConsAmt
+    func registIncConsLinkBal(balKeyArray: [String],
+                              amountArray: [String],
+                              balOpeIsIncrease: [Bool],
+                              houseHoldType: Int,
+                              incConsSecKey: String,
+                              incConsCatgKey: String,
+                              incConsDate: Date,
+                              memo: String) -> PopUpStatus {
+        let resultSize = realm.objects(IncomeConsumeModel.self).count
+        // 金額配列[String]を[Int]に変換
+        var amountIntArray: [Int] = amountArray.map({Int($0) ?? 0})
+        // 残高操作　減額の場合は-1をかける
+        if houseHoldType == 2 {
+            balOpeIsIncrease.indices.forEach { index in
+                if !balOpeIsIncrease[index] {
+                    amountIntArray[index] = amountIntArray[index] * -1
+                }
             }
         }
-    }
-    
-    func registIncConsData(inputDic: [String: Int], assetsFlg: Bool, incFlg: Bool,
-                           incConsSecKey: String, incConsCatgKey: String,
-                           incConsDate: Date, memo: String) {
-        let incConsModel = IncomeConsumeModel()
-        for (key, value) in inputDic {
-            incConsModel.balanceKeyList.append(key)
-            incConsModel.incConsAmtList.append(value)
-//            if !assetsFlg || incFlg {
-                incConsModel.incConsAmtTotal += value
-//            } else {
-//                incConsModel.incConsAmtTotal += value
-//            }
+        // 合計金額
+        var incConsAmtValue = 0
+        amountArray.forEach { amt in
+            incConsAmtValue += Int(amt) ?? 0
         }
+        let incConsModel = IncomeConsumeModel()
         incConsModel.incConsKey = UUID().uuidString
-        incConsModel.incFlg = incFlg
+        incConsModel.houseHoldType = 0
+        incConsModel.balanceKeyList.append(objectsIn: balKeyArray)
+        incConsModel.incConsAmtList.append(objectsIn: amountIntArray)
         incConsModel.incConsSecKey = incConsSecKey
         incConsModel.incConsCatgKey = incConsCatgKey
+        incConsModel.incConsAmtValue = incConsAmtValue
         incConsModel.incConsDate = getStringDate(date: incConsDate, format: dateFormatter)
         incConsModel.memo = memo
-        
         try! realm.write() {
             realm.add(incConsModel)
-            for (key, value) in inputDic {
-                if key != "" {
-                    let balResult = realm.object(ofType: BalanceModel.self, forPrimaryKey: key)!
-                    if !assetsFlg || incFlg {
-                        balResult.balanceAmt += value
-                    } else {
-                        balResult.balanceAmt -= value
+            balKeyArray.indices.forEach { index in
+                let wrapResult = realm.object(ofType: BalanceModel.self, forPrimaryKey: balKeyArray[index])
+                if let unWrapResult = wrapResult {
+                    if houseHoldType == 0 || houseHoldType == 2 {
+                        unWrapResult.balanceAmt += amountIntArray[index] ?? 0
+                    } else if houseHoldType == 1 {
+                        unWrapResult.balanceAmt -= amountIntArray[index] ?? 0
                     }
                 }
             }
         }
+        return resultSize < realm.objects(IncomeConsumeModel.self).count ? .success : .failed
     }
     
     /** 主キーを基にオブジェクトを取得
@@ -126,7 +144,7 @@ class IncomeConsumeService: CommonService {
                     resultDictionary[dateStr] = results
                 }
             } else {
-                let results = realm.objects(IncomeConsumeModel.self).where({$0.incFlg == incFlg && $0.incConsDate == dateStr}).freeze()
+                let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr}).freeze()
                 if !results.isEmpty {
                     resultDictionary[dateStr] = results
                 }
@@ -145,10 +163,10 @@ class IncomeConsumeService: CommonService {
         let dateArray = getAllDayOfMonth(date: date)
         dateArray.forEach { dateInt in
             let dateStr = String(dateInt)
-            let results = realm.objects(IncomeConsumeModel.self).where({$0.incFlg == incFlg && $0.incConsDate == dateStr})
+            let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr})
             if !results.isEmpty {
                 results.forEach { result in
-                    total += result.incConsAmtTotal
+                    total += result.incConsAmtValue
                 }
             }
         }
@@ -161,12 +179,12 @@ class IncomeConsumeService: CommonService {
      @return 日毎の入出金合計金額
      */
     func getIncConsAmtTotalPerDay(dateStr: String, incFlg: Bool) -> Int {
-        var incConsAmtTotal = 0
-        let results = realm.objects(IncomeConsumeModel.self).where({$0.incFlg == incFlg && $0.incConsDate == dateStr})
+        var total = 0
+        let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr})
         results.forEach { result in
-            incConsAmtTotal += result.incConsAmtTotal
+            total += result.incConsAmtValue
         }
-        return incConsAmtTotal
+        return total
     }
     
     /** 日毎の収支情報が存在するか(カレンダーの収支情報の表示有無で使用)
@@ -176,7 +194,7 @@ class IncomeConsumeService: CommonService {
      */
     func isExsistIncConsData(dateStr: String, incFlg: Bool) -> Bool {
         var exsistFlg = false
-        let results = realm.objects(IncomeConsumeModel.self).where({$0.incFlg == incFlg && $0.incConsDate == dateStr})
+        let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr})
         exsistFlg = !results.isEmpty
         return exsistFlg
     }
@@ -277,18 +295,18 @@ class IncomeConsumeService: CommonService {
             // ▼該当日の収入、支出、収支合計を格納配列
             var amtTotalsPerDate: [Int] = []
             // ▼収入関連
-            let incResults = realm.objects(IncomeConsumeModel.self).where({$0.incConsDate == dateStr && $0.incFlg})
+            let incResults = realm.objects(IncomeConsumeModel.self).where({$0.incConsDate == dateStr && $0.houseHoldType  == 0})
             var incTotal = 0
             // ▼支出関連
-            let consResults = realm.objects(IncomeConsumeModel.self).where({$0.incConsDate == dateStr && !$0.incFlg})
+            let consResults = realm.objects(IncomeConsumeModel.self).where({$0.incConsDate == dateStr && $0.houseHoldType == 1})
             var consTotal = 0
             if !incResults.isEmpty || !consResults.isEmpty {
                 incResults.forEach { result in
-                    incTotal += result.incConsAmtTotal
+                    incTotal += result.incConsAmtValue
                 }
                 amtTotalsPerDate.append(incTotal)
                 consResults.forEach { result in
-                    consTotal -= result.incConsAmtTotal
+                    consTotal -= result.incConsAmtValue
                 }
                 amtTotalsPerDate.append(consTotal)
                 // ▼収支関連
@@ -319,10 +337,10 @@ class IncomeConsumeService: CommonService {
      */
     func getIncConsTotalPerDay(day: Date, incFlg: Bool) -> Int {
         let dateStr = getStringDate(date: day, format: dateFormatter)
-        let results = realm.objects(IncomeConsumeModel.self).where({$0.incFlg == incFlg && $0.incConsDate == dateStr})
+        let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr})
         var amtTotalPerDay = 0
         results.forEach { result in
-            amtTotalPerDay += result.incConsAmtTotal
+            amtTotalPerDay += result.incConsAmtValue
         }
         return amtTotalPerDay
     }
@@ -334,7 +352,7 @@ class IncomeConsumeService: CommonService {
      */
     func isExsistIncConsData(day: Date, incFlg: Bool) -> Bool {
         let dateStr = getStringDate(date: day, format: dateFormatter)
-        let results = realm.objects(IncomeConsumeModel.self).where({$0.incFlg == incFlg && $0.incConsDate == dateStr})
+        let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr})
         return !results.isEmpty
     }
     
@@ -346,13 +364,13 @@ class IncomeConsumeService: CommonService {
         let dates = getAllDayOfMonth(date: selectDate)
         var dicForChart = [String : Int]()
         dates.forEach { date in
-            var results = realm.objects(IncomeConsumeModel.self).where({$0.incFlg == incFlg && $0.incConsDate == String(date)})
+            var results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == String(date)})
             results.forEach { result in
                 let incConsSecKey = result.incConsSecKey
                 if dicForChart[incConsSecKey] != nil {
-                    dicForChart[incConsSecKey]! += result.incConsAmtTotal
+                    dicForChart[incConsSecKey]! += result.incConsAmtValue
                 } else {
-                    dicForChart[incConsSecKey] = result.incConsAmtTotal
+                    dicForChart[incConsSecKey] = result.incConsAmtValue
                 }
             }
         }
@@ -393,9 +411,4 @@ class IncomeConsumeService: CommonService {
         }
         return returnArray
     }
-    
-    /* 月別 収入・支出チャート用のデータから収支合計を取得し、セングラフのデータを取得
-     @param
-     @return
-     */
 }

@@ -19,7 +19,7 @@ class BalanceService: CommonService {
      @param 残高名
      @return --
      */
-    func registBalance(balanceNm: String, assetsFlg: Bool, balAmt: Int, colorIndex: Int) {
+    func registBalance(balanceNm: String, balAmt: Int, colorIndex: Int) {
         let balance = BalanceModel()
         balance.balanceKey = UUID().uuidString
         balance.balanceNm = balanceNm

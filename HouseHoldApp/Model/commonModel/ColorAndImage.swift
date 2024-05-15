@@ -89,6 +89,7 @@ struct ColorAndImage {
         "bandage.fill",
         "waterbottle.fill",
         "antenna.radiowaves.left.and.right",
+        "book",
         "cross.case.fill",
         "party.popper.fill",
         "gift.fill",

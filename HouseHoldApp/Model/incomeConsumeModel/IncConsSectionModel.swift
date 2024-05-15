@@ -13,7 +13,7 @@ class IncConsSectionModel: Object, Identifiable {
     @Persisted(primaryKey: true) var incConsSecKey = ""
     
     // 収入フラグ
-    @Persisted var incFlg = true
+    @Persisted var houseHoldType = 0
     
     // 収入・支出項目名
     @Persisted var incConsSecName = ""

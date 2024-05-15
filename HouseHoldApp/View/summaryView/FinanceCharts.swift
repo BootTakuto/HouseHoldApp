@@ -15,8 +15,8 @@ class FinanceCharts {
     let incConsService = IncomeConsumeService()
     @ObservedResults(BalanceModel.self) var assetsResults
     @ObservedResults(BalanceModel.self) var debtResults
-    @ObservedResults(IncomeConsumeModel.self, where: {$0.incFlg}) var incResults
-    @ObservedResults(IncomeConsumeModel.self, where: {!$0.incFlg}) var consResults
+    @ObservedResults(IncomeConsumeModel.self) var incResults
+    @ObservedResults(IncomeConsumeModel.self) var consResults
     // ▼資産と負債　純資産チャート
     @ViewBuilder
     func BalCompareChart() -> some View {

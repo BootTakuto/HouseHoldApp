@@ -8,7 +8,7 @@
 import SwiftUI
 import RealmSwift
 
-struct ContentView: View {
+struct ContentView: View { 
     @AppStorage("FIRST_OPEN_FLG") var firstOpenFlg = true
     @AppStorage("ACCENT_COLORS_INDEX") var accentColorsIndex = 0
     @State var selectedContent = 0

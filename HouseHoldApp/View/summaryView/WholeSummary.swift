@@ -31,7 +31,6 @@ struct WholeSummary: View {
                 let size = $0.size
                 VStack(spacing: 0) {
                     Header()
-                    
                     ScrollView {
                         ChartArea(size: size)
                             .padding(.bottom, 10)

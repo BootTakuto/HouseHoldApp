@@ -21,8 +21,8 @@ import RealmSwift
 class IncomeConsumeModel: Object, Identifiable {
     // 収入・支出情報主キー
     @Persisted(primaryKey: true) var incConsKey = ""
-    // 収入フラグ(収入：true, 支出：false)
-    @Persisted var incFlg = true
+    // 収入フラグ(0：収入, 1：支出, 2：その他)
+    @Persisted var houseHoldType = 0
     // 収入・支出カテゴリー主キー　＊④
     @Persisted var incConsSecKey = ""
     // 収入・支出カテゴリー主キー　＊②
@@ -32,7 +32,7 @@ class IncomeConsumeModel: Object, Identifiable {
     // 金額のlist (balanceKeyListのindexと等しい)　＊⑤
     @Persisted var incConsAmtList = RealmSwift.List<Int>()
     // 金額
-    @Persisted var incConsAmtTotal = 0
+    @Persisted var incConsAmtValue = 0
     // 日付　＊③
     @Persisted var incConsDate = ""
     // メモ

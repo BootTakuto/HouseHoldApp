@@ -308,8 +308,8 @@ struct PaymentView: View {
                                 ForEach(value.indices, id: \.self) { index in
                                     let result = value[index]
                                     DetailCard(incConsObject: result,
-                                               incFlg: result.incFlg,
-                                               incConsAmt: result.incConsAmtTotal,
+                                               incFlg: result.houseHoldType == 0,
+                                               incConsAmt: result.incConsAmtValue,
                                                secKey: result.incConsSecKey,
                                                catgKey: result.incConsCatgKey)
                                 }

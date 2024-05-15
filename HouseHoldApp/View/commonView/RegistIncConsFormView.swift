@@ -11,112 +11,166 @@ import RealmSwift
 struct RegistIncConsFormView: View {
     @Binding var showFlg: Bool
     var accentColors: [Color]
-    /** 入力値フォーム */
-    @State var amtBalkeyDic: [String: Int] = [:]
-    @State var incConsSecKey: String = ""
-    @State var incConsCatgKey: String = ""
-    @State var selectDate = Date()
-    @State var memo = ""
-    /** View表示関連 */
-    @State private var selectForm = 0
-    @State private var selectIncFlg = true
-    @State private var assetsFlg = true
-    @State private var dateDownFlg = true
-    @State private var inputAmtDownFlg = false
+    /** 表示 */
+    @State private var linkBalFlg = false                   // 収支登録時の残高連携フラグ
+    @State private var selectForm = 0                       // 選択フォーム
+    @State private var dateDownFlg = true                   // 日付ピッカーの開閉フラグ
+    @State private var popUpFlg = false                     // 残高入力フラグ
+    @State private var popUpStatus: PopUpStatus = .failed   // 成功ポップアップ用ステータス
+    @FocusState var inputAmtFocused                         // 収支金額入力フォーカス
+    @FocusState var isMemoFocused                           // メモ入力フォーカス
+    @State private var inputLeastIndex = 0                  // 入力キャンセル用　残高連携入力箇所を特定するため
+    @State private var isChekAmtTotal = false               // 残高連携金額確認表示フラグ
     @State private var inputAmtTotal = 0
-    // 金額入力関連
-    @State private var selectBalKeys: [String] = []
-    @State private var tapTextFieldIndex = 0
-    @FocusState var isInputAmtFocused
-    @FocusState var isMemoFocused
-    /** アラート登録関連 */
-    // 残高登録
-    @State private var addBalAlertFlg = false
-    @State private var balanceNm = ""
-    // results
-    @ObservedResults(IncConsSectionModel.self) var incConsSecResults
-    @ObservedResults(IncConsSectionModel.self, where: {$0.incFlg}) var incSecResults
-    @ObservedResults(IncConsSectionModel.self, where: {!$0.incFlg}) var consSecResults
-    @ObservedResults(BalanceModel.self) var asstsBalResults
-    @ObservedResults(BalanceModel.self) var debtBalResults
-    // 汎用ビュー
+    /** 登録関連情報 */
+    @State private var inputAmt = "0"                       // 金額(残高未連携)
+    @State private var balKeyArray: [String] = []           // 金額(残高連携用 残高主キー配列)
+    @State private var amountArray: [String] = []           // 金額(残高連携用 入力金額配列)
+    @State private var balOpeIsIncreases: [Bool] = []       // 残高操作　増・減額の是非を格納
+    @State private var incConsSecKey =
+    IncConSecCatgService().getUnCatgSecKey(houseHoldType: 0)// 項目主キー
+    @State private var incConsCatgKey =
+    IncConSecCatgService().getUnCatgCatgKey(houseHoldType: 0)// 項目カテゴリー主キー
+    @State private var selectDate = Date()                  // 日付
+    @State private var memo = ""                            // メモ
+    /** results */
+    @State private var sectionResults = IncConSecCatgService().getIncConsSec(houseHoldType: 0)
+    let balResults = BalanceService().getBalanceResults()
+    /** 汎用ビュー */
     let generalView = GeneralComponentView()
-    // service
+    /** service */
     let incConsService = IncomeConsumeService()
     let calendarService = CalendarService()
     let balanceService = BalanceService()
     let incConsSecCatgService = IncConSecCatgService()
     var body: some View {
-        GeometryReader { geometry in
-            NavigationStack {
-                ZStack(alignment: .top) {
-                    LinearGradient(colors: accentColors, startPoint: .topLeading, endPoint: .bottomTrailing)
-                        .ignoresSafeArea()
-                        .frame(height: 120)
-                    VStack {
-                        HStack {
-                            Image(systemName: "xmark")
-                                .foregroundStyle(.white)
-                                .onTapGesture {
-                                    self.showFlg = false
-                                }
-                            Spacer()
-                            Image(systemName: "questionmark.circle")
-                                .foregroundStyle(.white)
-                        }.padding(.horizontal, 20)
-                        formTabBar()
+        NavigationStack {
+            GeometryReader {
+                let size = $0.size
+                NavigationStack {
+                    VStack(spacing: 0) {
+                        headerAndTab(size: size)
                         TabView(selection: $selectForm) {
-                            registIncForm()
+                            registIncForm(size: size)
                                 .tag(0)
-                            registConsForm()
+                            registConsForm(size: size)
                                 .tag(1)
-                            registRepayForm()
+                            registOthersForm(size: size)
                                 .tag(2)
                         }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     }
                 }
-            }
-        }.alert(self.assetsFlg ? "資産残高の追加" : "負債残高の追加", isPresented: $addBalAlertFlg) {
-            TextField(self.selectIncFlg ? "銀行名、ICカード名" : "銀行名、クレジット名", text: $balanceNm)
-            Button("キャンセル") {
-                self.addBalAlertFlg = false
-            }
-            Button("追加") {
-                if balanceNm != "" {
-//                    self.balanceService.registBalance(balanceNm: balanceNm, assetsFlg: self.assetsFlg)
-                    self.selectBalKeys.append("")
-                    self.balanceNm = ""
+            }.onChange(of: inputAmtFocused) {
+                if inputAmtFocused {
+                    self.inputAmt = ""
+                } else {
+                    if self.inputAmt == "" {
+                        self.inputAmt = "0"
+                    }
                 }
-            }
-        }.onChange(of: selectForm) {
-            withAnimation {
-                self.selectIncFlg = self.selectForm == 1 ? false : true
-                self.inputAmtDownFlg = false
+            }.onChange(of: selectForm) {
                 self.dateDownFlg = true
-                self.isInputAmtFocused = false
+                self.inputAmtFocused = false
                 self.isMemoFocused = false
                 self.memo = ""
                 if self.selectForm == 2 {
-                    self.assetsFlg = false
+                    self.linkBalFlg = true
+                    self.incConsSecKey = ""
+                    self.incConsCatgKey = ""
                 } else {
-                    self.assetsFlg = true
+                    self.sectionResults = incConsSecCatgService.getIncConsSec(houseHoldType: self.selectForm)
+                    // タブが変更されたタイミングで選択を「未分類」の項目キー、カテゴリーキーに変更する
+                    self.incConsSecKey = incConsSecCatgService.getUnCatgSecKey(houseHoldType: self.selectForm)
+                    self.incConsCatgKey = incConsSecCatgService.getUnCatgCatgKey(houseHoldType: self.selectForm)
                 }
-                self.amtBalkeyDic.removeAll()
-                self.inputAmtTotal = 0
-                selectBalKeys.enumerated().forEach { index, _ in
-                    self.selectBalKeys[index] = ""
+//                    self.linkBalFlg = false
+//                    self.balKeyArray.removeAll()
+//                    self.amountArray.removeAll()
+                self.amountArray.indices.forEach { index in
+                    if self.amountArray[index] == "" {
+                        self.amountArray[index] = "0"
+                    }
+                }
+            }.onChange(of: inputLeastIndex) {
+                self.amountArray.indices.forEach { index in
+                    if self.inputLeastIndex != index && self.amountArray[index] == "" {
+                        self.amountArray[index] = "0"
+                    }
+                }
+            }.onChange(of: balKeyArray) {
+                print(balKeyArray)
+                print(amountArray)
+                print(balOpeIsIncreases)
+            }
+            .custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
+                if self.popUpStatus == .addBalance {
+                    PopUpView(accentColors: accentColors,
+                              alertFlg: $popUpFlg,
+                              status: popUpStatus)
+                } else if self.popUpStatus == .success {
+                    PopUpView(accentColors: accentColors,
+                              alertFlg: $popUpFlg,
+                              status: popUpStatus,
+                              text: "登録成功",
+                              imageNm:"checkmark.circle")
+                } else if self.popUpStatus == .failed {
+                    PopUpView(accentColors: accentColors,
+                              alertFlg: $popUpFlg,
+                              status: popUpStatus,
+                              text: "登録失敗",
+                              imageNm:"xmark.circle")
                 }
             }
-        }.onChange(of: selectIncFlg) {
-            self.incConsSecKey = incConsSecCatgService.getUnCatgSecKey(incFlg: selectIncFlg)
-            self.incConsCatgKey = incConsSecCatgService.getIncUnCatgCatgPKey(incFlg: selectIncFlg)
+            .toolbar {
+                if self.inputAmtFocused {
+                    ToolbarItem(placement: .keyboard) {
+                        HStack {
+                            Button("キャンセル") {
+                                self.inputAmt = "0"
+                                if !amountArray.isEmpty {
+                                    self.amountArray[inputLeastIndex] = "0"
+                                }
+                                self.inputAmtFocused = false
+                            }
+                            Spacer()
+                            Button("完了") {
+                                if inputAmt == "" {
+                                    self.inputAmt = "0"
+                                }
+                                self.amountArray.indices.forEach { index in
+                                    if self.amountArray[index] == "" {
+                                        self.amountArray[index] = "0"
+                                    }
+                                }
+                                self.inputAmtFocused = false
+                            }
+                        }
+                    }
+                }
+            }
         }
-        .onAppear {
-            asstsBalResults.forEach { result in
-                self.selectBalKeys.append("")
+    }
+
+    @ViewBuilder
+    func headerAndTab(size: CGSize) -> some View {
+        ZStack(alignment: .top) {
+            LinearGradient(colors: accentColors, startPoint: .topLeading, endPoint: .bottomTrailing)
+                .ignoresSafeArea()
+                .frame(height: 70)
+            VStack {
+                HStack {
+                    Image(systemName: "xmark")
+                        .foregroundStyle(.white)
+                        .onTapGesture {
+                            self.showFlg = false
+                        }
+                    Spacer()
+                    Image(systemName: "questionmark.circle")
+                        .foregroundStyle(.white)
+                }.padding(.horizontal, 20)
+                formTabBar()
+                    .padding(.vertical, 10)
             }
-            self.incConsSecKey = incConsSecCatgService.getUnCatgSecKey(incFlg: selectIncFlg)
-            self.incConsCatgKey = incConsSecCatgService.getIncUnCatgCatgPKey(incFlg: selectIncFlg)
         }
     }
     
@@ -141,7 +195,7 @@ struct RegistIncConsFormView: View {
                                     self.selectForm = 1
                                 }
                             }
-                        Text(LabelsModel.debtRepayLabel)
+                        Text("残高操作")
                             .onTapGesture {
                                 withAnimation {
                                     self.selectForm = 2
@@ -159,65 +213,337 @@ struct RegistIncConsFormView: View {
                     .offset(x: offsets[selectForm], y: local.maxY)
             }
         }.frame(height: 20)
-            .padding(.top, 10)
     }
     
     @ViewBuilder
-    func inputForm() -> some View {
-        let disAble = self.amtBalkeyDic.count == 0 || incConsSecKey == "" || incConsCatgKey == ""
-        VStack {
-            GeometryReader { proxy in
-                incConsTotalCard(geomProxy: proxy)
-            }.frame(height: 110)
-                .zIndex(1000)
-           ScrollView {
+    func toggleLinkBalance() -> some View {
+        let rectColor = linkBalFlg ?
+        accentColors.last!.shadow(.inner(radius: 3)) : Color(uiColor: .systemGray3).shadow(.inner(radius:1))
+        HStack {
+            Text(linkBalFlg ? "残高選択(複数可)" : "金 額")
+                .font(.caption.bold())
+                .foregroundStyle(Color.changeableText)
+            Spacer()
+            if self.selectForm != 2 {
+                Text("残高と連携")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.changeableText)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 25)
+                        .fill(rectColor)
+                        .frame(width: 50, height: 25)
+                    Circle()
+                        .fill(.changeable)
+                        .frame(width: 22)
+                        .offset(x: linkBalFlg ?  25 / 2 : -25 / 2)
+                }.onTapGesture {
+                    // 残高連携がfalseになるタイミングで連携情報をクリア
+                    if self.linkBalFlg {
+                        self.balKeyArray.removeAll()
+                        self.amountArray.removeAll()
+                    }
+                    withAnimation {
+                        self.linkBalFlg.toggle()
+                    }
+                }
+            }
+        }.frame(height: 25)
+    }
+    
+    @ViewBuilder
+    func textFieldLinkBal(size: CGSize, balResult: BalanceModel, index: Int) -> some View {
+        let width = size.width - 60 - 30 - 20 - 10
+        let selectIncrease = self.selectForm == 2 &&
+                            !self.balOpeIsIncreases.isEmpty &&
+                             self.balOpeIsIncreases[index]
+        ZStack {
+            Color.changeable
+            HStack(spacing: 0) {
+                Rectangle().fill(ColorAndImage.colors[balResult.colorIndex])
+                    .frame(width: 10)
                 VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 0) {
+                        Text(balResult.balanceNm)
+                            .frame(width: width * (3 / 5), alignment: .leading)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                        Spacer()
+                        if self.selectForm == 2 {
+                            HStack {
+                                Button(action: {
+                                    withAnimation {
+                                        self.balOpeIsIncreases[index] = true
+                                    }
+                                }) {
+                                    Circle()
+                                        .stroke(lineWidth: 1)
+                                        .fill(accentColors.last ?? .blue)
+                                        .frame(width: 15)
+                                        .overlay {
+                                            Circle()
+                                                .fill(selectIncrease ? accentColors.last ?? .blue : .clear)
+                                                .frame(width: 10)
+                                        }
+                                }
+                                Text("増額")
+                                Button(action: {
+                                    withAnimation {
+                                        self.balOpeIsIncreases[index] = false
+                                    }
+                                }) {
+                                    Circle()
+                                        .stroke(lineWidth: 1)
+                                        .fill(accentColors.last ?? .blue)
+                                        .frame(width: 15)
+                                        .overlay {
+                                            Circle()
+                                                .fill(selectIncrease ? .clear : accentColors.last ?? .blue)
+                                                .frame(width: 10)
+                                        }
+                                }
+                                Text("減額")
+                            }
+                        }
+                    }.padding(.horizontal, 15)
+                        .font(.caption)
+                        .foregroundStyle(Color.changeableText)
+                    Text("¥\(balResult.balanceAmt)")
+                        .font(.caption)
+                        .foregroundStyle(Color.changeableText)
+                        .padding(.horizontal, 15)
+                        .frame(width: width * (3 / 4), alignment: .leading)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                    TextField("", text: $amountArray[index])
+                        .focused($inputAmtFocused)
+                        .padding(10)
+                        .padding(.horizontal, 10)
+                        .multilineTextAlignment(.trailing)
+                        .keyboardType(.numberPad)
+                        .foregroundStyle(self.selectForm == 0 || selectIncrease ? .blue : .red)
+                        .font(.title3.bold())
+                        .background(
+                            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+                                .frame(height: 50)
+                                .padding(.horizontal, 10)
+                        ).onTapGesture {
+                            if self.amountArray[index] == "0" {
+                                self.amountArray[index] = ""
+                            }
+                            self.inputLeastIndex = index
+                        }
+                }
+            }
+        }.clipShape(RoundedRectangle(cornerRadius: 10))
+            .frame(height: 110)
+            .compositingGroup()
+            .shadow(color: .changeableShadow, radius: 3)
+    }
+    
+    @ViewBuilder
+    func textFieldNotLinkBal() -> some View {
+        TextField("", text: $inputAmt)
+            .focused($inputAmtFocused)
+            .padding(10)
+            .multilineTextAlignment(.trailing)
+            .keyboardType(.numberPad)
+            .foregroundStyle(self.selectForm == 0 ? .blue : self.selectForm == 1 ? .red : Color.changeableText)
+            .font(.title3.bold())
+            .background(
+                generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+                    .frame(height: 50)
+            )
+    }
+    
+    @ViewBuilder
+    func balMiniIcon(balResult: BalanceModel) -> some View {
+        let isSelected = balKeyArray.contains(balResult.balanceKey)
+        ZStack {
+            if isSelected {
+                UIGlassCard(effect: .systemUltraThinMaterial)
+            } else {
+                Color.changeable
+            }
+            HStack(spacing: 0) {
+                Image(systemName: isSelected ? "checkmark.circle" : "circle")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(accentColors.last ?? .blue)
+                    .padding(.horizontal, 5)
+                Text(balResult.balanceNm)
+                    .font(.caption2.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+            }.foregroundStyle(Color.changeableText)
+                .frame(maxWidth: 150, alignment: .leading)
+                .frame(minWidth: 80)
+        }.clipShape(RoundedRectangle(cornerRadius: 25))
+            .frame(height: 30)
+            .compositingGroup()
+            .shadow(color: .changeableShadow, radius: isSelected ? 0 : 3)
+            .padding(.vertical, 5)
+    }
+    
+    @ViewBuilder
+    func checkAmtTotalCard() -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(.changeable)
+                .shadow(color: .changeableShadow, radius: 3)
+                .frame(height: 80)
+            VStack {
+                Text("\(inputAmtTotal)")
+                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .foregroundStyle(selectForm == 0 ? .blue : .red)
+                Text(selectForm == 0 ? "収入額合計" : "支出額合計")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.changeableText)
+            }.padding(10)
+        }
+    }
+    
+    @ViewBuilder
+    func inputForm(size: CGSize) -> some View {
+        VStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
                     Group {
-                        if assetsFlg {
-                            Text(self.selectIncFlg ? LabelsModel.incSecLabel : LabelsModel.consSecLabel)
+                        let sectionText = self.selectForm == 0 ? "収入項目" : "支出項目"
+                        if self.selectForm != 2 {
+                            Text(sectionText)
                                 .font(.caption.bold())
                                 .foregroundStyle(Color.changeableText)
-                        } else {
-                            incConsTab()
-                        }
-                        ScrollView(.horizontal) {
-                            LazyHStack {
-                                ForEach(selectIncFlg ? incSecResults : consSecResults, id:\.self) { result in
-                                    let colorIndex = result.incConsSecColorIndex
-                                    let color = ColorAndImage.colors[colorIndex]
-                                    let imageNm = result.incConsSecImage
-                                    let secNm = result.incConsSecName
-                                    let isSelectSec = result.incConsSecKey == self.incConsSecKey
-                                    Menu {
-                                        ForEach(result.incConsCatgOfSecList, id: \.self) { catg in
-                                            let isSelectCatg = catg.incConsCatgKey == self.incConsCatgKey
-                                            Button(action: {
-                                                withAnimation {
-                                                    self.incConsSecKey = catg.incConsSecKey
-                                                    self.incConsCatgKey = catg.incConsCatgKey
-                                                }
-                                            }) {
-                                                Text("\(catg.incConsCatgNm)")
-                                                if isSelectCatg {
-                                                    Image(systemName: "checkmark")
+                                .padding(.top, 15)
+                            ScrollView(.horizontal) {
+                                LazyHStack {
+                                    ForEach(self.sectionResults.indices, id:\.self) { secIndex in
+                                        let result = sectionResults[secIndex]
+                                        let colorIndex = result.incConsSecColorIndex
+                                        let color = ColorAndImage.colors[colorIndex]
+                                        let imageNm = result.incConsSecImage
+                                        let secNm = result.incConsSecName
+                                        let isSelectSec = result.incConsSecKey == self.incConsSecKey
+                                        Menu {
+                                            ForEach(result.incConsCatgOfSecList.indices, id: \.self) { catgIndex in
+                                                let catg = result.incConsCatgOfSecList[catgIndex]
+                                                let isSelectCatg = catg.incConsCatgKey == self.incConsCatgKey
+                                                Button(action: {
+                                                    withAnimation {
+                                                        self.incConsSecKey = catg.incConsSecKey
+                                                        self.incConsCatgKey = catg.incConsCatgKey
+                                                    }
+                                                }) {
+                                                    Text("\(catg.incConsCatgNm)")
+                                                    if isSelectCatg {
+                                                        Image(systemName: "checkmark")
+                                                    }
                                                 }
                                             }
+                                        } label: {
+                                            ZStack {
+                                                generalView.RoundedIcon(radius: 10, color: color,
+                                                                        image: imageNm, text: secNm)
+                                                .frame(width: 50, height: 50)
+                                            }
+                                        }.shadow(color: isSelectSec ? .changeableShadow : .clear, radius: 3)
+                                            .padding(.vertical, 5)
+                                    }
+                                }.padding(.horizontal, 5)
+                            }.scrollIndicators(.hidden)
+                        }
+                        toggleLinkBalance()
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .padding(.top, 5)
+                        if self.linkBalFlg {
+                            if self.balResults.isEmpty {
+                                VStack {
+                                    Text("残高が存在しません。")
+                                        .font(.caption.bold())
+                                        .foregroundStyle(Color.changeableText)
+                                    generalView.glassTextRounedButton(color: accentColors.last ?? .blue,
+                                                                      text: "追加", imageNm: "plus", radius: 25) {
+                                        withAnimation {
+                                            self.popUpStatus = .addBalance
+                                            self.popUpFlg = true
                                         }
-                                    } label: {
-                                        ZStack {
-                                            generalView.RoundedIcon(radius: 10, color: color,
-                                                                    image: imageNm, text: secNm)
-                                            .frame(width: isSelectSec ? 50 : 45,
-                                                   height:isSelectSec ? 50 : 45)
-                                            
+                                    }.frame(width: 100, height: 25)
+                                        .compositingGroup()
+                                        .shadow(color: .changeableShadow, radius: 3)
+                                }.frame(width: size.width - 40)
+                            } else {
+                                ScrollView(.horizontal) {
+                                    HStack {
+                                        ForEach(balResults.indices, id: \.self) {index in
+                                            let result = balResults[index]
+                                            balMiniIcon(balResult: result)
+                                                .onTapGesture {
+                                                    withAnimation {
+                                                        if !self.balKeyArray.contains(result.balanceKey) {
+                                                            self.balKeyArray.append(result.balanceKey)
+                                                            self.amountArray.append("0")
+                                                            if self.selectForm == 2 {
+                                                                self.balOpeIsIncreases.append(true)
+                                                            }
+                                                        } else {
+                                                            let firstIndex = balKeyArray.firstIndex(of: result.balanceKey)!
+                                                            self.balKeyArray.remove(at: firstIndex)
+                                                            self.amountArray.remove(at: firstIndex)
+                                                            if self.selectForm == 2 {
+                                                                self.balOpeIsIncreases.remove(at: firstIndex)
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                         }
-                                    }.shadow(color: isSelectSec ? .changeableShadow : .clear,
-                                             radius: 3, x: 1, y: 1)
-                                        .padding(.vertical, 8)
+                                        generalView.glassCircleButton(imageColor: accentColors.last ?? .blue,
+                                                                      imageNm: "plus") {
+                                            withAnimation {
+                                                self.inputAmtFocused = false
+                                                self.popUpStatus = .addBalance
+                                                self.popUpFlg = true
+                                            }
+                                        }.frame(width: 25)
+                                            .compositingGroup()
+                                            .shadow(color: .changeableShadow, radius: 3)
+                                            .padding(.horizontal, 5)
+                                    }.padding(.leading, 5)
+                                }.scrollDisabled(balResults.isEmpty)
+                            }
+                            if !balKeyArray.isEmpty {
+                                HStack {
+                                    Text("金 額")
+                                        .font(.caption.bold())
+                                        .foregroundStyle(Color.changeableText)
+                                    Spacer()
+                                    Button(action: {
+                                        var amount = 0
+                                        amountArray.forEach { amt in
+                                            amount += Int(amt) ?? 0
+                                        }
+                                        self.inputAmtTotal = amount
+                                        withAnimation {
+                                            self.isChekAmtTotal.toggle()
+                                        }
+                                    }) {
+                                        Text(self.isChekAmtTotal ? "閉じる" : "確認")
+                                            .font(.caption.bold())
+                                            .foregroundStyle(accentColors.last ?? .blue)
+                                    }
                                 }
-                            }.padding(.horizontal, 10)
-                        }.scrollIndicators(.hidden)
-                            .padding(.bottom, 5)
+                            }
+                            if isChekAmtTotal {
+                                checkAmtTotalCard()
+                            } else {
+                                VStack(spacing: 20) {
+                                    ForEach(balKeyArray.indices, id: \.self) { index in
+                                        let balkey = balKeyArray[index]
+                                        let balResult = balanceService.getBalanceResult(balanceKey: balkey)
+                                        textFieldLinkBal(size: size, balResult: balResult, index: index)
+                                    }
+                                }
+                            }
+                        } else {
+                            textFieldNotLinkBal()
+                        }
                         Text(LabelsModel.dateLabel)
                             .font(.caption.bold())
                             .foregroundStyle(Color.changeableText)
@@ -262,398 +588,59 @@ struct RegistIncConsFormView: View {
                                 .focused($isMemoFocused)
                         }
                     }.padding(.horizontal, 20)
-                    Button(action: {
-                        // ▼登録処理
-                        incConsService.registIncConsData(inputDic: amtBalkeyDic,
-                                                         assetsFlg: assetsFlg,
-                                                         incFlg: selectIncFlg,
-                                                         incConsSecKey: incConsSecKey,
-                                                         incConsCatgKey: incConsCatgKey,
-                                                         incConsDate: selectDate, memo: memo)
-                        // ▼表示情報を初期化
-                        self.amtBalkeyDic.removeAll()
-                        self.memo = ""
-                        self.inputAmtTotal = 0
-                        asstsBalResults.enumerated().forEach { index, result in
-                            self.selectBalKeys[index] = ""
-                        }
-                    }) {
-                        ZStack {
-                            if !disAble {
-                                generalView.GradientCard(colors: accentColors, radius: 10)
-                                    .shadow(color: .changeableShadow, radius: 3, x: 3, y: 3)
-                                    .frame(height: 50)
-                            } else {
-                                generalView.GlassBlur(effect: .systemMaterial, radius: 10)
-                                    .shadow(color: .changeableShadow, radius: 3, x: 3, y: 3)
-                                    .frame(height: 50)
+                    // 登録
+                    generalView.registButton(colors: accentColors, radius: 10, isDisAble: false) {
+                        if linkBalFlg {
+                            withAnimation {
+                                self.popUpFlg = true
+                                self.popUpStatus =
+                                incConsService.registIncConsLinkBal(balKeyArray: self.balKeyArray,
+                                                                    amountArray: self.amountArray,
+                                                                    balOpeIsIncrease: self.balOpeIsIncreases,
+                                                                    houseHoldType: self.selectForm,
+                                                                    incConsSecKey: self.incConsSecKey,
+                                                                    incConsCatgKey: self.incConsCatgKey,
+                                                                    incConsDate: self.selectDate,
+                                                                    memo: self.memo)
                             }
-                            Text(LabelsModel.registLabel)
-                                .font(.caption.bold())
-                                .foregroundStyle(disAble ? Color.changeableText : Color.white)
+                            self.balKeyArray.removeAll()
+                            self.amountArray.removeAll()
+                            if self.selectForm == 2 {
+                                self.balOpeIsIncreases.removeAll()
+                            }
+                        } else {
+                            withAnimation {
+                                self.popUpFlg = true
+                                self.popUpStatus =
+                                incConsService.registIncConsNotLikBal(houseHoldType: self.selectForm,
+                                                                      incConsSecKey: self.incConsSecKey,
+                                                                      incConsCatgKey: self.incConsCatgKey,
+                                                                      inputAmt: Int(self.inputAmt) ?? 0,
+                                                                      incConsDate: self.selectDate,
+                                                                      memo: self.memo)
+                            }
                         }
-                    }.padding(.vertical, 10)
-                        .padding(.horizontal, 20)
-                        .disabled(disAble)
+                    }.frame(height: 70)
+                        .shadow(color: .changeableShadow, radius: 3)
                 }
             }.scrollIndicators(.hidden)
-            .padding(.top, 20)
-        }.toolbar {
-            if isInputAmtFocused {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Button("キャンセル") {
-                        let balKey = selectBalKeys[tapTextFieldIndex]
-                        self.amtBalkeyDic[balKey] = 0
-                        self.isInputAmtFocused = false
-                    }
-                    Spacer()
-                    Button("完了") {
-                        let balKey = selectBalKeys[tapTextFieldIndex]
-                        if self.amtBalkeyDic[balKey] == nil {
-                            self.amtBalkeyDic[balKey] = 0
-                        }
-                        self.isInputAmtFocused = false
-                    }
-                }
-            } else if isMemoFocused {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Button("キャンセル") {
-                        self.memo = ""
-                        self.isMemoFocused = false
-                    }
-                    Spacer()
-                    Button("完了") {
-                        self.isMemoFocused = false
-                    }
-                }
-            }
-        }.padding(.top, 10)
-    }
-    
-    @ViewBuilder
-    func incConsTab() -> some View {
-        ZStack {
-            GeometryReader { geometry in
-                let width = geometry.size.width / 2
-                let midX = geometry.frame(in: .local).midX / 2
-                let midY = geometry.frame(in: .local).midY / 2
-                generalView.GradientCard(colors: accentColors, radius: 25)
-                    .frame(width: width + 2 ,height: 22)
-                RoundedRectangle(cornerRadius: 25)
-                    .fill(.changeable)
-                    .frame(width: width / 2, height: 20)
-                    .padding(1)
-                    .offset(x: self.selectIncFlg ? 0 : midX)
-                HStack(spacing: 0) {
-                    Group {
-                        Text(LabelsModel.incSecLabel)
-                            .foregroundStyle(self.selectIncFlg ? Color.changeableText : Color.white)
-                            .onTapGesture {
-                                withAnimation {
-                                    self.selectIncFlg = true
-                                }
-                            }
-                        Text(LabelsModel.consSecLabel)
-                            .foregroundStyle(!self.selectIncFlg ? Color.changeableText : Color.white)
-                            .onTapGesture {
-                                withAnimation {
-                                    self.selectIncFlg = false
-                                }
-                            }
-                            .foregroundStyle(.blue)
-                    }.frame(width: width / 2)
-                        .offset(y: midY)
-                }.font(.caption.bold())
-            }
-        }.padding(.bottom, 10)
-    }
-    
-    @ViewBuilder
-    func incConsTotalCard(geomProxy: GeometryProxy) -> some View {
-        let width = geomProxy.frame(in: .local).width - 40
-        let height = geomProxy.frame(in: .local).height + 10
-        let notAblePullDown = (self.assetsFlg && self.asstsBalResults.isEmpty) ||
-                              (!self.assetsFlg && self.debtBalResults.isEmpty)
-        let balTotal = balanceService.getBalanceTotal()
-        let gapTotal = assetsFlg && selectIncFlg ?
-                        balTotal + inputAmtTotal :
-                       assetsFlg && !selectIncFlg ?
-                        balTotal - inputAmtTotal : balTotal + inputAmtTotal
-        let asstsBalCount = self.asstsBalResults.count
-        let pullDownRate = asstsBalCount > 5 ? 5 : asstsBalCount <= 2 ? 3 : asstsBalCount
-        let rectWidth = width - 40
-        let rectHeight = (height * 3) / 4
-        let textWidth = (rectWidth - 40)
-        ZStack {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(.changeable)
-                .shadow(color: .changeableShadow, radius: 5)
-                .frame(height: self.inputAmtDownFlg ? height * CGFloat(pullDownRate) + 10 : height)
-                .padding(.horizontal, self.inputAmtDownFlg ? 10 : 20)
-                .onTapGesture {
-                    withAnimation {
-                        if !notAblePullDown {
-                            if self.inputAmtDownFlg {
-                                selectBalKeys.forEach { balKey in
-                                    if balKey != "" && self.amtBalkeyDic[balKey] == nil {
-                                        self.amtBalkeyDic[balKey] = 0
-                                    }
-                                    self.inputAmtTotal += amtBalkeyDic[balKey] ?? 0
-                                }
-                            } else {
-                                self.inputAmtTotal = 0
-                            }
-                            self.inputAmtDownFlg.toggle()
-                        }
-                    }
-                }
-            VStack(spacing: 0) {
-                if self.inputAmtDownFlg {
-                    Text(self.assetsFlg ? "資産残高 詳細" :  "負債残高 詳細")
-                        .font(.caption.bold())
-                        .foregroundStyle(Color.changeableText)
-                        .frame(maxWidth: width - 40, alignment: .leading)
-                        .padding(.vertical, 10)
-                        .padding(.top, 10)
-                    ScrollView {
-                        LazyVStack {
-                            ForEach(self.assetsFlg ? asstsBalResults.indices :
-                                                     debtBalResults.indices, id: \.self) { index in
-                                let result = assetsFlg ? asstsBalResults[index] : debtBalResults[index]
-                                let balNm = result.balanceNm
-                                let balAmt = result.balanceAmt
-                                let balKey = result.balanceKey
-                                let haveBalKey = selectBalKeys[index] == balKey
-                                let eachAmt = assetsFlg && selectIncFlg ?
-                                                balAmt + (amtBalkeyDic[balKey] ?? 0) :
-                                              assetsFlg && !selectIncFlg ?
-                                                balAmt - (amtBalkeyDic[balKey] ?? 0) :
-                                                balAmt + (amtBalkeyDic[balKey] ?? 0)
-                                let isColorChange = balAmt != eachAmt
-                                ZStack {
-                                    generalView.GlassBlur(effect: haveBalKey ?
-                                        .systemMaterial :  .systemUltraThinMaterial, radius: 10)
-                                        .frame(width: rectWidth, height: haveBalKey ?
-                                           rectHeight + 20 : rectHeight)
-                                        .shadow(color: haveBalKey ? .changeableShadow : .clear,
-                                                radius: 3, x: 3, y: 3)
-                                        .padding(.vertical, haveBalKey ? 10 : 0)
-                                    if !haveBalKey {
-                                        HStack(spacing: 0) {
-                                            VStack(alignment: .leading) {
-                                                Text(balNm)
-                                                    .font(.caption.bold())
-                                                Text("¥\(balAmt)")
-                                                    .font(.system(.callout, design: .rounded))
-                                            }.frame(width: textWidth / 2 - 20, alignment: .leading)
-                                                .foregroundStyle(Color.changeableText)
-                                                .lineLimit(1)
-                                                .minimumScaleFactor(0.5)
-                                            Rectangle().frame(width: 1, height: 40)
-                                                .padding(.horizontal, 20)
-                                                .foregroundStyle(Color.changeableText)
-                                            Button(action: {
-                                                withAnimation {
-                                                    self.amtBalkeyDic[balKey] = 0
-                                                    self.selectBalKeys[index] = balKey
-                                                }
-                                            }) {
-                                                ZStack {
-                                                    generalView.GradientCard(colors: accentColors, radius: 6)
-                                                        .shadow(color: .changeableShadow, radius: 3)
-                                                    HStack {
-                                                        Image(systemName: "square.and.pencil")
-                                                            .font(.callout.bold())
-                                                        Text(assetsFlg && selectIncFlg ? "収入額入力" :
-                                                                assetsFlg && !selectIncFlg ?
-                                                             "支出額入力" : "負債額入力")
-                                                            .font(.caption2.bold())
-                                                    }.foregroundStyle(.white)
-                                                }.frame(width: textWidth / 2 - 20, height: height / 2 - 10)
-                                            }
-                                        }
-                                    } else {
-                                        VStack(spacing: 5) {
-                                            HStack(spacing: 0) {
-                                                Text(balNm)
-                                                    .font(.caption.bold())
-                                                    .frame(maxWidth: textWidth / 2 - 20, alignment: .leading)
-                                                    .lineLimit(1)
-                                                    .minimumScaleFactor(0.5)
-                                                Spacer()
-                                                Button(action: {
-                                                    withAnimation {
-                                                        // ▼animation後に返すものがなくwarningが発生するため
-                                                        if self.amtBalkeyDic[balKey] != nil {
-                                                            _ = self.amtBalkeyDic.removeValue(forKey: balKey)
-                                                        }
-                                                        self.selectBalKeys[index] = ""
-                                                    }
-                                                }) {
-                                                    Text("キャンセル")
-                                                        .font(.caption.bold())
-                                                        .foregroundStyle(accentColors.last ?? .changeableText)
-                                                        .shadow(radius: 10)
-                                                }.frame(maxWidth: textWidth / 2 - 20, alignment: .trailing)
-                                            }.frame(width: textWidth)
-                                            HStack(spacing: 0) {
-                                                Text("¥\(balAmt)")
-                                                    .font(.system(.callout, design: .rounded))
-                                                    .frame(maxWidth: textWidth / 2 - 20,
-                                                           alignment: .leading)
-                                                Image(systemName: "arrowshape.right.fill")
-                                                    .padding(.horizontal, 10)
-                                                Text("¥\(eachAmt)")
-                                                    .font(.system(.callout, design: .rounded, weight: .bold))
-                                                    .foregroundStyle(
-                                                        assetsFlg && selectIncFlg ?
-                                                        isColorChange ? .blue : .changeableText :
-                                                        isColorChange ? .red : .changeableText)
-                                                    .frame(maxWidth: textWidth / 2 - 20,
-                                                           alignment: .trailing)
-                                            }.lineLimit(1)
-                                                .minimumScaleFactor(0.5)
-                                            Rectangle().frame(width: textWidth, height: 1)
-                                                .padding(.horizontal, 20)
-                                                .foregroundStyle(Color.changeableText)
-                                            ZStack {
-                                                RoundedRectangle(cornerRadius: 5)
-                                                    .foregroundStyle(Color.changeable)
-                                                    .frame(width: textWidth, height: 30)
-                                                TextField("金額を入力", value: $amtBalkeyDic[balKey], format: .number)
-                                                    .focused($isInputAmtFocused)
-                                                    .font(.system(.callout, design: .rounded, weight: .bold))
-                                                    .padding(.horizontal, 10)
-                                                    .foregroundStyle(
-                                                       assetsFlg && selectIncFlg ? .blue : .red
-                                                    )
-                                                    .frame(width: textWidth, height: 15)
-                                                    .keyboardType(.numberPad)
-                                                    .multilineTextAlignment(.trailing)
-                                                    .onTapGesture {
-                                                        if self.amtBalkeyDic[balKey] == 0 {
-                                                            self.amtBalkeyDic[balKey] = nil
-                                                        }
-                                                        self.tapTextFieldIndex = index
-                                                    }
-                                            }
-                                        }.foregroundStyle(Color.changeableText)
-                                    }
-                                }
-                            }
-                            Button(action: {
-                                self.addBalAlertFlg = true
-                            }) {
-                                ZStack {
-                                    generalView.GlassBlur(effect: .systemMaterial, radius: 5)
-                                        .frame(width: 100, height: 30)
-                                        .shadow(color: .changeableShadow, radius: 3, x: 3, y: 3)
-                                    HStack {
-                                        Text("残高名の追加")
-                                        Image(systemName: "plus")
-                                    }.font(.caption2.bold())
-                                        .foregroundStyle(accentColors.last ?? .changeableText)
-                                }
-                            }
-                        }.padding(.vertical, 5)
-                    }.frame(height: height * CGFloat(pullDownRate) - 50)
-                        .scrollIndicators(.hidden)
-                } else {
-                    if notAblePullDown {
-                        VStack {
-                            Text(self.selectIncFlg ? "資産残高が存在しません。" : "負債残高が存在しません。")
-                                .font(.caption.bold())
-                                .foregroundStyle(Color.changeableText)
-                            Button(action: {
-                                self.addBalAlertFlg = true
-                            }) {
-                                ZStack {
-                                    generalView.GlassBlur(effect: .systemMaterial, radius: 5)
-                                        .frame(width: 100, height: 30)
-                                        .shadow(color: .changeableShadow, radius: 3, x: 3, y: 3)
-                                    HStack {
-                                        Text("残高名の追加")
-                                        Image(systemName: "plus")
-                                    }.font(.caption2.bold())
-                                        .foregroundStyle(accentColors.last ?? .changeableText)
-                                }
-                            }
-                        }
-                    } else {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(self.assetsFlg ? "資産残高合計" : "負債残高合計")
-                                    .font(.caption2.bold())
-                                Text("¥\(balTotal)")
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.5)
-                                    .font(.system(.callout, design: .rounded, weight: .bold))
-                            }.frame(width: width / 4)
-                                .foregroundStyle(Color.changeableText)
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(Color.changeableText)
-                                .frame(width: 1, height: 50)
-                                .padding(.horizontal, 5)
-                            VStack(alignment: .leading) {
-                                Text(LabelsModel.formInputTotalLabels[selectForm])
-                                    .font(.caption2.bold())
-                                    .foregroundStyle(Color.changeableText)
-                                Text("¥\(self.inputAmtTotal)")
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.5)
-                                    .foregroundStyle(
-                                        self.assetsFlg && self.selectIncFlg && inputAmtTotal > 0 ?
-                                            .blue : inputAmtTotal > 0 ? .red : .changeableText
-                                    )
-                                    .font(.system(.callout, design: .rounded, weight: .bold))
-                            }.frame(width: width / 4)
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(Color.changeableText)
-                                .frame(width: 1, height: 50)
-                                .padding(.horizontal, 5)
-                            VStack(alignment: .leading) {
-                                Text("差額")
-                                    .font(.caption2.bold())
-                                    .foregroundStyle(Color.changeableText)
-                                Text("¥\(gapTotal)")
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.5)
-                                    .foregroundStyle(
-                                        assetsFlg && (gapTotal > balTotal) ? .blue :
-                                        (gapTotal < balTotal || gapTotal < 0) ||
-                                        (!assetsFlg && gapTotal != 0) ? .red : Color.changeableText
-                                    )
-                                    .font(.system(.callout, design: .rounded, weight: .bold))
-                            }.frame(width: width / 4)
-                        }
-                    }
-                }
-                if !notAblePullDown {
-                    Image(systemName: "chevron.compact.down")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: self.inputAmtDownFlg ? 30 : 10)
-                        .padding(.top, self.inputAmtDownFlg ? 5 : 10)
-                        .foregroundStyle(Color.changeableText)
-                        .rotationEffect(.degrees(self.inputAmtDownFlg ? 180 : 0))
-                }
-            }
         }
     }
+
     // 収入登録
     @ViewBuilder
-    func registIncForm() -> some View {
-        inputForm()
+    func registIncForm(size: CGSize) -> some View {
+        inputForm(size: size)
     }
     // 支出登録
     @ViewBuilder
-    func registConsForm() -> some View {
-        inputForm()
+    func registConsForm(size: CGSize) -> some View {
+        inputForm(size: size)
     }
-    // 返済
+    // その他金額操作
     @ViewBuilder
-    func registRepayForm() -> some View {
-        inputForm()
+    func registOthersForm(size: CGSize) -> some View {
+        inputForm(size: size)
     }
 }
 

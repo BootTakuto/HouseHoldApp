@@ -93,9 +93,9 @@ struct IncConsListPerDayView: View {
                             .padding(3)
                     }
                 }
-                Text("¥\(result.incConsAmtTotal)")
+                Text("¥\(result.incConsAmtValue)")
                     .font(.system(.title2, design: .rounded, weight: .bold))
-                    .foregroundStyle(result.incConsAmtTotal == 0 ? .gray : result.incFlg ? .blue : .red)
+                    .foregroundStyle(result.incConsAmtValue == 0 ? .gray : result.houseHoldType == 0 ? .blue : .red)
             }.padding(.horizontal, 20)
         }
     }
