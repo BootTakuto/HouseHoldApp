@@ -25,8 +25,7 @@ struct RegistIncConsFormView: View {
     /** 登録関連情報 */
     @State private var inputAmt = "0"                       // 金額(残高未連携)
     @State private var balKeyArray: [String] = []           // 金額(残高連携用 残高主キー配列)
-    @State private var amountArray: [String] = []           // 金額(残高連携用 入力金額配列)
-    @State private var balOpeIsIncreases: [Bool] = []       // 残高操作　増・減額の是非を格納
+    @State private var registAmtFormArray: [IncConsAmtForm] = []
     @State private var incConsSecKey =
     IncConSecCatgService().getUnCatgSecKey(houseHoldType: 0)// 項目主キー
     @State private var incConsCatgKey =
@@ -84,25 +83,20 @@ struct RegistIncConsFormView: View {
                     self.incConsCatgKey = incConsSecCatgService.getUnCatgCatgKey(houseHoldType: self.selectForm)
                 }
 //                    self.linkBalFlg = false
-//                    self.balKeyArray.removeAll()
-//                    self.amountArray.removeAll()
-                self.amountArray.indices.forEach { index in
-                    if self.amountArray[index] == "" {
-                        self.amountArray[index] = "0"
-                    }
-                }
+                    self.balKeyArray.removeAll()
+                    self.registAmtFormArray.removeAll()
+//                self.registAmtFormAr.indices.forEach { index in
+//                    if self.amountArray[index] == "" {
+//                        self.amountArray[index] = "0"
+//                    }
+//                }
             }.onChange(of: inputLeastIndex) {
-                self.amountArray.indices.forEach { index in
-                    if self.inputLeastIndex != index && self.amountArray[index] == "" {
-                        self.amountArray[index] = "0"
+                self.registAmtFormArray.indices.forEach { index in
+                    if self.inputLeastIndex != index && self.registAmtFormArray[index].amount == "" {
+                        self.registAmtFormArray[index].amount = "0"
                     }
                 }
-            }.onChange(of: balKeyArray) {
-                print(balKeyArray)
-                print(amountArray)
-                print(balOpeIsIncreases)
-            }
-            .custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
+            }.custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
                 if self.popUpStatus == .addBalance {
                     PopUpView(accentColors: accentColors,
                               alertFlg: $popUpFlg,
@@ -127,8 +121,8 @@ struct RegistIncConsFormView: View {
                         HStack {
                             Button("キャンセル") {
                                 self.inputAmt = "0"
-                                if !amountArray.isEmpty {
-                                    self.amountArray[inputLeastIndex] = "0"
+                                if !registAmtFormArray.isEmpty {
+                                    self.registAmtFormArray[inputLeastIndex].amount = "0"
                                 }
                                 self.inputAmtFocused = false
                             }
@@ -137,9 +131,9 @@ struct RegistIncConsFormView: View {
                                 if inputAmt == "" {
                                     self.inputAmt = "0"
                                 }
-                                self.amountArray.indices.forEach { index in
-                                    if self.amountArray[index] == "" {
-                                        self.amountArray[index] = "0"
+                                self.registAmtFormArray.indices.forEach { index in
+                                    if self.registAmtFormArray[index].amount == "" {
+                                        self.registAmtFormArray[index].amount = "0"
                                     }
                                 }
                                 self.inputAmtFocused = false
@@ -240,7 +234,7 @@ struct RegistIncConsFormView: View {
                     // 残高連携がfalseになるタイミングで連携情報をクリア
                     if self.linkBalFlg {
                         self.balKeyArray.removeAll()
-                        self.amountArray.removeAll()
+                        self.registAmtFormArray.removeAll()
                     }
                     withAnimation {
                         self.linkBalFlg.toggle()
@@ -251,11 +245,10 @@ struct RegistIncConsFormView: View {
     }
     
     @ViewBuilder
-    func textFieldLinkBal(size: CGSize, balResult: BalanceModel, index: Int) -> some View {
+    func textFieldLinkBal(size: CGSize, index: Int) -> some View {
+        let balResult = balanceService.getBalanceResult(balanceKey: self.balKeyArray[index])
         let width = size.width - 60 - 30 - 20 - 10
-        let selectIncrease = self.selectForm == 2 &&
-                            !self.balOpeIsIncreases.isEmpty &&
-                             self.balOpeIsIncreases[index]
+        let selectIncrease = self.registAmtFormArray[index].isIncrease && self.selectForm == 2
         ZStack {
             Color.changeable
             HStack(spacing: 0) {
@@ -272,7 +265,7 @@ struct RegistIncConsFormView: View {
                             HStack {
                                 Button(action: {
                                     withAnimation {
-                                        self.balOpeIsIncreases[index] = true
+                                        self.registAmtFormArray[index].isIncrease = true
                                     }
                                 }) {
                                     Circle()
@@ -288,7 +281,7 @@ struct RegistIncConsFormView: View {
                                 Text("増額")
                                 Button(action: {
                                     withAnimation {
-                                        self.balOpeIsIncreases[index] = false
+                                        self.registAmtFormArray[index].isIncrease = false
                                     }
                                 }) {
                                     Circle()
@@ -314,7 +307,7 @@ struct RegistIncConsFormView: View {
                         .frame(width: width * (3 / 4), alignment: .leading)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
-                    TextField("", text: $amountArray[index])
+                    TextField("", text: $registAmtFormArray[index].amount)
                         .focused($inputAmtFocused)
                         .padding(10)
                         .padding(.horizontal, 10)
@@ -327,8 +320,8 @@ struct RegistIncConsFormView: View {
                                 .frame(height: 50)
                                 .padding(.horizontal, 10)
                         ).onTapGesture {
-                            if self.amountArray[index] == "0" {
-                                self.amountArray[index] = ""
+                            if self.registAmtFormArray[index].amount == "0" {
+                                self.registAmtFormArray[index].amount = ""
                             }
                             self.inputLeastIndex = index
                         }
@@ -357,7 +350,7 @@ struct RegistIncConsFormView: View {
     
     @ViewBuilder
     func balMiniIcon(balResult: BalanceModel) -> some View {
-        let isSelected = balKeyArray.contains(balResult.balanceKey)
+        let isSelected = self.balKeyArray.contains(balResult.balanceKey)
         ZStack {
             if isSelected {
                 UIGlassCard(effect: .systemUltraThinMaterial)
@@ -373,6 +366,7 @@ struct RegistIncConsFormView: View {
                     .font(.caption2.bold())
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
+                    .padding(.trailing, 5)
             }.foregroundStyle(Color.changeableText)
                 .frame(maxWidth: 150, alignment: .leading)
                 .frame(minWidth: 80)
@@ -381,6 +375,7 @@ struct RegistIncConsFormView: View {
             .compositingGroup()
             .shadow(color: .changeableShadow, radius: isSelected ? 0 : 3)
             .padding(.vertical, 5)
+            .padding(.horizontal, 2)
     }
     
     @ViewBuilder
@@ -474,22 +469,21 @@ struct RegistIncConsFormView: View {
                                     HStack {
                                         ForEach(balResults.indices, id: \.self) {index in
                                             let result = balResults[index]
+                                           
                                             balMiniIcon(balResult: result)
                                                 .onTapGesture {
                                                     withAnimation {
-                                                        if !self.balKeyArray.contains(result.balanceKey) {
+                                                        if !balKeyArray.contains(result.balanceKey) {
                                                             self.balKeyArray.append(result.balanceKey)
-                                                            self.amountArray.append("0")
-                                                            if self.selectForm == 2 {
-                                                                self.balOpeIsIncreases.append(true)
-                                                            }
+                                                            self.registAmtFormArray.append(
+                                                                IncConsAmtForm(balKey: result.balanceKey,
+                                                                               amount: "0",
+                                                                               isIncrease: true)
+                                                            )
                                                         } else {
-                                                            let firstIndex = balKeyArray.firstIndex(of: result.balanceKey)!
-                                                            self.balKeyArray.remove(at: firstIndex)
-                                                            self.amountArray.remove(at: firstIndex)
-                                                            if self.selectForm == 2 {
-                                                                self.balOpeIsIncreases.remove(at: firstIndex)
-                                                            }
+                                                            let index = balKeyArray.firstIndex(of: result.balanceKey)!
+                                                            self.balKeyArray.remove(at: index)
+                                                            self.registAmtFormArray.remove(at: index)
                                                         }
                                                     }
                                                 }
@@ -508,7 +502,7 @@ struct RegistIncConsFormView: View {
                                     }.padding(.leading, 5)
                                 }.scrollDisabled(balResults.isEmpty)
                             }
-                            if !balKeyArray.isEmpty {
+                            if !registAmtFormArray.isEmpty {
                                 HStack {
                                     Text("金 額")
                                         .font(.caption.bold())
@@ -516,8 +510,8 @@ struct RegistIncConsFormView: View {
                                     Spacer()
                                     Button(action: {
                                         var amount = 0
-                                        amountArray.forEach { amt in
-                                            amount += Int(amt) ?? 0
+                                        registAmtFormArray.forEach { data in
+                                            amount += Int(data.amount) ?? 0
                                         }
                                         self.inputAmtTotal = amount
                                         withAnimation {
@@ -534,10 +528,8 @@ struct RegistIncConsFormView: View {
                                 checkAmtTotalCard()
                             } else {
                                 VStack(spacing: 20) {
-                                    ForEach(balKeyArray.indices, id: \.self) { index in
-                                        let balkey = balKeyArray[index]
-                                        let balResult = balanceService.getBalanceResult(balanceKey: balkey)
-                                        textFieldLinkBal(size: size, balResult: balResult, index: index)
+                                    ForEach(registAmtFormArray.indices, id: \.self) {index in
+                                        textFieldLinkBal(size: size, index: index)
                                     }
                                 }
                             }
@@ -595,8 +587,7 @@ struct RegistIncConsFormView: View {
                                 self.popUpFlg = true
                                 self.popUpStatus =
                                 incConsService.registIncConsLinkBal(balKeyArray: self.balKeyArray,
-                                                                    amountArray: self.amountArray,
-                                                                    balOpeIsIncrease: self.balOpeIsIncreases,
+                                                                    registAmtFormArray: self.registAmtFormArray,
                                                                     houseHoldType: self.selectForm,
                                                                     incConsSecKey: self.incConsSecKey,
                                                                     incConsCatgKey: self.incConsCatgKey,
@@ -604,10 +595,7 @@ struct RegistIncConsFormView: View {
                                                                     memo: self.memo)
                             }
                             self.balKeyArray.removeAll()
-                            self.amountArray.removeAll()
-                            if self.selectForm == 2 {
-                                self.balOpeIsIncreases.removeAll()
-                            }
+                            self.registAmtFormArray.removeAll()
                         } else {
                             withAnimation {
                                 self.popUpFlg = true

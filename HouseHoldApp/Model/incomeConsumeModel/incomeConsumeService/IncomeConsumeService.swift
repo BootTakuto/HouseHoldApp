@@ -54,8 +54,7 @@ class IncomeConsumeService: CommonService {
      @return --
      */
     func registIncConsLinkBal(balKeyArray: [String],
-                              amountArray: [String],
-                              balOpeIsIncrease: [Bool],
+                              registAmtFormArray: [IncConsAmtForm],
                               houseHoldType: Int,
                               incConsSecKey: String,
                               incConsCatgKey: String,
@@ -63,23 +62,24 @@ class IncomeConsumeService: CommonService {
                               memo: String) -> PopUpStatus {
         let resultSize = realm.objects(IncomeConsumeModel.self).count
         // 金額配列[String]を[Int]に変換
-        var amountIntArray: [Int] = amountArray.map({Int($0) ?? 0})
-        // 残高操作　減額の場合は-1をかける
-        if houseHoldType == 2 {
-            balOpeIsIncrease.indices.forEach { index in
-                if !balOpeIsIncrease[index] {
-                    amountIntArray[index] = amountIntArray[index] * -1
-                }
+        var amountIntArray: [Int] = []
+        registAmtFormArray.forEach { data in
+            if data.isIncrease {
+                amountIntArray.append(Int(data.amount) ?? 0)
+            } else {
+                let decAmt = Int(data.amount) ?? 0
+                amountIntArray.append(decAmt * -1)
             }
         }
+        print(amountIntArray)
         // 合計金額
         var incConsAmtValue = 0
-        amountArray.forEach { amt in
-            incConsAmtValue += Int(amt) ?? 0
+        amountIntArray.forEach { amt in
+            incConsAmtValue += amt
         }
         let incConsModel = IncomeConsumeModel()
         incConsModel.incConsKey = UUID().uuidString
-        incConsModel.houseHoldType = 0
+        incConsModel.houseHoldType = houseHoldType
         incConsModel.balanceKeyList.append(objectsIn: balKeyArray)
         incConsModel.incConsAmtList.append(objectsIn: amountIntArray)
         incConsModel.incConsSecKey = incConsSecKey
@@ -93,9 +93,9 @@ class IncomeConsumeService: CommonService {
                 let wrapResult = realm.object(ofType: BalanceModel.self, forPrimaryKey: balKeyArray[index])
                 if let unWrapResult = wrapResult {
                     if houseHoldType == 0 || houseHoldType == 2 {
-                        unWrapResult.balanceAmt += amountIntArray[index] ?? 0
+                        unWrapResult.balanceAmt += amountIntArray[index]
                     } else if houseHoldType == 1 {
-                        unWrapResult.balanceAmt -= amountIntArray[index] ?? 0
+                        unWrapResult.balanceAmt -= amountIntArray[index]
                     }
                 }
             }
@@ -411,4 +411,31 @@ class IncomeConsumeService: CommonService {
         }
         return returnArray
     }
+    
+    /* 残高連携情報作成で複数選択を検知する
+     @param 連携残高配列
+     @param 残高キー
+     @return 残高がすでに含まれているか
+     */
+    func isExsistRegistForm(array: [IncConsAmtForm], balKey: String) -> Bool {
+        var isExist = false
+        array.forEach { data in
+            isExist = data.balKey == balKey
+        }
+        return isExist
+    }
+    
+    /* 残高連携情報の配列で該当残高キーを含むインデックスを取得する
+     @param 連携残高配列
+     @param 残高キー
+     @return 残高キーが含まれる配列インデックス
+     */
+    func getIndexAmtFormArray(array: [IncConsAmtForm], balKey: String) -> Int {
+        var containIndex = 0
+        array.indices.forEach { index in
+            containIndex = array[index].balKey == balKey ? index : 0
+        }
+        return containIndex
+    }
+    
 }
