@@ -42,7 +42,7 @@ struct BalanceSummaryView: View {
                             .padding(.horizontal, 20)
                         BalanceList(size: size)
                             .padding(.horizontal, 20)
-                    }.padding(.bottom, 80)
+                    }
                 }.scrollIndicators(.hidden)
             }.onChange(of: deleteBalAlertFlg) {
                 if !deleteBalAlertFlg {
@@ -52,8 +52,7 @@ struct BalanceSummaryView: View {
                 if !editBalAlertFlg {
                     self.isEditMode = false
                 }
-            }
-            .custumFullScreenCover(isPresented: $addBalAlertFlg, transition: .opacity) {
+            }.custumFullScreenCover(isPresented: $addBalAlertFlg, transition: .opacity) {
                 // 残高登録アラート
                 PopUpView(accentColors: accentColors,
                           alertFlg: $addBalAlertFlg,
@@ -252,7 +251,7 @@ struct BalanceSummaryView: View {
                 }.frame(width: 40, height:  40)
                     .compositingGroup()
                     .shadow(color: .changeableShadow, radius: 3)
-                    .padding(.top, 10)
+                    .padding(.vertical, 5)
             }
         }
     }

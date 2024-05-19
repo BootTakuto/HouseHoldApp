@@ -42,7 +42,6 @@ class FinanceCharts {
     // ▼資産or負債の割合
     @ViewBuilder
     func BalRateChart(assetsFlg: Bool) -> some View {
-        let isEmpty = (assetsFlg && assetsResults.isEmpty) || (!assetsFlg && debtResults.isEmpty)
         ZStack {
             Chart {
                 ForEach(assetsFlg ? assetsResults.indices : debtResults.indices, id: \.self) {index in
@@ -98,9 +97,10 @@ class FinanceCharts {
     }
     
     @ViewBuilder
-    func IncConsRateChart(incFlg: Bool, date: Date) -> some View {
-        let secAmtDic = incConsService.getIncConsDataForChart(incFlg: incFlg, selectDate: date)
-        let totalAmt: Int = incConsService.getIncOrConsAmtTotal(date: date, incFlg: incFlg)
+    func IncConsRateChart(houseHoldType: Int, date: Date) -> some View {
+        let incFlg = houseHoldType == 0 ? true : false
+        let secAmtDic = incConsService.getIncConsDataForChart(houseHoldType: houseHoldType, selectDate: date)
+        let totalAmt: Int = incConsService.getIncOrConsAmtTotal(date: date, houseHoldType: houseHoldType)
         ZStack {
             Chart {
                 ForEach(secAmtDic.sorted(by: >), id: \.key) { key, value in

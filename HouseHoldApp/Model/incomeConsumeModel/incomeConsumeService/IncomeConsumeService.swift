@@ -71,7 +71,6 @@ class IncomeConsumeService: CommonService {
                 amountIntArray.append(decAmt * -1)
             }
         }
-        print(amountIntArray)
         // 合計金額
         var incConsAmtValue = 0
         amountIntArray.forEach { amt in
@@ -158,12 +157,12 @@ class IncomeConsumeService: CommonService {
      @param 収入フラグ true: 収入, false: 支出
      @return 合計金額
      */
-    func getIncOrConsAmtTotal(date: Date, incFlg: Bool) -> Int {
+    func getIncOrConsAmtTotal(date: Date, houseHoldType: Int) -> Int {
         var total = 0
         let dateArray = getAllDayOfMonth(date: date)
         dateArray.forEach { dateInt in
             let dateStr = String(dateInt)
-            let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr})
+            let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == houseHoldType && $0.incConsDate == dateStr})
             if !results.isEmpty {
                 results.forEach { result in
                     total += result.incConsAmtValue
@@ -317,12 +316,30 @@ class IncomeConsumeService: CommonService {
         return results
     }
     
-    func getIncConsPerDate(selectDate: Date) -> [String: Results<IncomeConsumeModel>] {
+    func getIncConsPerDate(selectDate: Date, listType: Int) -> [String: Results<IncomeConsumeModel>] {
         var dictionary: [String: Results<IncomeConsumeModel>]  = [:]
         let datesArray: [Int] = getAllDayOfMonth(date: selectDate)
         datesArray.forEach { dateInt in
             let dateStr = String(dateInt)
-            let incConsResults = realm.objects(IncomeConsumeModel.self).where({$0.incConsDate == dateStr})
+            var incConsResults: Results<IncomeConsumeModel>
+            switch listType {
+            case 0:
+                incConsResults = realm.objects(IncomeConsumeModel.self).where({$0.incConsDate == dateStr})
+            case 1:
+                incConsResults = realm.objects(IncomeConsumeModel.self)
+                    .where({$0.incConsDate == dateStr && $0.houseHoldType != 2})
+            case 2:
+                incConsResults = realm.objects(IncomeConsumeModel.self)
+                    .where({$0.incConsDate == dateStr && $0.houseHoldType == 0})
+            case 3:
+                incConsResults = realm.objects(IncomeConsumeModel.self)
+                    .where({$0.incConsDate == dateStr && $0.houseHoldType == 1})
+            case 4:
+                incConsResults = realm.objects(IncomeConsumeModel.self)
+                    .where({$0.incConsDate == dateStr && $0.houseHoldType == 2})
+            default:
+                incConsResults = realm.objects(IncomeConsumeModel.self).where({$0.incConsDate == dateStr})
+            }
             if !incConsResults.isEmpty {
                 dictionary[dateStr] = incConsResults
             }
@@ -335,9 +352,9 @@ class IncomeConsumeService: CommonService {
      @param 収入・支出フラグ
      @return 日毎の支出または収入の合計金額
      */
-    func getIncConsTotalPerDay(day: Date, incFlg: Bool) -> Int {
+    func getIncConsTotalPerDay(day: Date, houseHoldType: Int) -> Int {
         let dateStr = getStringDate(date: day, format: dateFormatter)
-        let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr})
+        let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == houseHoldType && $0.incConsDate == dateStr})
         var amtTotalPerDay = 0
         results.forEach { result in
             amtTotalPerDay += result.incConsAmtValue
@@ -350,9 +367,9 @@ class IncomeConsumeService: CommonService {
      @param 収入・支出フラグ
      @return 日毎の収入または支出の有無
      */
-    func isExsistIncConsData(day: Date, incFlg: Bool) -> Bool {
+    func isExsistIncConsData(day: Date, houseHoldType: Int) -> Bool {
         let dateStr = getStringDate(date: day, format: dateFormatter)
-        let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr})
+        let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == houseHoldType && $0.incConsDate == dateStr})
         return !results.isEmpty
     }
     
@@ -360,11 +377,11 @@ class IncomeConsumeService: CommonService {
      @param incFlg
      @return Dicionary[収支項目主キー : 項目ごとの金額合計]
      */
-    func getIncConsDataForChart(incFlg: Bool, selectDate: Date) -> [String: Int] {
+    func getIncConsDataForChart(houseHoldType: Int, selectDate: Date) -> [String: Int] {
         let dates = getAllDayOfMonth(date: selectDate)
         var dicForChart = [String : Int]()
         dates.forEach { date in
-            var results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == String(date)})
+            var results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == houseHoldType && $0.incConsDate == String(date)})
             results.forEach { result in
                 let incConsSecKey = result.incConsSecKey
                 if dicForChart[incConsSecKey] != nil {
@@ -401,8 +418,8 @@ class IncomeConsumeService: CommonService {
             months.append(calendarService.nextMonth(date: months.last!))
         }
         months.forEach { date in
-            let incTotalPerMonth = getIncOrConsAmtTotal(date: date, incFlg: true)
-            let consTotalPerMonth = getIncOrConsAmtTotal(date: date, incFlg: false)
+            let incTotalPerMonth = getIncOrConsAmtTotal(date: date, houseHoldType: 0)
+            let consTotalPerMonth = getIncOrConsAmtTotal(date: date, houseHoldType: 1)
             let totalGap = incTotalPerMonth - consTotalPerMonth
             let monthStr = getStringDate(date: date, format: "yy年M月")
             returnArray.append(.init(type: "収入額", month: monthStr, amount: incTotalPerMonth, color: .blue))
@@ -412,30 +429,60 @@ class IncomeConsumeService: CommonService {
         return returnArray
     }
     
-    /* 残高連携情報作成で複数選択を検知する
-     @param 連携残高配列
-     @param 残高キー
-     @return 残高がすでに含まれているか
+    /** 家計タイプによって金額記号を取得する
+     @param 収入・支出情報
+     @return 金額記号
      */
-    func isExsistRegistForm(array: [IncConsAmtForm], balKey: String) -> Bool {
-        var isExist = false
-        array.forEach { data in
-            isExist = data.balKey == balKey
+    func getAmountSymbol(result: IncomeConsumeModel) -> String {
+        var symbol = "¥"
+        if result.houseHoldType == 2 {
+            if result.incConsAmtValue == 0 {
+                symbol = "±"
+                result.incConsAmtList.forEach { amt in
+                    if amt == 0 {
+                        symbol = "¥"
+                    }
+                }
+            }
         }
-        return isExist
+        return symbol
     }
     
-    /* 残高連携情報の配列で該当残高キーを含むインデックスを取得する
-     @param 連携残高配列
-     @param 残高キー
-     @return 残高キーが含まれる配列インデックス
+    /** 金額による文字カラーを取得する
+     @param 収入・支出情報
+     @return 金額文字カラー
      */
-    func getIndexAmtFormArray(array: [IncConsAmtForm], balKey: String) -> Int {
-        var containIndex = 0
-        array.indices.forEach { index in
-            containIndex = array[index].balKey == balKey ? index : 0
+    func getAmountTextColor(result: IncomeConsumeModel) -> Color {
+        var color: Color
+        switch result.houseHoldType {
+        case 0:
+            color = .blue
+        case 1:
+            color = .red
+        case 2:
+            if result.incConsAmtValue == 0 {
+                color = .changeableText
+            } else if result.incConsAmtValue > 0 {
+                color = .blue
+            } else {
+                color = .red
+            }
+        default:
+            color = .changeableText
         }
-        return containIndex
+        return color
     }
     
+    /** 日毎の収入・支出の表示を切り替えるフラグ配列の取得
+     @param 選択された日付
+     @return 表示フラグ配列
+     */
+    func getIncConsDispFlgs(selectDate: Date, listType: Int) -> [Bool] {
+        var flgs = [Bool]()
+        let datas = getIncConsPerDate(selectDate: selectDate, listType: listType)
+        datas.forEach { data in
+            flgs.append(true)
+        }
+        return flgs
+    }
 }

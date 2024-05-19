@@ -9,24 +9,31 @@ import SwiftUI
 import RealmSwift
 
 struct PaymentView: View {
-    @State private var selectDate = Date()
-    @State private var selectListView = true
+    /** 表示関連 */
     var accentColors: [Color]
+    @State private var selectDate = Date()      // 選択日付
+    @State private var selectListView = true    // 収支一覧画面かカレンダー画面か
+    @State private var alertFlg = false         // 削除時アラートフラグ
+    @State private var incConsListType = 0      // 収支情報の表示タイプ
+    @State private var dispFlgs: [Bool] =
+    IncomeConsumeService().getIncConsDispFlgs(selectDate: Date(),
+                                              listType: 0) // 収支一覧　日付別の表示フラグ配列
+    // 遷移情報
+    @State var detailPageFlg = false
+    @State var incConsObject = IncomeConsumeModel()
+    @State var incConsDic = 
+    IncomeConsumeService().getIncConsPerDate(selectDate: Date(), listType: 0)
+    @State var perDayListFlg = false                                // カレンダー　→ 収支一覧
+    @State var selectDay = Date()                                   // 選択日
+    @State var monthSummaryFlg = false                              // 月間情報の詳細ページフラグ
     // service
     let incConsService = IncomeConsumeService()
     let calendarService = CalendarService()
+    let incConsSecCatgService = IncConSecCatgService()
     // view設定
-    let generalView = GeneralComponentView()
+    let generalView = GeneralComponentView()                        // 汎用ビュー
     let dateSelectorHeight: CGFloat = 100
     let cardHeight: CGFloat = 100
-    @State private var alertFlg = false
-    // 遷移情報
-    @State var detailPageFlg = false
-    @State var incConsObject: IncomeConsumeModel = IncomeConsumeModel()
-    @State var incConsDic = IncomeConsumeService().getIncConsPerDate(selectDate: Date())
-    @State var perDayListFlg = false
-    @State var selectDay = Date()
-    @State var monthSummaryFlg = false
     var body: some View {
         NavigationStack {
             GeometryReader {
@@ -36,21 +43,18 @@ struct PaymentView: View {
                     VStack(spacing: 0) {
                         Header()
                         SelectorTab()
-                        VStack(spacing: 15){
+                        VStack(spacing: 10){
                             switch selectListView {
                             case true:
                                 ListView()
                             case false:
                                 CalendarView(width: global.width - 30, height: size.height)
                             }
-                        }
-                        .padding(15)
-                            .padding(.bottom, 50)
+                        }.padding(15)
                     }
                 }.scrollIndicators(.hidden)
                     .scrollDisabled(selectListView && incConsDic.isEmpty)
-            }
-            .ignoresSafeArea(.container, edges: .top)
+            }.ignoresSafeArea(.container, edges: .top)
                 .navigationDestination(isPresented: $detailPageFlg) {
                     IncConsDetailView(accentColors: accentColors,
                                       detailPageFlg: $detailPageFlg,
@@ -59,24 +63,36 @@ struct PaymentView: View {
                 }.navigationDestination(isPresented: $perDayListFlg) {
                     IncConsListPerDayView(perDayListFlg: $perDayListFlg,
                                           selectDay: $selectDay)
-                }
-                .navigationDestination(isPresented: $monthSummaryFlg) {
+                }.navigationDestination(isPresented: $monthSummaryFlg) {
 //                    IncConsSummaryView()
+                }.onChange(of: selectDate) {
+                    withAnimation {
+                        self.incConsDic = incConsService.getIncConsPerDate(selectDate: selectDate,
+                                                                           listType: incConsListType)
+                        self.dispFlgs = incConsService.getIncConsDispFlgs(selectDate: selectDate,
+                                                                          listType: incConsListType)
+                    }
+                }.onChange(of: incConsListType) {
+                    withAnimation {
+                        self.incConsDic = incConsService.getIncConsPerDate(selectDate: selectDate,
+                                                                           listType: incConsListType)
+                        self.dispFlgs = incConsService.getIncConsDispFlgs(selectDate: selectDate,
+                                                                          listType: incConsListType)
+                    }
+                }.alert("収支情報の削除", isPresented: $alertFlg) {
+                    Button("削除",role: .destructive) {
+                        withAnimation {
+                            incConsService.deleteIncConsData(incConsKey: self.incConsObject.incConsKey)
+                            self.incConsDic = incConsService.getIncConsPerDate(selectDate: Date(),
+                                                                               listType: incConsListType)
+                        }
+                    }
+                    Button("キャンセル", role: .cancel) {
+                        self.alertFlg = false
+                    }
+                } message: {
+                    Text("⚠️この収支情報は完全に失われます。\nよろしいですか？")
                 }
-        }.onChange(of: selectDate) {
-            self.incConsDic = incConsService.getIncConsPerDate(selectDate: selectDate)
-        }.alert("収支情報の削除", isPresented: $alertFlg) {
-            Button("削除",role: .destructive) {
-                withAnimation {
-                    incConsService.deleteIncConsData(incConsKey: self.incConsObject.incConsKey)
-                    self.incConsDic = incConsService.getIncConsPerDate(selectDate: Date())
-                }
-            }
-            Button("キャンセル", role: .cancel) {
-                self.alertFlg = false
-            }
-        } message: {
-            Text("⚠️この収支情報は完全に失われます。\nよろしいですか？")
         }
     }
     
@@ -84,9 +100,9 @@ struct PaymentView: View {
     func Header() -> some View {
         let year: Int = calendarService.getOnlyComponent(date: selectDate, component: .year)
         let month: Int = calendarService.getOnlyComponent(date: selectDate, component: .month)
-        let incTotal: Int = incConsService.getIncOrConsAmtTotal(date: selectDate, incFlg: true)
-        let consTotal: Int = incConsService.getIncOrConsAmtTotal(date: selectDate, incFlg: false)
-        let totalGap = incTotal + consTotal
+        let incTotal: Int = incConsService.getIncOrConsAmtTotal(date: selectDate, houseHoldType: 0)
+        let consTotal: Int = incConsService.getIncOrConsAmtTotal(date: selectDate, houseHoldType: 1)
+        let totalGap = incTotal - consTotal
         GeometryReader {
             let size = $0.size
             let minY = $0.frame(in: .scrollView).minY
@@ -165,7 +181,7 @@ struct PaymentView: View {
                         }.foregroundStyle(.white)
                         ZStack {
                             Rectangle()
-                                .frame(height: cardHeight / 3.5)
+                                .frame(height: cardHeight / 5)
                                 .foregroundStyle(.changeable)
                             HStack(spacing: 10) {
                                 Text("月間情報")
@@ -252,69 +268,94 @@ struct PaymentView: View {
     @ViewBuilder
     func ListView() -> some View {
         let month: Int = calendarService.getOnlyComponent(date: selectDate, component: .month)
-        let labels = [0: "日付　新しい順", 1: "日付　古い順"]
+        let labels = ["すべて", "残高操作を除く", "収入", "支出", "残高操作"]
+        ScrollView(.horizontal) {
+            HStack {
+                ForEach(labels.indices, id: \.self) { index in
+                    let isSelectType = self.incConsListType == index
+                    ZStack {
+                        if !isSelectType {
+                            RoundedRectangle(cornerRadius: 25)
+                                .stroke(lineWidth: 1)
+                                .fill(accentColors.last ?? .blue)
+                        } else {
+                            RoundedRectangle(cornerRadius: 25)
+                                .fill(accentColors.last ?? .blue)
+                        }
+                        Text(labels[index])
+                            .font(.caption2)
+                            .foregroundStyle(isSelectType ? .white :  Color.changeableText)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                    }.onTapGesture {
+                        withAnimation {
+                            self.incConsListType = index
+                        }
+                    }
+                }
+            }.padding(5)
+        }.frame(height: 30)
+            .padding(.vertical, 5)
         if incConsDic.isEmpty {
-            Text(String(month) + "月の収支情報が存在しません。")
+            Text("収支情報が存在しません。")
                 .font(.caption)
                 .foregroundStyle(Color.changeableText)
                 .padding(.top, 100)
         } else {
-            HStack {
-                Spacer()
-                Menu {
-                    ForEach(labels.sorted(by: {$0.key > $1.key}), id: \.key) { key, value in
-                        Button(action: {
-                            switch key {
-                            case 0:
-                                print(key)
-                            case 1:
-                                print(key)
-                            default:
-                                print(key)
-                            }
-                        }) {
-                            Text(value)
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text("並び替え")
-                        Image(systemName: "chevron.up.chevron.down")
-                    }.foregroundStyle(accentColors.last ?? .changeableText)
-                        .font(.caption.bold())
-                }
-            }
-            ForEach(incConsDic.sorted(by: {$0.key > $1.key}), id: \.key) { key, value in
+            ForEach(Array(incConsDic.sorted(by: {$0.key > $1.key})).indices, id: \.self) { index in
+                let key = Array(incConsDic.sorted(by: {$0.key > $1.key}))[index].key
+                let value = incConsDic[key]!
                 let day = incConsService.treatDateText(dateStr: key)
-                VStack(alignment: .leading) {
+                VStack {
                     HStack {
                         Text(day)
                             .font(.system(.caption, design: .rounded, weight: .bold))
                             .foregroundStyle(Color.changeableText)
+                            .padding(.vertical, 5)
                         ZStack {
                             RoundedRectangle(cornerRadius: 25)
                                 .fill(accentColors.last ?? .changeable)
                             Text(value.count <= 99 ? "\(value.count)" : "99+")
                                 .font(.system(.caption2, design: .rounded, weight: .bold))
                                 .foregroundStyle(Color.white)
-                        }.frame(width: 30)
+                        }.frame(width: 30, height: 10)
                             .padding(.leading, 10)
-                    }
-                    HStack(spacing: 0) {
-                        generalView.Bar()
-                            .padding(.horizontal, 20)
-                        ScrollView(.horizontal) {
-                            HStack {
-                                ForEach(value.indices, id: \.self) { index in
-                                    let result = value[index]
-                                    DetailCard(incConsObject: result,
-                                               incFlg: result.houseHoldType == 0,
-                                               incConsAmt: result.incConsAmtValue,
-                                               secKey: result.incConsSecKey,
-                                               catgKey: result.incConsCatgKey)
+                        Spacer()
+                        Image(systemName: "chevron.down")
+                            .font(.subheadline.bold())
+                            .rotationEffect(.degrees(self.dispFlgs[index] ? 0 : 180))
+                            .foregroundStyle(Color.changeableText)
+                            .onTapGesture {
+                                withAnimation {
+                                    self.dispFlgs[index].toggle()
                                 }
                             }
-                        }.frame(height: 60)
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                    HStack(spacing: 0) {
+                        if dispFlgs[index] {
+                            generalView.Bar()
+                                .padding(.horizontal, 15)
+                                .foregroundStyle(Color.changeableText)
+                            ZStack {
+                                generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+                                VStack(spacing: 2) {
+                                    ForEach(value.indices, id: \.self) { index in
+                                        let result = value[index]
+                                        DetailCard(result: result,
+                                                   houseHoldType: result.houseHoldType,
+                                                   incConsAmt: result.incConsAmtValue,
+                                                   secKey: result.incConsSecKey,
+                                                   catgKey: result.incConsCatgKey)
+                                        if value.count - 1 != index {
+                                            generalView.Border()
+                                                .foregroundStyle(Color(uiColor: .systemGray3))
+                                                .padding(5)
+                                                .padding(.horizontal, 5)
+                                        }
+                                    }
+                                }.padding(.vertical, 10)
+                            }
+                        }
                     }
                 }
             }
@@ -322,70 +363,63 @@ struct PaymentView: View {
     }
     
     @ViewBuilder
-    func DetailCard(incConsObject: IncomeConsumeModel, incFlg: Bool, incConsAmt: Int,
+    func DetailCard(result: IncomeConsumeModel, houseHoldType: Int, incConsAmt: Int,
                     secKey: String, catgKey: String) -> some View {
-        let secResult = try? Realm().object(ofType: IncConsSectionModel.self, forPrimaryKey: secKey)
-        let rectWidth: CGFloat = 150
+        let secResult = incConsSecCatgService.getIncConsSecSingle(secKey: secKey)
+        let textColor: Color = incConsService.getAmountTextColor(result: result)
+        let symbol = incConsService.getAmountSymbol(result: result)
+        let rectWidth: CGFloat = 300
         let iconWH: CGFloat = 40
         let iconPadding: CGFloat = 5
-        ZStack {
-            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
-            HStack(spacing: 0) {
-                if let result = secResult {
-                    let catgResult = try! Realm().object(ofType: IncConsCategoryModel.self, forPrimaryKey: catgKey)!
-                    let color = ColorAndImage.colors[result.incConsSecColorIndex]
-                    let image = result.incConsSecImage
-                    let text = catgResult.incConsCatgNm
-                    generalView.RoundedIcon(radius: 10, color: color, image: image, text: text)
-                        .font(.caption.bold())
-                        .frame(width: iconWH, height: iconWH)
-                        .padding(iconPadding)
-                    VStack(spacing: 10) {
-                        HStack {
-                            Text(text)
-                            Spacer()
-                            Menu {
-                                Button(action: {
-                                    self.detailPageFlg = true
-                                    self.incConsObject = incConsObject
-                                }) {
-                                    HStack {
-                                        Text("詳細")
-                                        Image(systemName: "chevron.right")
-                                    }
-                                }
-                                Button(role: .destructive,action: {
-                                    self.alertFlg = true
-                                    self.incConsObject = incConsObject
-                                }) {
-                                    HStack {
-                                        Text("削除")
-                                        Image(systemName: "trash")
-                                    }
-                                }
-                            } label: {
-                                Image(systemName: "ellipsis")
-                                    .rotationEffect(Angle(degrees: 90))
-                                    .padding(3)
+        HStack(spacing: 0) {
+            let catgResult = incConsSecCatgService.getIncConsCatgSingle(catgKey: catgKey)
+            let color = ColorAndImage.colors[secResult.incConsSecColorIndex]
+            let image = secResult.incConsSecImage
+            let text = catgResult.incConsCatgNm
+            generalView.RoundedIcon(radius: 10, color: color, image: image, text: text)
+                .font(.caption.bold())
+                .frame(width: iconWH, height: iconWH)
+                .padding(iconPadding)
+            VStack(spacing: 10) {
+                HStack {
+                    Text(text)
+                    Spacer()
+                    Menu {
+                        Button(action: {
+                            self.detailPageFlg = true
+                            self.incConsObject = result
+                        }) {
+                            HStack {
+                                Text("詳細")
+                                Image(systemName: "chevron.right")
                             }
-                        }.font(.caption)
-                            .foregroundStyle(Color.changeableText)
-                        Text("¥\(incConsAmt)")
-                            .font(.system(.caption, design: .rounded, weight: .bold))
-                            .foregroundStyle(incFlg ? .blue : .red)
-                            .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)),
-                                   alignment: .trailing)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                    }.padding(.horizontal, 5)
-                        .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)))
-                } else {
-                    let color = ColorAndImage.colors[24]
-                    generalView.RoundedIcon(radius: 5, color: color, image: "exclamationmark",
-                                            text: "未登録")
-                }
-            }.frame(maxWidth: .infinity, alignment: .leading)
-        }.frame(width: rectWidth)
+                        }
+                        Button(role: .destructive,action: {
+                            self.alertFlg = true
+                            self.incConsObject = result
+                        }) {
+                            HStack {
+                                Text("削除")
+                                Image(systemName: "trash")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .rotationEffect(Angle(degrees: 90))
+                            .padding(3)
+                    }
+                }.font(.caption)
+                    .foregroundStyle(Color.changeableText)
+                Text(symbol + "\(incConsAmt)")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(textColor)
+                    .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)),
+                           alignment: .trailing)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+            }.padding(.horizontal, 5)
+                .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)))
+        }.frame(maxWidth: rectWidth, alignment: .leading)
     }
     
     @ViewBuilder
@@ -416,10 +450,10 @@ struct PaymentView: View {
                         let isSelectDay =
                         calendarService.getStringDate(date: date, format: "yyyyMMdd") ==
                         calendarService.getStringDate(date: self.selectDate, format: "yyyyMMdd")
-                        let incAmt = incConsService.getIncConsTotalPerDay(day: date, incFlg: true)
-                        let consAmt = incConsService.getIncConsTotalPerDay(day: date, incFlg: false)
-                        let isExsistInc = incConsService.isExsistIncConsData(day: date, incFlg: true)
-                        let isExsistCons = incConsService.isExsistIncConsData(day: date, incFlg: false)
+                        let incAmt = incConsService.getIncConsTotalPerDay(day: date, houseHoldType: 0)
+                        let consAmt = incConsService.getIncConsTotalPerDay(day: date, houseHoldType: 1)
+                        let isExsistInc = incConsService.isExsistIncConsData(day: date, houseHoldType: 0)
+                        let isExsistCons = incConsService.isExsistIncConsData(day: date, houseHoldType: 1)
                         ZStack(alignment: .top) {
                             Rectangle()
                                 .foregroundStyle(isSelectDay ? Color(uiColor: .systemGray6) : .clear)
@@ -432,7 +466,8 @@ struct PaymentView: View {
                                     .overlay(
                                         Text(day)
                                             .foregroundStyle(
-                                                isToday ? .white : isOffsetDay ? .gray : Color.changeableText
+                                                isToday ? .white : isOffsetDay ?
+                                                Color(uiColor: .systemGray3) : Color.changeableText
                                             )
                                             .font(.system(.caption2, design: .rounded))
                                     )

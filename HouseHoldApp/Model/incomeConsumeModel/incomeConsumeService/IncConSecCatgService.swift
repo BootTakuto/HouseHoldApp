@@ -19,6 +19,30 @@ class IncConSecCatgService: CommonService {
         return results
     }
     
+    /** 収支項目の1件を取得する
+     @param 項目主キー
+     @return 収支項目1件
+     */
+    func getIncConsSecSingle(secKey: String) -> IncConsSectionModel {
+        let result = realm.object(ofType: IncConsSectionModel.self, forPrimaryKey: secKey)
+        let unWrapObject = IncConsSectionModel()
+        unWrapObject.incConsSecName = "残高操作"
+        unWrapObject.incConsSecImage = "arrow.up.arrow.down"
+        unWrapObject.incConsSecColorIndex = 24
+        return result ?? unWrapObject
+    }
+    
+    /** 収支項目カテゴリーの1件を取得する
+     @param 項目主キー
+     @return 収支項目カテゴリー1件
+     */
+    func getIncConsCatgSingle(catgKey: String) -> IncConsCategoryModel {
+        let result = realm.object(ofType: IncConsCategoryModel.self, forPrimaryKey: catgKey)
+        let unWrapObject = IncConsCategoryModel()
+        unWrapObject.incConsCatgNm = "残高操作"
+        return result ?? unWrapObject
+    }
+    
     /** 収入・支出項目の登録
      @param 家計タイプ
      @param 項目名

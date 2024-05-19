@@ -11,10 +11,6 @@ import RealmSwift
 struct ContentTabBar: View {
     var accentColors: [Color]
     @Binding var selectedContent: Int
-    /** 残高、収入合計金額、支出合計金額 → 登録と同時に変更するため  */
-    @Binding var incAmtTotal: Int
-    @Binding var consAmtTotal: Int
-//    @Binding var date: Date
     @State var registIncConsFlg = false
     @ObservedResults(BalanceModel.self) var balanceResults
     let screen = UIScreen.main.bounds

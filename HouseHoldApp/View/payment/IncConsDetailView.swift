@@ -57,7 +57,8 @@ struct IncConsDetailView: View {
         }.alert("収支情報の削除", isPresented: $alertFlg) {
             Button("削除",role: .destructive) {
                 incConsService.deleteIncConsData(incConsKey: self.incConsObject.incConsKey)
-                self.incConsDic = incConsService.getIncConsPerDate(selectDate: Date())
+                self.incConsDic = incConsService.getIncConsPerDate(selectDate: Date(),
+                                                                   listType: 0)
                 self.detailPageFlg = false
                 // ▼ 削除されたオブジェクトを参照して落ちるため
                 self.incConsObject = IncomeConsumeModel()

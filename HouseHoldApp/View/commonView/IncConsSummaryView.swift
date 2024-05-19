@@ -31,9 +31,9 @@ struct IncConsSummaryView: View {
                     case 0:
                         IncConsCompareChart(size: size)
                     case 1:
-                        IncOrConsChartList(size: size, incFlg: true)
+                        IncOrConsChartList(size: size, houseHoldType: 0)
                     case 2:
-                        IncOrConsChartList(size: size, incFlg: false)
+                        IncOrConsChartList(size: size, houseHoldType: 1)
                     default:
                         IncConsCompareChart(size: size)
                     }
@@ -143,11 +143,11 @@ struct IncConsSummaryView: View {
     }
     
     @ViewBuilder
-    func IncOrConsChartList(size: CGSize, incFlg: Bool) -> some View {
-        let chartDic = incConsService.getIncConsDataForChart(incFlg: incFlg, selectDate: selectDate)
+    func IncOrConsChartList(size: CGSize, houseHoldType: Int) -> some View {
+        let chartDic = incConsService.getIncConsDataForChart(houseHoldType: houseHoldType, selectDate: selectDate)
         ScrollView {
             VStack {
-                charts.IncConsRateChart(incFlg: incFlg, date: self.selectDate)
+                charts.IncConsRateChart(houseHoldType: houseHoldType, date: self.selectDate)
                     .padding()
                     .frame(height: 200)
                 ForEach(chartDic.sorted(by: >), id: \.key) { key, value in

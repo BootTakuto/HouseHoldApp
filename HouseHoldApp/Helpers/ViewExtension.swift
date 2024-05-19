@@ -12,7 +12,7 @@ extension View  {
         ZStack {
             self
             if isPresented.wrappedValue {
-                content()
+                content().zIndex(1000)
             }
         }
     }

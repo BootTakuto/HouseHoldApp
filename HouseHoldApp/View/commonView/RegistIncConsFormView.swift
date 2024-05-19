@@ -402,52 +402,9 @@ struct RegistIncConsFormView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
                     Group {
-                        let sectionText = self.selectForm == 0 ? "収入項目" : "支出項目"
-                        if self.selectForm != 2 {
-                            Text(sectionText)
-                                .font(.caption.bold())
-                                .foregroundStyle(Color.changeableText)
-                                .padding(.top, 15)
-                            ScrollView(.horizontal) {
-                                LazyHStack {
-                                    ForEach(self.sectionResults.indices, id:\.self) { secIndex in
-                                        let result = sectionResults[secIndex]
-                                        let colorIndex = result.incConsSecColorIndex
-                                        let color = ColorAndImage.colors[colorIndex]
-                                        let imageNm = result.incConsSecImage
-                                        let secNm = result.incConsSecName
-                                        let isSelectSec = result.incConsSecKey == self.incConsSecKey
-                                        Menu {
-                                            ForEach(result.incConsCatgOfSecList.indices, id: \.self) { catgIndex in
-                                                let catg = result.incConsCatgOfSecList[catgIndex]
-                                                let isSelectCatg = catg.incConsCatgKey == self.incConsCatgKey
-                                                Button(action: {
-                                                    withAnimation {
-                                                        self.incConsSecKey = catg.incConsSecKey
-                                                        self.incConsCatgKey = catg.incConsCatgKey
-                                                    }
-                                                }) {
-                                                    Text("\(catg.incConsCatgNm)")
-                                                    if isSelectCatg {
-                                                        Image(systemName: "checkmark")
-                                                    }
-                                                }
-                                            }
-                                        } label: {
-                                            ZStack {
-                                                generalView.RoundedIcon(radius: 10, color: color,
-                                                                        image: imageNm, text: secNm)
-                                                .frame(width: 50, height: 50)
-                                            }
-                                        }.shadow(color: isSelectSec ? .changeableShadow : .clear, radius: 3)
-                                            .padding(.vertical, 5)
-                                    }
-                                }.padding(.horizontal, 5)
-                            }.scrollIndicators(.hidden)
-                        }
                         toggleLinkBalance()
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                            .padding(.top, 5)
+                            .padding(.top, 20)
                         if self.linkBalFlg {
                             if self.balResults.isEmpty {
                                 VStack {
@@ -535,6 +492,48 @@ struct RegistIncConsFormView: View {
                             }
                         } else {
                             textFieldNotLinkBal()
+                        }
+                        let sectionText = self.selectForm == 0 ? "収入項目" : "支出項目"
+                        if self.selectForm != 2 {
+                            Text(sectionText)
+                                .font(.caption.bold())
+                                .foregroundStyle(Color.changeableText)
+                            ScrollView(.horizontal) {
+                                LazyHStack {
+                                    ForEach(self.sectionResults.indices, id:\.self) { secIndex in
+                                        let result = sectionResults[secIndex]
+                                        let colorIndex = result.incConsSecColorIndex
+                                        let color = ColorAndImage.colors[colorIndex]
+                                        let imageNm = result.incConsSecImage
+                                        let secNm = result.incConsSecName
+                                        let isSelectSec = result.incConsSecKey == self.incConsSecKey
+                                        Menu {
+                                            ForEach(result.incConsCatgOfSecList.indices, id: \.self) { catgIndex in
+                                                let catg = result.incConsCatgOfSecList[catgIndex]
+                                                let isSelectCatg = catg.incConsCatgKey == self.incConsCatgKey
+                                                Button(action: {
+                                                    withAnimation {
+                                                        self.incConsSecKey = catg.incConsSecKey
+                                                        self.incConsCatgKey = catg.incConsCatgKey
+                                                    }
+                                                }) {
+                                                    Text("\(catg.incConsCatgNm)")
+                                                    if isSelectCatg {
+                                                        Image(systemName: "checkmark")
+                                                    }
+                                                }
+                                            }
+                                        } label: {
+                                            ZStack {
+                                                generalView.RoundedIcon(radius: 10, color: color,
+                                                                        image: imageNm, text: secNm)
+                                                .frame(width: 50, height: 50)
+                                            }
+                                        }.shadow(color: isSelectSec ? .changeableShadow : .clear, radius: 3)
+                                            .padding(.vertical, 5)
+                                    }
+                                }.padding(.horizontal, 5)
+                            }.scrollIndicators(.hidden)
                         }
                         Text(LabelsModel.dateLabel)
                             .font(.caption.bold())

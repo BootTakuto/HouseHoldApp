@@ -163,9 +163,9 @@ struct WholeSummary: View {
                         case 0:
                             financeCharts.IncConsCompareChart(selectDate: Date(), makeSize: 2).padding()
                         case 1:
-                            financeCharts.IncConsRateChart(incFlg: true, date: Date()).padding()
+                            financeCharts.IncConsRateChart(houseHoldType: 0, date: Date()).padding()
                         case 2:
-                            financeCharts.IncConsRateChart(incFlg: false, date: Date()).padding()
+                            financeCharts.IncConsRateChart(houseHoldType: 1, date: Date()).padding()
                         default:
                             financeCharts.IncConsCompareChart(selectDate: Date(), makeSize: 2).padding()
                         }
