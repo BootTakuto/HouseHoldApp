@@ -42,6 +42,7 @@ struct BalanceSummaryView: View {
                             .padding(.horizontal, 20)
                         BalanceList(size: size)
                             .padding(.horizontal, 20)
+                            .padding(.bottom, 100)
                     }
                 }.scrollIndicators(.hidden)
             }.onChange(of: deleteBalAlertFlg) {
@@ -160,7 +161,7 @@ struct BalanceSummaryView: View {
     func BalancePieChart() -> some View {
         ZStack {
             generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
-            charts.BalRateChart(assetsFlg: true)
+            
         }
     }
     

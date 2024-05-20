@@ -27,6 +27,7 @@
 		2CA407242B59511B0038694B /* ContentTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA407232B59511B0038694B /* ContentTabBar.swift */; };
 		2CA407262B5B53700038694B /* TabCurve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA407252B5B53700038694B /* TabCurve.swift */; };
 		2CA5726A2B74236F002BD1CA /* CommonService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA572692B74236F002BD1CA /* CommonService.swift */; };
+		2CA697642BFAAAF800BFE895 /* BudgetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA697632BFAAAF800BFE895 /* BudgetModel.swift */; };
 		2CA8CFE22BD5BB7900E3419E /* IncConsListPerDayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA8CFE12BD5BB7900E3419E /* IncConsListPerDayView.swift */; };
 		2CA911562BE8822800D635A9 /* ViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA911552BE8822800D635A9 /* ViewExtension.swift */; };
 		2CB1ECEA2B6F2D280014B5FC /* IncConsSectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB1ECE92B6F2D280014B5FC /* IncConsSectionModel.swift */; };
@@ -36,7 +37,6 @@
 		2CB405C42B774AC400CC0F25 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB405C32B774AC400CC0F25 /* CalendarService.swift */; };
 		2CB405C92B77AE1900CC0F25 /* GeneralComponentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB405C82B77AE1900CC0F25 /* GeneralComponentView.swift */; };
 		2CD172E02B588128006E3FBD /* BalanceSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD172DF2B588128006E3FBD /* BalanceSummaryView.swift */; };
-		2CDF70592B808B9000428F67 /* RealmMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDF70582B808B9000428F67 /* RealmMigrationService.swift */; };
 		2CFDF8DB2A792E3F00D5C194 /* HouseHoldAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFDF8DA2A792E3F00D5C194 /* HouseHoldAppApp.swift */; };
 		2CFDF8DD2A792E3F00D5C194 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFDF8DC2A792E3F00D5C194 /* ContentView.swift */; };
 		2CFDF8DF2A792E4100D5C194 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CFDF8DE2A792E4100D5C194 /* Assets.xcassets */; };
@@ -81,6 +81,7 @@
 		2CA407232B59511B0038694B /* ContentTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentTabBar.swift; sourceTree = "<group>"; };
 		2CA407252B5B53700038694B /* TabCurve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabCurve.swift; sourceTree = "<group>"; };
 		2CA572692B74236F002BD1CA /* CommonService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonService.swift; sourceTree = "<group>"; };
+		2CA697632BFAAAF800BFE895 /* BudgetModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetModel.swift; sourceTree = "<group>"; };
 		2CA8CFE12BD5BB7900E3419E /* IncConsListPerDayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsListPerDayView.swift; sourceTree = "<group>"; };
 		2CA911552BE8822800D635A9 /* ViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtension.swift; sourceTree = "<group>"; };
 		2CB1ECE92B6F2D280014B5FC /* IncConsSectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsSectionModel.swift; sourceTree = "<group>"; };
@@ -90,7 +91,6 @@
 		2CB405C32B774AC400CC0F25 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
 		2CB405C82B77AE1900CC0F25 /* GeneralComponentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralComponentView.swift; sourceTree = "<group>"; };
 		2CD172DF2B588128006E3FBD /* BalanceSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceSummaryView.swift; sourceTree = "<group>"; };
-		2CDF70582B808B9000428F67 /* RealmMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmMigrationService.swift; sourceTree = "<group>"; };
 		2CFDF8D72A792E3F00D5C194 /* HouseHoldApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HouseHoldApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CFDF8DA2A792E3F00D5C194 /* HouseHoldAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseHoldAppApp.swift; sourceTree = "<group>"; };
 		2CFDF8DC2A792E3F00D5C194 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -201,6 +201,7 @@
 		2C7C53D22AB2620A004458FD /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				2CA697652BFAAB0100BFE895 /* BudgetModel */,
 				2CB19A042B1C3F8C009441EE /* incomeConsumeModel */,
 				2C6AB4D42AEAFFFC00F6F58C /* calendarModel */,
 				2C293B7C2ABEB1B300CBB2BF /* balanceModel */,
@@ -213,9 +214,16 @@
 			isa = PBXGroup;
 			children = (
 				2CA572692B74236F002BD1CA /* CommonService.swift */,
-				2CDF70582B808B9000428F67 /* RealmMigrationService.swift */,
 			);
 			path = commonService;
+			sourceTree = "<group>";
+		};
+		2CA697652BFAAB0100BFE895 /* BudgetModel */ = {
+			isa = PBXGroup;
+			children = (
+				2CA697632BFAAAF800BFE895 /* BudgetModel.swift */,
+			);
+			path = BudgetModel;
 			sourceTree = "<group>";
 		};
 		2CB19A042B1C3F8C009441EE /* incomeConsumeModel */ = {
@@ -451,7 +459,6 @@
 				2C90F6C92BE76DFB0095BE5D /* PopUpView.swift in Sources */,
 				2C22A64C2B6E414900D220E2 /* BalanceModel.swift in Sources */,
 				2C3CA8232B440AB800EC2D1B /* IncomeConsumeModel.swift in Sources */,
-				2CDF70592B808B9000428F67 /* RealmMigrationService.swift in Sources */,
 				2C89BE272BF096AD008E1DFD /* PopUpStatus.swift in Sources */,
 				2CFDF8DD2A792E3F00D5C194 /* ContentView.swift in Sources */,
 				2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */,
@@ -459,6 +466,7 @@
 				2C9B255A2BC885BD00CDB73E /* IncConsDetailView.swift in Sources */,
 				2C2C30462BF62A4900CF59D0 /* IncConsAmtForm.swift in Sources */,
 				2CFDF8DB2A792E3F00D5C194 /* HouseHoldAppApp.swift in Sources */,
+				2CA697642BFAAAF800BFE895 /* BudgetModel.swift in Sources */,
 				2CD172E02B588128006E3FBD /* BalanceSummaryView.swift in Sources */,
 				2C786B902B72DD0B0033ECB5 /* IncomeConsumeService.swift in Sources */,
 				2C9439D52BD9B27400313B98 /* FinanceCharts.swift in Sources */,

@@ -39,6 +39,7 @@ struct SettingMenu: View {
                     }.frame(height: 60)
                         .scrollIndicators(.hidden)
                 }.padding(.horizontal, 20)
+                    .padding(.bottom, 100)
             }
         }
     }

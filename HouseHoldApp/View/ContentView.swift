@@ -20,19 +20,14 @@ struct ContentView: View {
                 switch selectedContent {
                 case 0:
                     WholeSummary(accentColors: accentColors)
-                        .padding(.bottom, 100)
                 case 1:
                     BalanceSummaryView(accentColors: accentColors)
-                        .padding(.bottom, 100)
                 case 2:
                     PaymentView(accentColors: accentColors)
-                        .padding(.bottom, 100)
                 case 3:
                     SettingMenu(accentColors: accentColors)
-                        .padding(.bottom, 100)
                 default:
                     WholeSummary(accentColors: accentColors)
-                        .padding(.bottom, 100)
                 }
                 ContentTabBar(accentColors: accentColors,
                               selectedContent: $selectedContent)

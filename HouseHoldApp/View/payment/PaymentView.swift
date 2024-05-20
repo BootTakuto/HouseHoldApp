@@ -51,6 +51,7 @@ struct PaymentView: View {
                                 CalendarView(width: global.width - 30, height: size.height)
                             }
                         }.padding(15)
+                            .padding(.bottom, 100)
                     }
                 }.scrollIndicators(.hidden)
                     .scrollDisabled(selectListView && incConsDic.isEmpty)

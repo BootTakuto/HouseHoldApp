@@ -13,60 +13,18 @@ class FinanceCharts {
     // service
     let balService = BalanceService()
     let incConsService = IncomeConsumeService()
-    @ObservedResults(BalanceModel.self) var assetsResults
-    @ObservedResults(BalanceModel.self) var debtResults
+    @State var balResults = BalanceService().getBalanceResults()
     @ObservedResults(IncomeConsumeModel.self) var incResults
     @ObservedResults(IncomeConsumeModel.self) var consResults
-    // ▼資産と負債　純資産チャート
+    // 残高棒グラフ
     @ViewBuilder
     func BalCompareChart() -> some View {
-        let assetsBalTotal = balService.getBalanceTotal()
-        let debtBalTotal = balService.getBalanceTotal()
-        let netWorth = assetsBalTotal - debtBalTotal
         Chart {
-            BarMark(
-                x: .value("fruit", "資産"),
-                y: .value("Price", assetsBalTotal)
-            ).foregroundStyle(Color.blue)
-            BarMark(
-                x: .value("fruit", "負債"),
-                y: .value("Price", debtBalTotal)
-            ).foregroundStyle(Color.red)
-            BarMark(
-                x: .value("fruit", "純資産"),
-                y: .value("Price", netWorth)
-            ).foregroundStyle(netWorth > 0 ? Color.blue : Color.red)
-        }
-    }
-    
-    // ▼資産or負債の割合
-    @ViewBuilder
-    func BalRateChart(assetsFlg: Bool) -> some View {
-        ZStack {
-            Chart {
-                ForEach(assetsFlg ? assetsResults.indices : debtResults.indices, id: \.self) {index in
-                    let balAmt = self.assetsResults[index].balanceAmt
-                    SectorMark(
-                        angle: .value("count", balAmt),
-                        innerRadius: .inset(30),
-                        angularInset: 1
-                    )
-                    .foregroundStyle(assetsFlg ? Color.blue : Color.red)
-                    .annotation(position: .overlay) {
-                        Text("¥\(balAmt)")
-                            .font(.system(.caption2, design: .rounded))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
-                    }
-                }
-            }
-            VStack {
-                Text(assetsFlg ? "資産総額" : "負債総額")
-                    .font(.caption2)
-                    .foregroundStyle(Color.changeableText)
-                Text("¥\(balService.getBalanceTotal())")
-                    .font(.system(.caption, design: .rounded, weight: .bold))
-                    .foregroundStyle(assetsFlg ? Color.blue : Color.red)
+            ForEach(Array(balResults.sorted(by: {$0.balanceAmt > $1.balanceAmt})), id: \.self) { result in
+                BarMark(
+                    x: .value("label", result.balanceNm),
+                    y: .value("amount", result.balanceAmt)
+                ).foregroundStyle(ColorAndImage.colors[result.colorIndex])
             }
         }
     }

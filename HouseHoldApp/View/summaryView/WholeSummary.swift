@@ -17,12 +17,15 @@ struct WholeSummary: View {
     @State var dispFlg = [true, true, true, true]
     @State var assetsChartDestFlg = false
     @State var incConsChartDestFlg = false
+    /** 残高 */
+    @State var balResults = BalanceService().getBalanceResults()
     // charts
     let financeCharts = FinanceCharts()
     // 汎用ビュー
     let generalView = GeneralComponentView()
     // service
     let calendarService = CalendarService()
+    let balanceService = BalanceService()
     // 遷移情報
     @State var chartPageFlg = false
     var body: some View {
@@ -32,10 +35,22 @@ struct WholeSummary: View {
                 VStack(spacing: 0) {
                     Header()
                     ScrollView {
-                        ChartArea(size: size)
-                            .padding(.bottom, 10)
-                        BudgetArea()
-                    }.padding(.horizontal, 10)
+                        VStack {
+                            BalanceChartArea(size: size)
+                                .padding(.bottom, 10)
+                                .compositingGroup()
+                                .shadow(color: .changeableShadow, radius: 5)
+                            BudgetArea(size: size)
+                                .padding(.bottom, 10)
+                                .compositingGroup()
+                                .shadow(color: .changeableShadow, radius: 5)
+                            IncConsChartArea(size: size)
+                                .padding(.bottom, 100)
+                                .compositingGroup()
+                                .shadow(color: .changeableShadow, radius: 5)
+                        }.padding(.horizontal, 10)
+                            .padding(.top, 10)
+                    }.scrollIndicators(.hidden)
                 }
             }.navigationDestination(isPresented: $assetsChartDestFlg) {
                 
@@ -62,22 +77,6 @@ struct WholeSummary: View {
             Text("月")
                 .font(.caption.bold())
             Spacer()
-//            Group {
-//                Button(action: {
-//                    withAnimation {
-//                        self.selectDate = calendarService.previewMonth(date: selectDate)
-//                    }
-//                }) {
-//                    Image(systemName: "chevron.left")
-//                }.padding(.trailing, 20)
-//                Button(action: {
-//                    withAnimation {
-//                        self.selectDate = calendarService.nextMonth(date: selectDate)
-//                    }
-//                }) {
-//                    Image(systemName: "chevron.right")
-//                }
-//            }.fontWeight(.bold)
         }.foregroundStyle(Color.changeableText)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 10)
@@ -102,88 +101,112 @@ struct WholeSummary: View {
             }
     }
     
-    /**▼チャートエリア構成**/
+    /** ▼残高チャート **/
     @ViewBuilder
-    func SelectorTab() -> some View {
-        let text = ["残高割合", "収支推移"]
+    func miniBalIcon(balResult: BalanceModel) -> some View {
         HStack {
-            ForEach(text.indices, id:\.self) {index in
-                ZStack {
-                    if self.selectChart == index {
-                        generalView.GradientCard(colors: accentColors, radius: 25)
-                    } else {
-                        generalView.GlassBlur(effect: .systemMaterial, radius: 25)
-                    }
-                    RoundedRectangle(cornerRadius: 25)
-                        .fill(
-                            .linearGradient(colors: self.selectChart == index ? accentColors : [.changeable], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    HStack {
-                        Text(text[index])
-                            .fontWeight(.bold)
-                        Image(systemName: "triangle.fill")
-                            .rotationEffect(.degrees(180))
-                    }.font(.caption2)
-                        .foregroundStyle(index == self.selectChart ? .white : .changeableText)
-                }.contentShape(Rectangle())
-                .onTapGesture {
-                    withAnimation {
-                        self.selectChart = index
-                    }
-                }
-                .frame(width: 120, height: 30)
-            }
-        }
+            Circle()
+                .fill(ColorAndImage.colors[balResult.colorIndex])
+                .frame(width: 15)
+            VStack(alignment: .leading) {
+                Text(balResult.balanceNm)
+                    .font(.caption2.bold())
+                    .foregroundStyle(Color.changeableText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                Text("¥\(balResult.balanceAmt)")
+                    .font(.system(.caption2, design: .rounded, weight: .bold))
+                    .foregroundStyle(balResult.balanceAmt > 0 ? .blue : .red)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+            }.frame(maxWidth: 100, alignment: .leading)
+        }.padding(3)
+            .padding(.horizontal, 5)
+            .background(Color.changeable)
+            .clipShape(RoundedRectangle(cornerRadius: 25))
+//            .shadow(color: .changeableShadow, radius: 3)
     }
     
     @ViewBuilder
+    func BalanceChartArea(size: CGSize) -> some View {
+        let balTotal = balanceService.getBalanceTotal()
+        ZStack {
+            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+            VStack {
+                DispHeadline(text: "残高", dispFlgIndex: 0)
+                if self.dispFlg[0] {
+                    ScrollView(.horizontal) {
+                        HStack {
+                            ForEach(Array(balResults.sorted(by: {$0.balanceAmt > $1.balanceAmt})), id: \.self) { result in
+                                miniBalIcon(balResult: result)
+                            }
+                        }.padding(3)
+                    }.padding(.top, 10)
+                    HStack(spacing: 0) {
+                        Text("合計")
+                            .foregroundStyle(Color.changeableText)
+                            .frame(width: (size.width - 60) / 2, alignment: .leading)
+                        Text("¥\(balTotal)")
+                            .foregroundStyle(balTotal > 0 ? .blue : .red)
+                            .frame(width: (size.width - 60) / 2, alignment: .trailing)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    } .font(.subheadline.bold())
+                        .frame(width: size.width - 40)
+                        .padding(.vertical)
+                        .background(.changeable)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    ZStack {
+                        Color.changeable
+                        ScrollView(.horizontal) {
+                            HStack {
+                                financeCharts.BalCompareChart()
+                                    .padding(10)
+                            }.frame(width: size.width - 40, height: 180)
+                        }.frame(height: 210)
+                    }.clipShape(RoundedRectangle(cornerRadius: 10))
+//                        .shadow(color: .changeableShadow, radius: 3)
+                }
+            }.padding(10)
+                .padding(.vertical, 10)
+        }
+    }
+    
+    /** ▼収支チャート **/
+    @ViewBuilder
     func ChartCard(size: CGSize, index: Int) -> some View {
-        let assetsChartTitles = ["純資産割合", "資産構成", "負債構成"]
         let incConsChartTitles = ["収支比較", "収入構成", "支出構成"]
-        let assetsChartExplains = ["資産・負債残高の割合から\n現在の純資産を把握",
-                                   "資産の構成割合を把握\n", "負債の構成割合を把握\n"]
         let incConsChartsExplains = ["収入・支出を比較し\n収支情報を確認", "収入の構成割合を把握\n",
                                      "支出の構成割合を把握\n"]
         ZStack {
             generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 0)
+            Color.changeable
             VStack(spacing: 0) {
                 ZStack(alignment: .bottom) {
-                    if self.selectChart == 0 {
-                        switch index {
-                        case 0:
-                            financeCharts.BalCompareChart().padding()
-                        case 1:
-                            financeCharts.BalRateChart(assetsFlg: true).padding()
-                        case 2:
-                            financeCharts.BalRateChart(assetsFlg: false).padding()
-                        default:
-                            financeCharts.BalCompareChart().padding()
-                        }
-                    } else {
-                        switch index {
-                        case 0:
-                            financeCharts.IncConsCompareChart(selectDate: Date(), makeSize: 2).padding()
-                        case 1:
-                            financeCharts.IncConsRateChart(houseHoldType: 0, date: Date()).padding()
-                        case 2:
-                            financeCharts.IncConsRateChart(houseHoldType: 1, date: Date()).padding()
-                        default:
-                            financeCharts.IncConsCompareChart(selectDate: Date(), makeSize: 2).padding()
-                        }
+                    switch index {
+                    case 0:
+                        financeCharts.IncConsCompareChart(selectDate: Date(), makeSize: 2).padding()
+                    case 1:
+                        financeCharts.IncConsRateChart(houseHoldType: 0, date: Date()).padding()
+                    case 2:
+                        financeCharts.IncConsRateChart(houseHoldType: 1, date: Date()).padding()
+                    default:
+                        financeCharts.IncConsCompareChart(selectDate: Date(), makeSize: 2).padding()
                     }
                     Color(uiColor: .systemGray5)
                         .blur(radius: 20)
                         .frame(height: 250 / 5)
                     VStack(alignment: .leading) {
-                        Text(self.selectChart == 0 ? assetsChartTitles[index] : incConsChartTitles[index])
-                        Text(self.selectChart == 0 ? assetsChartExplains[index] : incConsChartsExplains[index])
+                        Text(incConsChartTitles[index])
+                        Text(incConsChartsExplains[index])
                             .font(.caption)
                     }.padding(.bottom, 5)
-                        .frame(maxWidth: 200 - 20, alignment: .leading)
+                        .frame(maxWidth: 300 - 50, alignment: .leading)
+                        .foregroundStyle(Color.changeableText)
                 }
                 ZStack {
                     Rectangle()
-                        .fill(.linearGradient(colors: [.changeable, .changeable.opacity(0.8)],
-                                              startPoint: .bottom, endPoint: .top))
+                        .fill(.changeable)
                         .frame(height: 40)
                     HStack {
                         Text("詳細")
@@ -202,39 +225,25 @@ struct WholeSummary: View {
     }
     
     @ViewBuilder
-    func ChartArea(size: CGSize) -> some View {
+    func IncConsChartArea(size: CGSize) -> some View {
         ZStack {
-            generalView.GlassBlur(effect: .systemUltraThinMaterial,
-                                  radius: 10)
+            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
             VStack {
-                DispHeadline(text: "資産・収支推移", dispFlgIndex: 0)
-                if self.dispFlg[0] {
-                    SelectorTab()
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                DispHeadline(text: "収入・支出", dispFlgIndex: 2)
+                if self.dispFlg[2] {
                     ScrollView(.horizontal) {
                         HStack(spacing: 0) {
-                            if self.selectChart == 0 {
-                                ForEach (0 ..< 3, id: \.self) { index in
-                                    ChartCard(size: size, index: index)
-                                        .onTapGesture {
-                                            self.chartIndex = index
-                                            self.assetsChartDestFlg = true
-                                        }
-                                }
-                            } else {
-                                ForEach (0 ..< 3, id: \.self) {index in
-                                    ChartCard(size: size, index: index)
-                                        .onTapGesture {
-                                            self.chartIndex = index
-                                            self.incConsChartDestFlg = true
-                                        }
-                                }
+                            ForEach (0 ..< 3, id: \.self) {index in
+                                ChartCard(size: size, index: index)
+                                    .onTapGesture {
+                                        self.chartIndex = index
+                                        self.incConsChartDestFlg = true
+                                    }
                             }
                         } .padding(.vertical, 15)
                             .padding(.horizontal, 15)
                             .scrollTargetLayout()
-                    }
-                    .scrollTargetBehavior(.viewAligned)
+                    }.scrollTargetBehavior(.viewAligned)
                         .scrollIndicators(.hidden)
                 }
             }.padding(10)
@@ -242,14 +251,57 @@ struct WholeSummary: View {
         }
     }
     
-    /**▼予算エリア構成**/
+    /**▼予算 **/
     @ViewBuilder
-    func BudgetArea() -> some View {
+    func BudgetArea(size: CGSize) -> some View {
         ZStack {
             generalView.GlassBlur(effect: .systemUltraThinMaterial,
                                   radius: 10)
-            VStack {
+            VStack(alignment: .trailing) {
                 DispHeadline(text: "予算設定", dispFlgIndex: 1)
+                if self.dispFlg[1] {
+                    HStack {
+                        Text("予算(固定費を含む)")
+                            .foregroundStyle(Color.changeableText)
+                        Spacer()
+                        Text("¥\(30000)")
+                            .fontDesign(.rounded)
+                            .foregroundStyle(Color.changeableText)
+                    }.font(.subheadline.bold())
+                        .padding(.horizontal, 10)
+                        .padding(.top, 10)
+                    HStack {
+                        Text("支出")
+                        Text("¥\(18000)")
+                            .fontDesign(.rounded)
+                            .foregroundStyle(.red)
+                        Spacer()
+                        Text("残り")
+                        Text("¥\(12000)")
+                            .fontDesign(.rounded)
+                    }.padding(.horizontal, 10)
+                        .padding(.vertical, 1)
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.changeableText)
+                    ZStack {
+                        Group {
+                            let rate: CGFloat = 12000 / 30000
+//                            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 25)
+                            RoundedRectangle(cornerRadius: 25)
+                                .fill(Color(uiColor: .systemGray5).shadow(.inner(radius: 1)))
+                                .frame(height: 15)
+                            generalView.GradientCard(colors: accentColors, radius: 25)
+                                .frame(width: (size.width - 46) * rate, height: 10)
+                                .padding(.horizontal, 3)
+                        }.frame(width: size.width - 40, alignment: .trailing)
+                    }
+                    generalView.glassTextRounedButton(color: accentColors.last ?? .blue, text: "設定", imageNm: "", radius: 25) {
+                        
+                    }.frame(width: 100, height: 25)
+                        .compositingGroup()
+                        .shadow(color: .changeableShadow, radius: 3)
+                        .padding(.top, 5)
+                }
             }.padding(10)
                 .padding(.vertical, 10)
         }

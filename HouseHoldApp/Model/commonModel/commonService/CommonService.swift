@@ -12,27 +12,28 @@ import SwiftUI
 class CommonService {
     let UD_ACCENT_COLORS_INDEX = "ACCENT_COLORS_INDEX"
     
-    // マイグレーションを兼ねたrealmの生成
+    /* ▼マイグレーションを兼ねたrealmの生成
+     */
     let realm: Realm = {
-        // マイグレーション
-//        let config = Realm.Configuration(
-//            schemaVersion: 1, // schemaVersionを0から1に増加。
-//            migrationBlock: { migration, oldSchemaVersion in
-//                // 設定前のschemaVersionが２より小さい場合、マイグレーションを実行。
-//                if oldSchemaVersion < 1 {
-//                    // 第１引数にクラス名を、value引数に追加するプロパティを渡す。
-//                    migration.create(IncomeConsumeModel.className(), value: ["incConsSecKey": ""])
-//                }
-//            })
-
-        // マイグレーションを代入
-//        Realm.Configuration.defaultConfiguration = config
-        // realm
+        
+        let schemaVersion: UInt64 = 1
+        // ▼schemaversionがすでに更新されている場合マイグレを実施しない
+        if Realm.Configuration.defaultConfiguration.schemaVersion < schemaVersion {
+            // ①マイグレーションを実施　schemaversionなどを更新する
+            let config = Realm.Configuration(
+            schemaVersion: schemaVersion, // schemaVersionを0から1に増加。
+            migrationBlock: { migration, oldSchemaVersion in
+                // 設定前のschemaVersionが２より小さい場合、マイグレーションを実行。
+                if oldSchemaVersion < schemaVersion {
+                    // ▼サンプル
+                    //                    migration.create(IncomeConsumeModel.className(), value: ["incConsSecKey": ""])
+                }
+            })
+            // ②マイグレーションを代入　defaultに設定
+            Realm.Configuration.defaultConfiguration = config
+        }
+        // ③realmインスタンス生成と同時に①②が実行される
         let realm = try! Realm()
-//        if config.schemaVersion <= 1 {
-//            RealmMigrationService().migIncomeConsumeModelincConsSecKey(realm: realm)
-//            print(config.schemaVersion)
-//        }
         return realm
     }()
     
