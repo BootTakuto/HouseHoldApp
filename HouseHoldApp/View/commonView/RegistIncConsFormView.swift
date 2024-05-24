@@ -9,20 +9,22 @@ import SwiftUI
 import RealmSwift
 
 struct RegistIncConsFormView: View {
-    @Binding var showFlg: Bool
+    @Binding var registIncConsFlg: Bool
     var accentColors: [Color]
+    var isEdit: Bool
     /** 表示 */
-    @State private var linkBalFlg = false                   // 収支登録時の残高連携フラグ
-    @State private var selectForm = 0                       // 選択フォーム
-    @State private var dateDownFlg = true                   // 日付ピッカーの開閉フラグ
-    @State private var popUpFlg = false                     // 残高入力フラグ
-    @State private var popUpStatus: PopUpStatus = .failed   // 成功ポップアップ用ステータス
-    @FocusState var inputAmtFocused                         // 収支金額入力フォーカス
-    @FocusState var isMemoFocused                           // メモ入力フォーカス
-    @State private var inputLeastIndex = 0                  // 入力キャンセル用　残高連携入力箇所を特定するため
-    @State private var isChekAmtTotal = false               // 残高連携金額確認表示フラグ
-    @State private var inputAmtTotal = 0
+    @State var linkBalFlg = true                            // 収支登録時の残高連携フラグ　※
+    @State var selectForm = 0                               // 選択フォーム　※
+    @State private var dateDownFlg = false                  // 日付ピッカーの開閉フラグ　※
+    @State private var popUpFlg = false                     // ポップアップ画面フラグ　　※
+    @State private var popUpStatus: PopUpStatus = .failed   // ポップアップ画面ステータス※
+    @FocusState var inputAmtFocused                         // 収支金額入力フォーカス　　※
+    @FocusState var isMemoFocused                           // メモ入力フォーカス　　　　※
+    @State private var inputLeastIndex = 0                  // 入力キャンセル用　残高連携入力箇所を特定するため　※
+    @State private var isChekAmtTotal = false               // 残高連携金額確認表示フラグ　※
+    @State private var inputAmtTotal = 0                    // 残高連携金額確認で表示する合計金額　※
     /** 登録関連情報 */
+    @State var incConsModel = IncomeConsumeModel()
     @State private var inputAmt = "0"                       // 金額(残高未連携)
     @State private var balKeyArray: [String] = []           // 金額(残高連携用 残高主キー配列)
     @State private var registAmtFormArray: [IncConsAmtForm] = []
@@ -59,17 +61,9 @@ struct RegistIncConsFormView: View {
                         }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     }
                 }
-            }.onChange(of: inputAmtFocused) {
-                if inputAmtFocused {
-                    self.inputAmt = ""
-                } else {
-                    if self.inputAmt == "" {
-                        self.inputAmt = "0"
-                    }
-                }
             }.onChange(of: selectForm) {
-                self.dateDownFlg = true
-                self.inputAmtFocused = false
+//                self.dateDownFlg = true
+//                self.inputAmtFocused = false
                 self.isMemoFocused = false
                 self.memo = ""
                 if self.selectForm == 2 {
@@ -83,8 +77,8 @@ struct RegistIncConsFormView: View {
                     self.incConsCatgKey = incConsSecCatgService.getUnCatgCatgKey(houseHoldType: self.selectForm)
                 }
 //                    self.linkBalFlg = false
-                    self.balKeyArray.removeAll()
-                    self.registAmtFormArray.removeAll()
+                self.balKeyArray.removeAll()
+                self.registAmtFormArray.removeAll()
 //                self.registAmtFormAr.indices.forEach { index in
 //                    if self.amountArray[index] == "" {
 //                        self.amountArray[index] = "0"
@@ -96,26 +90,33 @@ struct RegistIncConsFormView: View {
                         self.registAmtFormArray[index].amount = "0"
                     }
                 }
+            }.onChange(of: inputAmtFocused) {
+                if inputAmtFocused {
+                    self.inputAmt = ""
+                } else {
+                    if self.inputAmt == "" {
+                        self.inputAmt = "0"
+                    }
+                }
             }.custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
                 if self.popUpStatus == .addBalance {
                     PopUpView(accentColors: accentColors,
-                              alertFlg: $popUpFlg,
+                              popUpFlg: $popUpFlg,
                               status: popUpStatus)
                 } else if self.popUpStatus == .success {
                     PopUpView(accentColors: accentColors,
-                              alertFlg: $popUpFlg,
+                              popUpFlg: $popUpFlg,
                               status: popUpStatus,
                               text: "登録成功",
                               imageNm:"checkmark.circle")
                 } else if self.popUpStatus == .failed {
                     PopUpView(accentColors: accentColors,
-                              alertFlg: $popUpFlg,
+                              popUpFlg: $popUpFlg,
                               status: popUpStatus,
                               text: "登録失敗",
                               imageNm:"xmark.circle")
                 }
-            }
-            .toolbar {
+            }.toolbar {
                 if self.inputAmtFocused {
                     ToolbarItem(placement: .keyboard) {
                         HStack {
@@ -141,6 +142,10 @@ struct RegistIncConsFormView: View {
                         }
                     }
                 }
+            }.onAppear {
+                if isEdit {
+                    self.sectionResults = incConsSecCatgService.getIncConsSec(houseHoldType: self.selectForm)
+                }
             }
         }
     }
@@ -153,10 +158,10 @@ struct RegistIncConsFormView: View {
                 .frame(height: 70)
             VStack {
                 HStack {
-                    Image(systemName: "xmark")
+                    Image(systemName: isEdit ? "chevron.left" : "xmark")
                         .foregroundStyle(.white)
                         .onTapGesture {
-                            self.showFlg = false
+                            self.registIncConsFlg = false
                         }
                     Spacer()
                     Image(systemName: "questionmark.circle")
@@ -257,6 +262,7 @@ struct RegistIncConsFormView: View {
                 VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 0) {
                         Text(balResult.balanceNm)
+                            .fontWeight(.bold)
                             .frame(width: width * (3 / 5), alignment: .leading)
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
@@ -298,10 +304,11 @@ struct RegistIncConsFormView: View {
                             }
                         }
                     }.padding(.horizontal, 15)
-                        .font(.caption)
+                        .font(.caption.bold())
                         .foregroundStyle(Color.changeableText)
                     Text("¥\(balResult.balanceAmt)")
-                        .font(.caption)
+                        .font(.caption.bold())
+                        .fontDesign(.rounded)
                         .foregroundStyle(Color.changeableText)
                         .padding(.horizontal, 15)
                         .frame(width: width * (3 / 4), alignment: .leading)
@@ -426,7 +433,6 @@ struct RegistIncConsFormView: View {
                                     HStack {
                                         ForEach(balResults.indices, id: \.self) {index in
                                             let result = balResults[index]
-                                           
                                             balMiniIcon(balResult: result)
                                                 .onTapGesture {
                                                     withAnimation {
@@ -526,11 +532,11 @@ struct RegistIncConsFormView: View {
                                         } label: {
                                             ZStack {
                                                 generalView.RoundedIcon(radius: 10, color: color,
-                                                                        image: imageNm, text: secNm)
+                                                                        image: imageNm, text: secNm,
+                                                                        isSelected: isSelectSec)
                                                 .frame(width: 50, height: 50)
                                             }
-                                        }.shadow(color: isSelectSec ? .changeableShadow : .clear, radius: 3)
-                                            .padding(.vertical, 5)
+                                        }.padding(.vertical, 5)
                                     }
                                 }.padding(.horizontal, 5)
                             }.scrollIndicators(.hidden)
@@ -581,31 +587,37 @@ struct RegistIncConsFormView: View {
                     }.padding(.horizontal, 20)
                     // 登録
                     generalView.registButton(colors: accentColors, radius: 10, isDisAble: false) {
-                        if linkBalFlg {
-                            withAnimation {
-                                self.popUpFlg = true
-                                self.popUpStatus =
-                                incConsService.registIncConsLinkBal(balKeyArray: self.balKeyArray,
-                                                                    registAmtFormArray: self.registAmtFormArray,
-                                                                    houseHoldType: self.selectForm,
-                                                                    incConsSecKey: self.incConsSecKey,
-                                                                    incConsCatgKey: self.incConsCatgKey,
-                                                                    incConsDate: self.selectDate,
-                                                                    memo: self.memo)
+                        if !self.isEdit {
+                            if linkBalFlg {
+                                withAnimation {
+                                    self.popUpFlg = true
+                                    self.popUpStatus =
+                                    incConsService.registIncConsLinkBal(balKeyArray: self.balKeyArray,
+                                                                        registAmtFormArray: self.registAmtFormArray,
+                                                                        houseHoldType: self.selectForm,
+                                                                        incConsSecKey: self.incConsSecKey,
+                                                                        incConsCatgKey: self.incConsCatgKey,
+                                                                        incConsDate: self.selectDate,
+                                                                        memo: self.memo)
+                                }
+                                self.balKeyArray.removeAll()
+                                self.registAmtFormArray.removeAll()
+                                self.isChekAmtTotal = false
+                            } else {
+                                withAnimation {
+                                    self.popUpFlg = true
+                                    self.popUpStatus =
+                                    incConsService.registIncConsNotLikBal(houseHoldType: self.selectForm,
+                                                                          incConsSecKey: self.incConsSecKey,
+                                                                          incConsCatgKey: self.incConsCatgKey,
+                                                                          inputAmt: Int(self.inputAmt) ?? 0,
+                                                                          incConsDate: self.selectDate,
+                                                                          memo: self.memo)
+                                }
+                                self.memo = ""
                             }
-                            self.balKeyArray.removeAll()
-                            self.registAmtFormArray.removeAll()
                         } else {
-                            withAnimation {
-                                self.popUpFlg = true
-                                self.popUpStatus =
-                                incConsService.registIncConsNotLikBal(houseHoldType: self.selectForm,
-                                                                      incConsSecKey: self.incConsSecKey,
-                                                                      incConsCatgKey: self.incConsCatgKey,
-                                                                      inputAmt: Int(self.inputAmt) ?? 0,
-                                                                      incConsDate: self.selectDate,
-                                                                      memo: self.memo)
-                            }
+                            
                         }
                     }.frame(height: 70)
                         .shadow(color: .changeableShadow, radius: 3)
@@ -632,9 +644,11 @@ struct RegistIncConsFormView: View {
 }
 
 #Preview {
-    @State var showFlg = true
+    @State var registIncConsFlg = true
     @State var accentColors: [Color] = [.purple, .indigo]
-    return RegistIncConsFormView(showFlg: $showFlg, accentColors: accentColors)
+    return RegistIncConsFormView(registIncConsFlg: $registIncConsFlg,
+                                 accentColors: accentColors,
+                                 isEdit: false)
 }
 
 //#Preview {

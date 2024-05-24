@@ -19,7 +19,6 @@ struct ContentTabBar: View {
         // タブのボタン
             VStack(spacing: 0) {
                 ZStack(alignment: .top) {
-//                    UIGlassCard(effect: .systemUltraThinMaterial)
                     Color.changeableDefault
                         .clipShape(
                             TabCurve(height: screen.height / 9)
@@ -66,10 +65,12 @@ struct ContentTabBar: View {
                     }.padding(.top, 10)
                 }.frame(height: screen.height / 9)
                 .ignoresSafeArea()
-        }.compositingGroup() // ← HStack内部を含めて一つの要素と捉えたものに対して影を付与する
+        }.compositingGroup()
             .shadow(color: .changeableShadow, radius: 3)
             .fullScreenCover(isPresented: $registIncConsFlg) {
-                RegistIncConsFormView(showFlg: $registIncConsFlg, accentColors: accentColors)
+                RegistIncConsFormView(registIncConsFlg: $registIncConsFlg,
+                                      accentColors: accentColors,
+                                      isEdit: false)
             }
     }
 }

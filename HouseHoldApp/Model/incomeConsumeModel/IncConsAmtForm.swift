@@ -6,6 +6,8 @@
 //
 
 import Foundation
+
+/*　収入・支出登録用情報オブジェクト　*/
 struct IncConsAmtForm {
     // 残高キー
     var balKey: String

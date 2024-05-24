@@ -12,6 +12,9 @@ struct ContentView: View {
     @AppStorage("FIRST_OPEN_FLG") var firstOpenFlg = true
     @AppStorage("ACCENT_COLORS_INDEX") var accentColorsIndex = 0
     @State var selectedContent = 0
+    @State var popUpFlg = false
+    @State var popUpStatus: PopUpStatus = .addBalance
+    @State var balModel = BalanceModel()
     /** ビュー関連 */
     var body: some View {
     @State var accentColors = GradientAccentcColors.gradients[accentColorsIndex]
@@ -19,15 +22,22 @@ struct ContentView: View {
             ZStack(alignment: .bottom) {
                 switch selectedContent {
                 case 0:
-                    WholeSummary(accentColors: accentColors)
+                    HomeView(accentColors: accentColors,
+                                 popUpFlg: $popUpFlg,
+                                 popUpStatus: $popUpStatus)
                 case 1:
-                    BalanceSummaryView(accentColors: accentColors)
+                    BalanceSummaryView(accentColors: accentColors,
+                                       popUpFlg: $popUpFlg,
+                                       popUpStatus: $popUpStatus,
+                                       balModel: $balModel)
                 case 2:
                     PaymentView(accentColors: accentColors)
                 case 3:
                     SettingMenu(accentColors: accentColors)
                 default:
-                    WholeSummary(accentColors: accentColors)
+                    HomeView(accentColors: accentColors,
+                                 popUpFlg: $popUpFlg,
+                                 popUpStatus: $popUpStatus)
                 }
                 ContentTabBar(accentColors: accentColors,
                               selectedContent: $selectedContent)
@@ -40,7 +50,38 @@ struct ContentView: View {
                     }
                     self.firstOpenFlg = false
                 }
-            }.ignoresSafeArea(edges: .bottom)
+            }.custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
+                if self.popUpStatus == .addBalance   {
+                    PopUpView(accentColors: accentColors,
+                              popUpFlg: $popUpFlg,
+                              status: popUpStatus)
+                } else if self.popUpStatus == .editBalance {
+                    PopUpView(accentColors: accentColors,
+                              popUpFlg: $popUpFlg,
+                              status: popUpStatus,
+                              balNm: self.balModel.balanceNm,
+                              colorIndex: self.balModel.colorIndex,
+                              balKey: self.balModel.balanceKey)
+                } else if self.popUpStatus == .deleteBalance {
+                    PopUpView(accentColors: accentColors,
+                              popUpFlg: $popUpFlg,
+                              status: popUpStatus,
+                              balKey: self.balModel.balanceKey)
+                } else if self.popUpStatus == .success {
+                    PopUpView(accentColors: accentColors,
+                              popUpFlg: $popUpFlg,
+                              status: popUpStatus,
+                              text: "登録成功",
+                              imageNm:"checkmark.circle")
+                } else if self.popUpStatus == .failed {
+                    PopUpView(accentColors: accentColors,
+                              popUpFlg: $popUpFlg,
+                              status: popUpStatus,
+                              text: "登録失敗",
+                              imageNm:"xmark.circle")
+                }
+            }
+            .ignoresSafeArea(edges: .bottom)
         }
     }
 }

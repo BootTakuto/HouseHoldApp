@@ -38,20 +38,52 @@ class GeneralComponentView {
     }
     
     /** アイコン */
-    @ViewBuilder
+    @ViewBuilder // 表示のみ
     func RoundedIcon(radius: CGFloat, color: Color, image: String, text: String) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: radius)
                 .fill(color)
-            VStack {
+            VStack(spacing: 0) {
                 Image(systemName: image)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(1)
                     .foregroundStyle(.white)
                 Text(text)
                     .font(.caption.bold())
                     .foregroundStyle(.white)
+                    .padding(.horizontal, 2)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
-            }
+            }.scaledToFit()
+        }
+    }
+    @ViewBuilder // 選択によって表示を変更する
+    func RoundedIcon(radius: CGFloat, color: Color, image: String, text: String, isSelected: Bool) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: radius)
+                .fill(color)
+                .opacity(isSelected ? 1 : 0.1)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(lineWidth: 1)
+                        .fill(color)
+                        .opacity(isSelected ?  1 : 0.5)
+                )
+            VStack(spacing: 0) {
+                Image(systemName: image)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.horizontal, 5)
+                    .padding(.top, 8)
+                Text(text)
+                    .font(.caption.bold())
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 5)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.1)
+            }.foregroundStyle(isSelected ? .white : color)
+                .opacity(isSelected ?  1 : 0.5)
         }
     }
     

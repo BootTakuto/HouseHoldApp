@@ -57,15 +57,22 @@ struct PaymentView: View {
                     .scrollDisabled(selectListView && incConsDic.isEmpty)
             }.ignoresSafeArea(.container, edges: .top)
                 .navigationDestination(isPresented: $detailPageFlg) {
-                    IncConsDetailView(accentColors: accentColors,
-                                      detailPageFlg: $detailPageFlg,
-                                      incConsObject: $incConsObject,
-                                      incConsDic: $incConsDic)
+                    let isLinkBal = !incConsObject.balanceKeyList.isEmpty
+                    RegistIncConsFormView(registIncConsFlg: $detailPageFlg,
+                                          accentColors: accentColors,
+                                          isEdit: true,
+                                          linkBalFlg: isLinkBal,
+                                          selectForm: incConsObject.houseHoldType
+                                          )
+                    .navigationBarBackButtonHidden()
                 }.navigationDestination(isPresented: $perDayListFlg) {
                     IncConsListPerDayView(perDayListFlg: $perDayListFlg,
                                           selectDay: $selectDay)
                 }.navigationDestination(isPresented: $monthSummaryFlg) {
-//                    IncConsSummaryView()
+                    IncConsSummaryView(accentColors: accentColors,
+                                       isPresentedFlg: $monthSummaryFlg,
+                                       chartIndex: 0,
+                                       selectDate: selectDate)
                 }.onChange(of: selectDate) {
                     withAnimation {
                         self.incConsDic = incConsService.getIncConsPerDate(selectDate: selectDate,
@@ -268,10 +275,10 @@ struct PaymentView: View {
     
     @ViewBuilder
     func ListView() -> some View {
-        let month: Int = calendarService.getOnlyComponent(date: selectDate, component: .month)
+//        let month: Int = calendarService.getOnlyComponent(date: selectDate, component: .month)
         let labels = ["すべて", "残高操作を除く", "収入", "支出", "残高操作"]
         ScrollView(.horizontal) {
-            HStack {
+            HStack(spacing: 0) {
                 ForEach(labels.indices, id: \.self) { index in
                     let isSelectType = self.incConsListType == index
                     ZStack {
@@ -284,11 +291,12 @@ struct PaymentView: View {
                                 .fill(accentColors.last ?? .blue)
                         }
                         Text(labels[index])
-                            .font(.caption2)
+                            .font(.caption.bold())
                             .foregroundStyle(isSelectType ? .white :  Color.changeableText)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
-                    }.onTapGesture {
+                    }.padding(.trailing, 10)
+                    .onTapGesture {
                         withAnimation {
                             self.incConsListType = index
                         }
@@ -501,6 +509,5 @@ struct PaymentView: View {
 }
 
 #Preview {
-    var accentColors: [Color] = [.purple, .indigo]
-    return PaymentView(accentColors: accentColors)
+    ContentView()
 }

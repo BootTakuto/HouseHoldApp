@@ -105,5 +105,5 @@ struct IncConsChartEntry: Identifiable {
 }
 
 #Preview {
-    WholeSummary(accentColors: [.purple, .indigo])
+    ContentView()
 }

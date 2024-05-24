@@ -10,16 +10,13 @@ import RealmSwift
 
 struct BalanceSummaryView: View {
     var accentColors: [Color]
+    @Binding var popUpFlg: Bool
+    @Binding var popUpStatus: PopUpStatus
+    @Binding var balModel: BalanceModel
     // results
     let balResults = BalanceService().getBalanceResults()
     /** 表示 */
-    @State var addBalAlertFlg = false       // 残高登録アラートフラグ
-    @State var editBalAlertFlg = false      // 残高変更アラートフラグ
-    @State var deleteBalAlertFlg = false    // 残高削除アラートフラグ
     @State var isEditMode = false           // 編集モードフラグ
-    @State var balNm = ""                   // 残高変更アラート表示時に既存「残高名」を表示する目的
-    @State var colorIndex = 0               // 残高変更アラート表示時に既存「残高カラー」を表示する目的
-    @State var balKey = ""                  // 残高変更・削除時の対象となるデータの主キー
     /** service */
     let balanceService = BalanceService()
     /** ビュー関連 **/
@@ -45,39 +42,14 @@ struct BalanceSummaryView: View {
                             .padding(.bottom, 100)
                     }
                 }.scrollIndicators(.hidden)
-            }.onChange(of: deleteBalAlertFlg) {
-                if !deleteBalAlertFlg {
-                    self.isEditMode = false
+            }.onChange(of: popUpFlg) {
+                if !popUpFlg {
+                    withAnimation {
+                        self.isEditMode = false
+                    }
                 }
-            }.onChange(of: editBalAlertFlg) {
-                if !editBalAlertFlg {
-                    self.isEditMode = false
-                }
-            }.custumFullScreenCover(isPresented: $addBalAlertFlg, transition: .opacity) {
-                // 残高登録アラート
-                PopUpView(accentColors: accentColors,
-                          alertFlg: $addBalAlertFlg,
-                          status: .addBalance)
-            }.custumFullScreenCover(isPresented: $editBalAlertFlg, transition: .opacity) {
-                // 残高変更アラート
-                PopUpView(accentColors: accentColors,
-                          alertFlg: $editBalAlertFlg,
-                          status: .editBalance,
-                          balNm: self.balNm,
-                          colorIndex: self.colorIndex,
-                          balKey: self.balKey)
-            }
-            .custumFullScreenCover(isPresented: $deleteBalAlertFlg, transition: .opacity) {
-                // 残高削除アラート
-                PopUpView(accentColors: accentColors,
-                          alertFlg: $deleteBalAlertFlg,
-                          status: .deleteBalance,
-                          balKey: self.balKey)
             }.onDisappear {
                 self.isEditMode = false
-                self.addBalAlertFlg = false
-                self.editBalAlertFlg = false
-                self.deleteBalAlertFlg = false
             }
         }
     }
@@ -198,10 +170,9 @@ struct BalanceSummaryView: View {
                             if isEditMode {
                                 Button(action: {
                                     withAnimation {
-                                        self.balKey = result.balanceKey
-                                        self.balNm = result.balanceNm
-                                        self.colorIndex = result.colorIndex
-                                        self.editBalAlertFlg = true
+                                        self.balModel = result
+                                        self.popUpFlg = true
+                                        self.popUpStatus = .editBalance
                                     }
                                 }) {
                                     ZStack {
@@ -215,8 +186,9 @@ struct BalanceSummaryView: View {
                                 }
                                 Button(action: {
                                     withAnimation {
-                                        self.balKey = result.balanceKey
-                                        self.deleteBalAlertFlg = true
+                                        self.balModel = result
+                                        self.popUpFlg = true
+                                        self.popUpStatus = .deleteBalance
                                     }
                                 }) {
                                     ZStack {
@@ -239,7 +211,8 @@ struct BalanceSummaryView: View {
                                                   text: "追加", imageNm: "plus", radius: 25)
                 {
                     withAnimation {
-                        self.addBalAlertFlg = true
+                        self.popUpFlg = true
+                        self.popUpStatus = .addBalance
                     }
                 }.frame(width: 100, height: 30)
                     .compositingGroup()
@@ -247,7 +220,8 @@ struct BalanceSummaryView: View {
             } else {
                 generalView.glassCircleButton(imageColor: accentColors.last ?? .blue, imageNm: "plus") {
                     withAnimation {
-                        self.addBalAlertFlg = true
+                        self.popUpFlg = true
+                        self.popUpStatus = .addBalance
                     }
                 }.frame(width: 40, height:  40)
                     .compositingGroup()

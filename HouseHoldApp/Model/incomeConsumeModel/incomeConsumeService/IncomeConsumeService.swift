@@ -381,7 +381,7 @@ class IncomeConsumeService: CommonService {
         let dates = getAllDayOfMonth(date: selectDate)
         var dicForChart = [String : Int]()
         dates.forEach { date in
-            var results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == houseHoldType && $0.incConsDate == String(date)})
+            let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == houseHoldType && $0.incConsDate == String(date)})
             results.forEach { result in
                 let incConsSecKey = result.incConsSecKey
                 if dicForChart[incConsSecKey] != nil {
