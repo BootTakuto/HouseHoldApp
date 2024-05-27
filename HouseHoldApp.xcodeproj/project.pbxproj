@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C0C4FDF2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */; };
 		2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1210E52BC564F300C531C2 /* PaymentView.swift */; };
 		2C22A64C2B6E414900D220E2 /* BalanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64B2B6E414900D220E2 /* BalanceModel.swift */; };
 		2C22A64F2B6E42EA00D220E2 /* BalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */; };
 		2C276B832BD8577600A69F87 /* IncConsSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C276B822BD8577600A69F87 /* IncConsSummaryView.swift */; };
+		2C2975482C015D2300E09614 /* MigrationSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2975472C015D2300E09614 /* MigrationSample.swift */; };
 		2C2C30462BF62A4900CF59D0 /* IncConsAmtForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2C30452BF62A4900CF59D0 /* IncConsAmtForm.swift */; };
 		2C2DB7852B89755900B631E9 /* UIGlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2DB7842B89755900B631E9 /* UIGlassCard.swift */; };
 		2C2DB7892B8A01D900B631E9 /* LabelsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2DB7882B8A01D900B631E9 /* LabelsModel.swift */; };
@@ -22,7 +24,6 @@
 		2C8C38512A9FE73200F388A7 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8C38502A9FE73200F388A7 /* HomeView.swift */; };
 		2C90F6C92BE76DFB0095BE5D /* PopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C90F6C82BE76DFB0095BE5D /* PopUpView.swift */; };
 		2C9439D52BD9B27400313B98 /* FinanceCharts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9439D42BD9B27400313B98 /* FinanceCharts.swift */; };
-		2C9B255A2BC885BD00CDB73E /* IncConsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B25592BC885BD00CDB73E /* IncConsDetailView.swift */; };
 		2C9D8A612B6AE6D7004B8A1E /* GradientAccentcColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9D8A602B6AE6D7004B8A1E /* GradientAccentcColors.swift */; };
 		2CA407242B59511B0038694B /* ContentTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA407232B59511B0038694B /* ContentTabBar.swift */; };
 		2CA407262B5B53700038694B /* TabCurve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA407252B5B53700038694B /* TabCurve.swift */; };
@@ -61,10 +62,12 @@
 /* Begin PBXFileReference section */
 		06D2819D643D68109B034181 /* Pods-HouseHoldApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HouseHoldApp.debug.xcconfig"; path = "Target Support Files/Pods-HouseHoldApp/Pods-HouseHoldApp.debug.xcconfig"; sourceTree = "<group>"; };
 		202EDEBA268BF4D5687E3778 /* Pods_HouseHoldApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HouseHoldApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsBalLinkAmtModel.swift; sourceTree = "<group>"; };
 		2C1210E52BC564F300C531C2 /* PaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentView.swift; sourceTree = "<group>"; };
 		2C22A64B2B6E414900D220E2 /* BalanceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceModel.swift; sourceTree = "<group>"; };
 		2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceService.swift; sourceTree = "<group>"; };
 		2C276B822BD8577600A69F87 /* IncConsSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsSummaryView.swift; sourceTree = "<group>"; };
+		2C2975472C015D2300E09614 /* MigrationSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationSample.swift; sourceTree = "<group>"; };
 		2C2C30452BF62A4900CF59D0 /* IncConsAmtForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsAmtForm.swift; sourceTree = "<group>"; };
 		2C2DB7842B89755900B631E9 /* UIGlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIGlassCard.swift; sourceTree = "<group>"; };
 		2C2DB7882B8A01D900B631E9 /* LabelsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelsModel.swift; sourceTree = "<group>"; };
@@ -76,7 +79,6 @@
 		2C8C38502A9FE73200F388A7 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		2C90F6C82BE76DFB0095BE5D /* PopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpView.swift; sourceTree = "<group>"; };
 		2C9439D42BD9B27400313B98 /* FinanceCharts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinanceCharts.swift; sourceTree = "<group>"; };
-		2C9B25592BC885BD00CDB73E /* IncConsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsDetailView.swift; sourceTree = "<group>"; };
 		2C9D8A602B6AE6D7004B8A1E /* GradientAccentcColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientAccentcColors.swift; sourceTree = "<group>"; };
 		2CA407232B59511B0038694B /* ContentTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentTabBar.swift; sourceTree = "<group>"; };
 		2CA407252B5B53700038694B /* TabCurve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabCurve.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 			children = (
 				2C58DE6A2B7EB80D00BF1DB8 /* ColorExtension.swift */,
 				2CA911552BE8822800D635A9 /* ViewExtension.swift */,
+				2C2975492C015D2A00E09614 /* Samples */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -125,7 +128,6 @@
 			isa = PBXGroup;
 			children = (
 				2C1210E52BC564F300C531C2 /* PaymentView.swift */,
-				2C9B25592BC885BD00CDB73E /* IncConsDetailView.swift */,
 				2CA8CFE12BD5BB7900E3419E /* IncConsListPerDayView.swift */,
 			);
 			path = payment;
@@ -146,6 +148,14 @@
 				2C22A64D2B6E42C300D220E2 /* balanceService */,
 			);
 			path = balanceModel;
+			sourceTree = "<group>";
+		};
+		2C2975492C015D2A00E09614 /* Samples */ = {
+			isa = PBXGroup;
+			children = (
+				2C2975472C015D2300E09614 /* MigrationSample.swift */,
+			);
+			path = Samples;
 			sourceTree = "<group>";
 		};
 		2C6AB4D42AEAFFFC00F6F58C /* calendarModel */ = {
@@ -232,6 +242,7 @@
 				2CB1ECE92B6F2D280014B5FC /* IncConsSectionModel.swift */,
 				2CB1ECEB2B6F2DB40014B5FC /* IncConsCategoryModel.swift */,
 				2C3CA8222B440AB800EC2D1B /* IncomeConsumeModel.swift */,
+				2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */,
 				2C2C30452BF62A4900CF59D0 /* IncConsAmtForm.swift */,
 				2CB1ECEF2B6F2E450014B5FC /* incomeConsumeService */,
 			);
@@ -463,7 +474,6 @@
 				2CFDF8DD2A792E3F00D5C194 /* ContentView.swift in Sources */,
 				2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */,
 				2CA911562BE8822800D635A9 /* ViewExtension.swift in Sources */,
-				2C9B255A2BC885BD00CDB73E /* IncConsDetailView.swift in Sources */,
 				2C2C30462BF62A4900CF59D0 /* IncConsAmtForm.swift in Sources */,
 				2CFDF8DB2A792E3F00D5C194 /* HouseHoldAppApp.swift in Sources */,
 				2CA697642BFAAAF800BFE895 /* BudgetModel.swift in Sources */,
@@ -486,6 +496,8 @@
 				2C22A64F2B6E42EA00D220E2 /* BalanceService.swift in Sources */,
 				2CA407242B59511B0038694B /* ContentTabBar.swift in Sources */,
 				2C8C38512A9FE73200F388A7 /* HomeView.swift in Sources */,
+				2C0C4FDF2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift in Sources */,
+				2C2975482C015D2300E09614 /* MigrationSample.swift in Sources */,
 				2C9D8A612B6AE6D7004B8A1E /* GradientAccentcColors.swift in Sources */,
 				2C2DB7852B89755900B631E9 /* UIGlassCard.swift in Sources */,
 				2CA407262B5B53700038694B /* TabCurve.swift in Sources */,

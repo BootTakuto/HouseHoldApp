@@ -17,7 +17,7 @@ struct PaymentView: View {
     @State private var incConsListType = 0      // 収支情報の表示タイプ
     @State private var dispFlgs: [Bool] =
     IncomeConsumeService().getIncConsDispFlgs(selectDate: Date(),
-                                              listType: 0) // 収支一覧　日付別の表示フラグ配列
+    listType: 0) // 収支一覧　日付別の表示フラグ配列
     // 遷移情報
     @State var detailPageFlg = false
     @State var incConsObject = IncomeConsumeModel()
@@ -57,13 +57,12 @@ struct PaymentView: View {
                     .scrollDisabled(selectListView && incConsDic.isEmpty)
             }.ignoresSafeArea(.container, edges: .top)
                 .navigationDestination(isPresented: $detailPageFlg) {
-                    let isLinkBal = !incConsObject.balanceKeyList.isEmpty
+                    let isLinkBal = !incConsObject.balLinkAmtList.isEmpty
                     RegistIncConsFormView(registIncConsFlg: $detailPageFlg,
                                           accentColors: accentColors,
                                           isEdit: true,
                                           linkBalFlg: isLinkBal,
-                                          selectForm: incConsObject.houseHoldType
-                                          )
+                                          selectForm: incConsObject.houseHoldType)
                     .navigationBarBackButtonHidden()
                 }.navigationDestination(isPresented: $perDayListFlg) {
                     IncConsListPerDayView(perDayListFlg: $perDayListFlg,

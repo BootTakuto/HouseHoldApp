@@ -12,27 +12,22 @@ import SwiftUI
 class CommonService {
     let UD_ACCENT_COLORS_INDEX = "ACCENT_COLORS_INDEX"
     
-    /* ▼マイグレーションを兼ねたrealmの生成
-     */
+    /* ▼マイグレーションを兼ねたrealmの生成　*/
     let realm: Realm = {
-        
-        let schemaVersion: UInt64 = 1
-        // ▼schemaversionがすでに更新されている場合マイグレを実施しない
-        if Realm.Configuration.defaultConfiguration.schemaVersion < schemaVersion {
-            // ①マイグレーションを実施　schemaversionなどを更新する
-            let config = Realm.Configuration(
-            schemaVersion: schemaVersion, // schemaVersionを0から1に増加。
-            migrationBlock: { migration, oldSchemaVersion in
-                // 設定前のschemaVersionが２より小さい場合、マイグレーションを実行。
-                if oldSchemaVersion < schemaVersion {
-                    // ▼サンプル
-                    //                    migration.create(IncomeConsumeModel.className(), value: ["incConsSecKey": ""])
-                }
-            })
-            // ②マイグレーションを代入　defaultに設定
-            Realm.Configuration.defaultConfiguration = config
-        }
-        // ③realmインスタンス生成と同時に①②が実行される
+//        let newSchemaVersion: UInt64 = 0
+        // schemaVersion
+//        if Realm.Configuration.defaultConfiguration.schemaVersion < newSchemaVersion {
+//            let config = Realm.Configuration(
+        // schemaVersionを上げる
+//            schemaVersion: newSchemaVersion,
+        // データの置き換えなど必要な処理
+//            migrationBlock: { migration, oldSchemaVersion in
+//                if oldSchemaVersion < newSchemaVersion {
+//                    // 必要ならデータの置き換えなどを行う
+//                }
+//            })
+//            Realm.Configuration.defaultConfiguration = config
+//        }
         let realm = try! Realm()
         return realm
     }()

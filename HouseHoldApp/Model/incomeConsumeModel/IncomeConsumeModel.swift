@@ -27,10 +27,8 @@ class IncomeConsumeModel: Object, Identifiable {
     @Persisted var incConsSecKey = ""
     // 収入・支出カテゴリー主キー　＊②
     @Persisted var incConsCatgKey = ""
-    // 残高キー (incConsAmtListのindexと等しい)　＊①
-    @Persisted var balanceKeyList = RealmSwift.List<String>()
-    // 金額のlist (balanceKeyListのindexと等しい)　＊⑤
-    @Persisted var incConsAmtList = RealmSwift.List<Int>()
+    // 残高と連携される金額を格納
+    @Persisted var balLinkAmtList = RealmSwift.List<IncConsBalLinkAmtModel>()
     // 金額
     @Persisted var incConsAmtValue = 0
     // 日付　＊③
