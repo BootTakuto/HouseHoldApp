@@ -17,11 +17,3 @@ class IncConsBalLinkAmtModel: Object {
     // 連携された残高に金額を増減するか
     @Persisted var isIncreaseBal: Bool = true
 }
-
-// RealmオブジェクトはSwiftUIで変更を感知できないため、View用の構造体を作成
-// 登録するタイミングでIncConsBalLinkAmtModelにマッピング
-struct IncConsBalLinkAmtModelForView {
-    var balanceKey = ""
-    var incConsAmt = "0"
-    var isIncreaseBal = true
-}

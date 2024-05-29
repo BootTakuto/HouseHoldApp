@@ -12,9 +12,19 @@ struct RegistIncConsFormView: View {
     @Binding var registIncConsFlg: Bool
     var accentColors: [Color]
     var isEdit: Bool
-    /** 表示 */
-    @State var linkBalFlg = true                            // 収支登録時の残高連携フラグ　※
+    /** 登録情報 */
     @State var selectForm = 0                               // 選択フォーム　※
+    @State var linkBalFlg = true                            // 収支登録時の残高連携フラグ　※
+    @State private var inputAmt = "0"                       // 金額(残高未連携)
+    @State var balKeyArray: [String] = []           // 金額(残高連携用 残高主キー配列)
+    @State var linkBalAmtArray: [IncConsBalLinkAmtModelForView] = []
+    @State var incConsSecKey =
+    IncConSecCatgService().getUnCatgSecKey(houseHoldType: 0)// 項目主キー
+    @State var incConsCatgKey =
+    IncConSecCatgService().getUnCatgCatgKey(houseHoldType: 0)// 項目カテゴリー主キー
+    @State var selectDate = Date()                  // 日付
+    @State var memo = ""                            // メモ
+    /** 表示 */
     @State private var dateDownFlg = false                  // 日付ピッカーの開閉フラグ　※
     @State private var popUpFlg = false                     // ポップアップ画面フラグ　　※
     @State private var popUpStatus: PopUpStatus = .failed   // ポップアップ画面ステータス※
@@ -23,17 +33,6 @@ struct RegistIncConsFormView: View {
     @State private var inputLeastIndex = 0                  // 入力キャンセル用　残高連携入力箇所を特定するため　※
     @State private var isChekAmtTotal = false               // 残高連携金額確認表示フラグ　※
     @State private var inputAmtTotal = 0                    // 残高連携金額確認で表示する合計金額　※
-    /** 登録関連情報 */
-    @State var incConsModel = IncomeConsumeModel()
-    @State private var inputAmt = "0"                       // 金額(残高未連携)
-    @State private var balKeyArray: [String] = []           // 金額(残高連携用 残高主キー配列)
-    @State private var registAmtFormArray: [IncConsAmtForm] = []
-    @State private var incConsSecKey =
-    IncConSecCatgService().getUnCatgSecKey(houseHoldType: 0)// 項目主キー
-    @State private var incConsCatgKey =
-    IncConSecCatgService().getUnCatgCatgKey(houseHoldType: 0)// 項目カテゴリー主キー
-    @State private var selectDate = Date()                  // 日付
-    @State private var memo = ""                            // メモ
     /** results */
     @State private var sectionResults = IncConSecCatgService().getIncConsSec(houseHoldType: 0)
     let balResults = BalanceService().getBalanceResults()
@@ -59,6 +58,7 @@ struct RegistIncConsFormView: View {
                             registOthersForm(size: size)
                                 .tag(2)
                         }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                            .disabled(isEdit)
                     }
                 }
             }.onChange(of: selectForm) {
@@ -78,16 +78,16 @@ struct RegistIncConsFormView: View {
                 }
 //                    self.linkBalFlg = false
                 self.balKeyArray.removeAll()
-                self.registAmtFormArray.removeAll()
+                self.linkBalAmtArray.removeAll()
 //                self.registAmtFormAr.indices.forEach { index in
 //                    if self.amountArray[index] == "" {
 //                        self.amountArray[index] = "0"
 //                    }
 //                }
             }.onChange(of: inputLeastIndex) {
-                self.registAmtFormArray.indices.forEach { index in
-                    if self.inputLeastIndex != index && self.registAmtFormArray[index].amount == "" {
-                        self.registAmtFormArray[index].amount = "0"
+                self.linkBalAmtArray.indices.forEach { index in
+                    if self.inputLeastIndex != index && self.linkBalAmtArray[index].incConsAmt == "" {
+                        self.linkBalAmtArray[index].incConsAmt = "0"
                     }
                 }
             }.onChange(of: inputAmtFocused) {
@@ -122,8 +122,8 @@ struct RegistIncConsFormView: View {
                         HStack {
                             Button("キャンセル") {
                                 self.inputAmt = "0"
-                                if !registAmtFormArray.isEmpty {
-                                    self.registAmtFormArray[inputLeastIndex].amount = "0"
+                                if !linkBalAmtArray.isEmpty {
+                                    self.linkBalAmtArray[inputLeastIndex].incConsAmt = "0"
                                 }
                                 self.inputAmtFocused = false
                             }
@@ -132,9 +132,9 @@ struct RegistIncConsFormView: View {
                                 if inputAmt == "" {
                                     self.inputAmt = "0"
                                 }
-                                self.registAmtFormArray.indices.forEach { index in
-                                    if self.registAmtFormArray[index].amount == "" {
-                                        self.registAmtFormArray[index].amount = "0"
+                                self.linkBalAmtArray.indices.forEach { index in
+                                    if self.linkBalAmtArray[index].incConsAmt == "" {
+                                        self.linkBalAmtArray[index].incConsAmt = "0"
                                     }
                                 }
                                 self.inputAmtFocused = false
@@ -184,20 +184,26 @@ struct RegistIncConsFormView: View {
                     Group {
                         Text(LabelsModel.incomeLabel)
                             .onTapGesture {
-                                withAnimation {
-                                    self.selectForm = 0
+                                if !isEdit {
+                                    withAnimation {
+                                        self.selectForm = 0
+                                    }
                                 }
                             }
                         Text(LabelsModel.consumeLabel)
                             .onTapGesture {
-                                withAnimation {
-                                    self.selectForm = 1
+                                if !isEdit {
+                                    withAnimation {
+                                        self.selectForm = 1
+                                    }
                                 }
                             }
                         Text("残高操作")
                             .onTapGesture {
-                                withAnimation {
-                                    self.selectForm = 2
+                                if !isEdit {
+                                    withAnimation {
+                                        self.selectForm = 2
+                                    }
                                 }
                             }
                     }.frame(width: local.size.width / 3)
@@ -239,7 +245,7 @@ struct RegistIncConsFormView: View {
                     // 残高連携がfalseになるタイミングで連携情報をクリア
                     if self.linkBalFlg {
                         self.balKeyArray.removeAll()
-                        self.registAmtFormArray.removeAll()
+                        self.linkBalAmtArray.removeAll()
                     }
                     withAnimation {
                         self.linkBalFlg.toggle()
@@ -253,7 +259,7 @@ struct RegistIncConsFormView: View {
     func textFieldLinkBal(size: CGSize, index: Int) -> some View {
         let balResult = balanceService.getBalanceResult(balanceKey: self.balKeyArray[index])
         let width = size.width - 60 - 30 - 20 - 10
-        let selectIncrease = self.registAmtFormArray[index].isIncrease && self.selectForm == 2
+        let selectIncrease = self.linkBalAmtArray[index].isIncreaseBal && self.selectForm == 2
         ZStack {
             Color.changeable
             HStack(spacing: 0) {
@@ -271,7 +277,7 @@ struct RegistIncConsFormView: View {
                             HStack {
                                 Button(action: {
                                     withAnimation {
-                                        self.registAmtFormArray[index].isIncrease = true
+                                        self.linkBalAmtArray[index].isIncreaseBal = true
                                     }
                                 }) {
                                     Circle()
@@ -287,7 +293,7 @@ struct RegistIncConsFormView: View {
                                 Text("増額")
                                 Button(action: {
                                     withAnimation {
-                                        self.registAmtFormArray[index].isIncrease = false
+                                        self.linkBalAmtArray[index].isIncreaseBal = false
                                     }
                                 }) {
                                     Circle()
@@ -314,7 +320,7 @@ struct RegistIncConsFormView: View {
                         .frame(width: width * (3 / 4), alignment: .leading)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
-                    TextField("", text: $registAmtFormArray[index].amount)
+                    TextField("", text: $linkBalAmtArray[index].incConsAmt)
                         .focused($inputAmtFocused)
                         .padding(10)
                         .padding(.horizontal, 10)
@@ -327,8 +333,8 @@ struct RegistIncConsFormView: View {
                                 .frame(height: 50)
                                 .padding(.horizontal, 10)
                         ).onTapGesture {
-                            if self.registAmtFormArray[index].amount == "0" {
-                                self.registAmtFormArray[index].amount = ""
+                            if self.linkBalAmtArray[index].incConsAmt == "0" {
+                                self.linkBalAmtArray[index].incConsAmt = ""
                             }
                             self.inputLeastIndex = index
                         }
@@ -438,19 +444,20 @@ struct RegistIncConsFormView: View {
                                                     withAnimation {
                                                         if !balKeyArray.contains(result.balanceKey) {
                                                             self.balKeyArray.append(result.balanceKey)
-                                                            self.registAmtFormArray.append(
-                                                                IncConsAmtForm(balKey: result.balanceKey,
-                                                                               amount: "0",
-                                                                               isIncrease: true)
+                                                            self.linkBalAmtArray.append(
+                                                               IncConsBalLinkAmtModelForView(
+                                                                balanceKey: result.balanceKey,
+                                                                incConsAmt: "0",
+                                                                isIncreaseBal: selectForm != 1 ? true : false)
                                                             )
                                                         } else {
                                                             let index = balKeyArray.firstIndex(of: result.balanceKey)!
                                                             self.balKeyArray.remove(at: index)
-                                                            self.registAmtFormArray.remove(at: index)
+                                                            self.linkBalAmtArray.remove(at: index)
                                                         }
                                                     }
                                                 }
-                                        }
+                                        }.disabled(isEdit)
                                         generalView.glassCircleButton(imageColor: accentColors.last ?? .blue,
                                                                       imageNm: "plus") {
                                             withAnimation {
@@ -462,21 +469,20 @@ struct RegistIncConsFormView: View {
                                             .compositingGroup()
                                             .shadow(color: .changeableShadow, radius: 3)
                                             .padding(.horizontal, 5)
+                                            .disabled(isEdit)
                                     }.padding(.leading, 5)
                                 }.scrollDisabled(balResults.isEmpty)
                             }
-                            if !registAmtFormArray.isEmpty {
+                            if !linkBalAmtArray.isEmpty {
                                 HStack {
                                     Text("金 額")
                                         .font(.caption.bold())
                                         .foregroundStyle(Color.changeableText)
                                     Spacer()
                                     Button(action: {
-                                        var amount = 0
-                                        registAmtFormArray.forEach { data in
-                                            amount += Int(data.amount) ?? 0
+                                        linkBalAmtArray.forEach { data in
+                                            self.inputAmtTotal += Int(data.incConsAmt) ?? 0
                                         }
-                                        self.inputAmtTotal = amount
                                         withAnimation {
                                             self.isChekAmtTotal.toggle()
                                         }
@@ -491,9 +497,9 @@ struct RegistIncConsFormView: View {
                                 checkAmtTotalCard()
                             } else {
                                 VStack(spacing: 20) {
-                                    ForEach(registAmtFormArray.indices, id: \.self) {index in
+                                    ForEach(linkBalAmtArray.indices, id: \.self) {index in
                                         textFieldLinkBal(size: size, index: index)
-                                    }
+                                    }.disabled(isEdit)
                                 }
                             }
                         } else {
@@ -551,7 +557,7 @@ struct RegistIncConsFormView: View {
                                     withAnimation {
                                         self.dateDownFlg.toggle()
                                     }
-                                }
+                                }.disabled(isEdit)
                             VStack(spacing: 5) {
                                 if self.dateDownFlg {
                                     DatePicker("", selection: $selectDate, displayedComponents: .date)
@@ -565,12 +571,14 @@ struct RegistIncConsFormView: View {
                                         .foregroundStyle(Color.changeableText)
                                         .font(.callout.bold())
                                 }
-                                Image(systemName: "chevron.compact.down")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 30, height: 20)
-                                    .rotationEffect(.degrees(self.dateDownFlg ? 180 : 0))
-                                    .foregroundStyle(Color.changeableText)
+                                if !isEdit {
+                                    Image(systemName: "chevron.compact.down")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 30, height: 20)
+                                        .rotationEffect(.degrees(self.dateDownFlg ? 180 : 0))
+                                        .foregroundStyle(Color.changeableText)
+                                }
                             }
                         }
                         Text(LabelsModel.memoLabel)
@@ -583,17 +591,19 @@ struct RegistIncConsFormView: View {
                             TextEditor(text: $memo)
                                 .scrollContentBackground(.hidden)
                                 .focused($isMemoFocused)
+                                .foregroundStyle(Color.changeableText)
+                                .disabled(isEdit)
                         }
                     }.padding(.horizontal, 20)
                     // 登録
-                    generalView.registButton(colors: accentColors, radius: 10, isDisAble: false) {
+                    generalView.registButton(colors: accentColors, radius: 10, isDisAble: isEdit) {
                         if !self.isEdit {
                             if linkBalFlg {
                                 withAnimation {
                                     self.popUpFlg = true
                                     self.popUpStatus =
                                     incConsService.registIncConsLinkBal(balKeyArray: self.balKeyArray,
-                                                                        registAmtFormArray: self.registAmtFormArray,
+                                                                        linkBalAmtArray: self.linkBalAmtArray,
                                                                         houseHoldType: self.selectForm,
                                                                         incConsSecKey: self.incConsSecKey,
                                                                         incConsCatgKey: self.incConsCatgKey,
@@ -601,7 +611,9 @@ struct RegistIncConsFormView: View {
                                                                         memo: self.memo)
                                 }
                                 self.balKeyArray.removeAll()
-                                self.registAmtFormArray.removeAll()
+                                self.linkBalAmtArray.removeAll()
+                                self.memo = ""
+                                
                                 self.isChekAmtTotal = false
                             } else {
                                 withAnimation {

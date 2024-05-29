@@ -13,7 +13,7 @@
 		2C22A64F2B6E42EA00D220E2 /* BalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */; };
 		2C276B832BD8577600A69F87 /* IncConsSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C276B822BD8577600A69F87 /* IncConsSummaryView.swift */; };
 		2C2975482C015D2300E09614 /* MigrationSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2975472C015D2300E09614 /* MigrationSample.swift */; };
-		2C2C30462BF62A4900CF59D0 /* IncConsAmtForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2C30452BF62A4900CF59D0 /* IncConsAmtForm.swift */; };
+		2C2C30462BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2C30452BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift */; };
 		2C2DB7852B89755900B631E9 /* UIGlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2DB7842B89755900B631E9 /* UIGlassCard.swift */; };
 		2C2DB7892B8A01D900B631E9 /* LabelsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2DB7882B8A01D900B631E9 /* LabelsModel.swift */; };
 		2C3B3C4D2BA70ADD0080A278 /* RegistIncConsFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3B3C4C2BA70ADC0080A278 /* RegistIncConsFormView.swift */; };
@@ -68,7 +68,7 @@
 		2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceService.swift; sourceTree = "<group>"; };
 		2C276B822BD8577600A69F87 /* IncConsSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsSummaryView.swift; sourceTree = "<group>"; };
 		2C2975472C015D2300E09614 /* MigrationSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationSample.swift; sourceTree = "<group>"; };
-		2C2C30452BF62A4900CF59D0 /* IncConsAmtForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsAmtForm.swift; sourceTree = "<group>"; };
+		2C2C30452BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsBalLinkAmtModelForView.swift; sourceTree = "<group>"; };
 		2C2DB7842B89755900B631E9 /* UIGlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIGlassCard.swift; sourceTree = "<group>"; };
 		2C2DB7882B8A01D900B631E9 /* LabelsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelsModel.swift; sourceTree = "<group>"; };
 		2C3B3C4C2BA70ADC0080A278 /* RegistIncConsFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistIncConsFormView.swift; sourceTree = "<group>"; };
@@ -243,7 +243,7 @@
 				2CB1ECEB2B6F2DB40014B5FC /* IncConsCategoryModel.swift */,
 				2C3CA8222B440AB800EC2D1B /* IncomeConsumeModel.swift */,
 				2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */,
-				2C2C30452BF62A4900CF59D0 /* IncConsAmtForm.swift */,
+				2C2C30452BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift */,
 				2CB1ECEF2B6F2E450014B5FC /* incomeConsumeService */,
 			);
 			path = incomeConsumeModel;
@@ -474,7 +474,7 @@
 				2CFDF8DD2A792E3F00D5C194 /* ContentView.swift in Sources */,
 				2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */,
 				2CA911562BE8822800D635A9 /* ViewExtension.swift in Sources */,
-				2C2C30462BF62A4900CF59D0 /* IncConsAmtForm.swift in Sources */,
+				2C2C30462BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift in Sources */,
 				2CFDF8DB2A792E3F00D5C194 /* HouseHoldAppApp.swift in Sources */,
 				2CA697642BFAAAF800BFE895 /* BudgetModel.swift in Sources */,
 				2CD172E02B588128006E3FBD /* BalanceSummaryView.swift in Sources */,

@@ -40,22 +40,24 @@ class GeneralComponentView {
     /** アイコン */
     @ViewBuilder // 表示のみ
     func RoundedIcon(radius: CGFloat, color: Color, image: String, text: String) -> some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: radius)
-                .fill(color)
-            VStack(spacing: 0) {
-                Image(systemName: image)
-                    .resizable()
-                    .scaledToFit()
-                    .padding(1)
-                    .foregroundStyle(.white)
-                Text(text)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 2)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-            }.scaledToFit()
+        GeometryReader {
+            let size = $0.size
+            ZStack {
+                RoundedRectangle(cornerRadius: radius)
+                    .fill(color)
+                VStack(spacing: 0) {
+                    Image(systemName: image)
+                        .frame(height: size.height / 2)
+                        .scaledToFit()
+                        .foregroundStyle(.white)
+                    Text(text)
+                        .font(.caption.bold())
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 2)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                }
+            }
         }
     }
     @ViewBuilder // 選択によって表示を変更する

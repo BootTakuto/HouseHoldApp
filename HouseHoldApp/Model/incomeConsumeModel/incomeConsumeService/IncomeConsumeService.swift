@@ -54,47 +54,58 @@ class IncomeConsumeService: CommonService {
      @return --
      */
     func registIncConsLinkBal(balKeyArray: [String],
-                              registAmtFormArray: [IncConsAmtForm],
+                              linkBalAmtArray: [IncConsBalLinkAmtModelForView],
                               houseHoldType: Int,
                               incConsSecKey: String,
                               incConsCatgKey: String,
                               incConsDate: Date,
                               memo: String) -> PopUpStatus {
         let resultSize = realm.objects(IncomeConsumeModel.self).count
-        // 金額配列[String]を[Int]に変換
-        var amountIntArray: [Int] = []
-        registAmtFormArray.forEach { data in
-            if data.isIncrease {
-                amountIntArray.append(Int(data.amount) ?? 0)
+        let incConsModel = IncomeConsumeModel()
+        // 主キー
+        incConsModel.incConsKey = UUID().uuidString
+        // 家計タイプ
+        incConsModel.houseHoldType = houseHoldType
+        // 収支項目主キー
+        incConsModel.incConsSecKey = incConsSecKey
+        // 収支カテゴリー主キー
+        incConsModel.incConsCatgKey = incConsCatgKey
+        // 残高リンク情報
+        linkBalAmtArray.forEach {obj in
+            let balLinkAmt = IncConsBalLinkAmtModel()
+            balLinkAmt.balanceKey = obj.balanceKey
+            balLinkAmt.incConsAmt = obj.incConsAmt
+            balLinkAmt.isIncreaseBal = obj.isIncreaseBal
+            incConsModel.balLinkAmtList.append(balLinkAmt)
+        }
+        // 収支金額合計
+        incConsModel.balLinkAmtList.forEach { obj in
+            if houseHoldType != 2 {
+                incConsModel.incConsAmtValue += Int(obj.incConsAmt) ?? 0
             } else {
-                let decAmt = Int(data.amount) ?? 0
-                amountIntArray.append(decAmt * -1)
+                if obj.isIncreaseBal {
+                    incConsModel.incConsAmtValue += Int(obj.incConsAmt) ?? 0
+                } else {
+                    incConsModel.incConsAmtValue -= Int(obj.incConsAmt) ?? 0
+                }
             }
         }
-        // 合計金額
-        var incConsAmtValue = 0
-        amountIntArray.forEach { amt in
-            incConsAmtValue += amt
-        }
-        let incConsModel = IncomeConsumeModel()
-        incConsModel.incConsKey = UUID().uuidString
-        incConsModel.houseHoldType = houseHoldType
-        incConsModel.balanceKeyList.append(objectsIn: balKeyArray)
-        incConsModel.incConsAmtList.append(objectsIn: amountIntArray)
-        incConsModel.incConsSecKey = incConsSecKey
-        incConsModel.incConsCatgKey = incConsCatgKey
-        incConsModel.incConsAmtValue = incConsAmtValue
+        // 日付(yyyyMMddに変換)
         incConsModel.incConsDate = getStringDate(date: incConsDate, format: dateFormatter)
+        // メモ
         incConsModel.memo = memo
+        // 登録処理
         try! realm.write() {
+            // 収支情報登録
             realm.add(incConsModel)
-            balKeyArray.indices.forEach { index in
-                let wrapResult = realm.object(ofType: BalanceModel.self, forPrimaryKey: balKeyArray[index])
+            // 残高金額を増減
+            incConsModel.balLinkAmtList.forEach { obj in
+                let wrapResult = realm.object(ofType: BalanceModel.self, forPrimaryKey: obj.balanceKey)
                 if let unWrapResult = wrapResult {
-                    if houseHoldType == 0 || houseHoldType == 2 {
-                        unWrapResult.balanceAmt += amountIntArray[index]
-                    } else if houseHoldType == 1 {
-                        unWrapResult.balanceAmt -= amountIntArray[index]
+                    if obj.isIncreaseBal {
+                        unWrapResult.balanceAmt += Int(obj.incConsAmt) ?? 0
+                    } else {
+                        unWrapResult.balanceAmt -= Int(obj.incConsAmt) ?? 0
                     }
                 }
             }
@@ -438,8 +449,8 @@ class IncomeConsumeService: CommonService {
         if result.houseHoldType == 2 {
             if result.incConsAmtValue == 0 {
                 symbol = "±"
-                result.incConsAmtList.forEach { amt in
-                    if amt == 0 {
+                result.balLinkAmtList.forEach { obj in
+                    if obj.incConsAmt == "0" {
                         symbol = "¥"
                     }
                 }
@@ -485,4 +496,32 @@ class IncomeConsumeService: CommonService {
         }
         return flgs
     }
+    
+    /* 収支変更用　連携された残高を取得する
+     @param 収支情報オブジェクト
+     @return 連携残高配列
+     */
+    func getLinkBalKeyArray(incConsObj: IncomeConsumeModel) -> [String] {
+        var array: [String] = []
+        incConsObj.balLinkAmtList.forEach { obj in
+            array.append(obj.balanceKey)
+        }
+        return array
+    }
+    
+    /* 収支変更用　表示用残高連携収支情報を取得する
+     @param 収支情報オブジェクト
+     @return 表示用残高連携収支情報配列
+     */
+    func getLinkBalAmtArrayForView(incConsObj: IncomeConsumeModel) -> [IncConsBalLinkAmtModelForView] {
+        var array: [IncConsBalLinkAmtModelForView] = []
+        incConsObj.balLinkAmtList.forEach { obj in
+            let linkBalAmtForView = IncConsBalLinkAmtModelForView(balanceKey: obj.balanceKey,
+                                                                  incConsAmt: obj.incConsAmt,
+                                                                  isIncreaseBal: obj.isIncreaseBal)
+            array.append(linkBalAmtForView)
+        }
+        return array
+    }
 }
+

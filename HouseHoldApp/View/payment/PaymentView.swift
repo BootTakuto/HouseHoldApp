@@ -30,6 +30,7 @@ struct PaymentView: View {
     let incConsService = IncomeConsumeService()
     let calendarService = CalendarService()
     let incConsSecCatgService = IncConSecCatgService()
+    let commonService = CommonService()
     // view設定
     let generalView = GeneralComponentView()                        // 汎用ビュー
     let dateSelectorHeight: CGFloat = 100
@@ -58,11 +59,21 @@ struct PaymentView: View {
             }.ignoresSafeArea(.container, edges: .top)
                 .navigationDestination(isPresented: $detailPageFlg) {
                     let isLinkBal = !incConsObject.balLinkAmtList.isEmpty
+                    let balKeyArray = incConsService.getLinkBalKeyArray(incConsObj: incConsObject)
+                    let linkBalAmtArray = incConsService.getLinkBalAmtArrayForView(incConsObj: incConsObject)
+                    let selectDate = commonService.convertStrToDate(dateStr: incConsObject.incConsDate,
+                                                                    format: "yyyyMMdd")
                     RegistIncConsFormView(registIncConsFlg: $detailPageFlg,
                                           accentColors: accentColors,
                                           isEdit: true,
+                                          selectForm: incConsObject.houseHoldType,
                                           linkBalFlg: isLinkBal,
-                                          selectForm: incConsObject.houseHoldType)
+                                          balKeyArray: balKeyArray,
+                                          linkBalAmtArray: linkBalAmtArray,
+                                          incConsSecKey: incConsObject.incConsSecKey,
+                                          incConsCatgKey: incConsObject.incConsCatgKey,
+                                          selectDate: selectDate,
+                                          memo: incConsObject.memo)
                     .navigationBarBackButtonHidden()
                 }.navigationDestination(isPresented: $perDayListFlg) {
                     IncConsListPerDayView(perDayListFlg: $perDayListFlg,
@@ -385,7 +396,6 @@ struct PaymentView: View {
             let image = secResult.incConsSecImage
             let text = catgResult.incConsCatgNm
             generalView.RoundedIcon(radius: 10, color: color, image: image, text: text)
-                .font(.caption.bold())
                 .frame(width: iconWH, height: iconWH)
                 .padding(iconPadding)
             VStack(spacing: 10) {
@@ -508,5 +518,5 @@ struct PaymentView: View {
 }
 
 #Preview {
-    ContentView()
+    PaymentView(accentColors: [.orange, .pink])
 }
