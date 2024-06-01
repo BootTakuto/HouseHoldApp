@@ -50,15 +50,27 @@ struct RegistIncConsFormView: View {
                 NavigationStack {
                     VStack(spacing: 0) {
                         headerAndTab(size: size)
-                        TabView(selection: $selectForm) {
-                            registIncForm(size: size)
-                                .tag(0)
-                            registConsForm(size: size)
-                                .tag(1)
-                            registOthersForm(size: size)
-                                .tag(2)
-                        }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                            .disabled(isEdit)
+                        if !isEdit {
+                            TabView(selection: $selectForm) {
+                                registIncForm(size: size)
+                                    .tag(0)
+                                registConsForm(size: size)
+                                    .tag(1)
+                                registOthersForm(size: size)
+                                    .tag(2)
+                            }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                        } else {
+                            switch self.selectForm {
+                            case 0:
+                                registIncForm(size: size)
+                            case 1:
+                                registConsForm(size: size)
+                            case 2:
+                                registOthersForm(size: size)
+                            default:
+                                Text("収支情報が存在しません。")
+                            }
+                        }
                     }
                 }
             }.onChange(of: selectForm) {
@@ -153,22 +165,29 @@ struct RegistIncConsFormView: View {
     @ViewBuilder
     func headerAndTab(size: CGSize) -> some View {
         ZStack(alignment: .top) {
-            LinearGradient(colors: accentColors, startPoint: .topLeading, endPoint: .bottomTrailing)
-                .ignoresSafeArea()
-                .frame(height: 70)
+            if isEdit {
+                Color(uiColor: .systemGray6)
+                    .ignoresSafeArea()
+                    .frame(height: 70)
+            } else {
+                LinearGradient(colors: accentColors, startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .ignoresSafeArea()
+                    .frame(height: 70)
+            }
             VStack {
                 HStack {
                     Image(systemName: isEdit ? "chevron.left" : "xmark")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(isEdit ? Color.changeableText : .white)
                         .onTapGesture {
                             self.registIncConsFlg = false
                         }
                     Spacer()
                     Image(systemName: "questionmark.circle")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(isEdit ? Color.changeableText : .white)
                 }.padding(.horizontal, 20)
                 formTabBar()
                     .padding(.vertical, 10)
+                    .disabled(isEdit)
             }
         }
     }
@@ -182,48 +201,42 @@ struct RegistIncConsFormView: View {
                 let offsets: [CGFloat] = [offset - 15, offset * 4 - 15, offset * 7 - 15]
                 HStack(spacing: 0) {
                     Group {
-                        Text(LabelsModel.incomeLabel)
+                        Text(isEdit && selectForm != 0 ? "" : "収入")
                             .onTapGesture {
-                                if !isEdit {
-                                    withAnimation {
-                                        self.selectForm = 0
-                                    }
+                                withAnimation {
+                                    self.selectForm = 0
                                 }
                             }
-                        Text(LabelsModel.consumeLabel)
+                        Text(isEdit && selectForm != 1 ? "" : "支出")
                             .onTapGesture {
-                                if !isEdit {
-                                    withAnimation {
-                                        self.selectForm = 1
-                                    }
+                                withAnimation {
+                                    self.selectForm = 1
                                 }
                             }
-                        Text("残高操作")
+                        Text(isEdit && selectForm != 2 ? "" : "残高操作")
                             .onTapGesture {
-                                if !isEdit {
-                                    withAnimation {
-                                        self.selectForm = 2
-                                    }
+                                withAnimation {
+                                    self.selectForm = 2
                                 }
                             }
                     }.frame(width: local.size.width / 3)
                 }.font(.system(size: 14).bold())
-                    .foregroundStyle(.white)
+                    .foregroundStyle(isEdit ? Color.changeableText : .white)
                 RoundedRectangle(cornerRadius: 25)
-                    .fill(.white)
+                    .fill(isEdit ? Color.changeableText : .white)
                     .frame(width: local.width / 9 + 30, height: 5)
                     .animation(
                         .spring(), value: selectForm
-                    )
-                    .offset(x: offsets[selectForm], y: local.maxY)
+                    ).offset(x: offsets[selectForm], y: local.maxY)
             }
         }.frame(height: 20)
     }
     
     @ViewBuilder
     func toggleLinkBalance() -> some View {
-        let rectColor = linkBalFlg ?
-        accentColors.last!.shadow(.inner(radius: 3)) : Color(uiColor: .systemGray3).shadow(.inner(radius:1))
+        let rectColor = !linkBalFlg ?
+            Color(uiColor: .systemGray3).shadow(.inner(radius:1)) : !isEdit ?
+            accentColors.last!.shadow(.inner(radius: 3)) : Color.gray.shadow(.inner(radius: 3))
         HStack {
             Text(linkBalFlg ? "残高選択(複数可)" : "金 額")
                 .font(.caption.bold())
@@ -257,11 +270,15 @@ struct RegistIncConsFormView: View {
     
     @ViewBuilder
     func textFieldLinkBal(size: CGSize, index: Int) -> some View {
-        let balResult = balanceService.getBalanceResult(balanceKey: self.balKeyArray[index])
+        let linkBalAmtObj = self.linkBalAmtArray[index]
+        let balResult = balanceService.getBalanceResult(balanceKey: linkBalAmtObj.balanceKey)
         let width = size.width - 60 - 30 - 20 - 10
-        let selectIncrease = self.linkBalAmtArray[index].isIncreaseBal && self.selectForm == 2
         ZStack {
-            Color.changeable
+            if isEdit {
+                UIGlassCard(effect: .systemUltraThinMaterial)
+            } else {
+                Color.changeable
+            }
             HStack(spacing: 0) {
                 Rectangle().fill(ColorAndImage.colors[balResult.colorIndex])
                     .frame(width: 10)
@@ -282,11 +299,12 @@ struct RegistIncConsFormView: View {
                                 }) {
                                     Circle()
                                         .stroke(lineWidth: 1)
-                                        .fill(accentColors.last ?? .blue)
+                                        .fill(isEdit ? Color.gray : accentColors.last ?? .blue)
                                         .frame(width: 15)
                                         .overlay {
                                             Circle()
-                                                .fill(selectIncrease ? accentColors.last ?? .blue : .clear)
+                                                .fill(linkBalAmtObj.isIncreaseBal ? isEdit ? .gray :
+                                                      accentColors.last ?? .blue : .clear)
                                                 .frame(width: 10)
                                         }
                                 }
@@ -298,11 +316,12 @@ struct RegistIncConsFormView: View {
                                 }) {
                                     Circle()
                                         .stroke(lineWidth: 1)
-                                        .fill(accentColors.last ?? .blue)
+                                        .fill(isEdit ? Color.gray : accentColors.last ?? .blue)
                                         .frame(width: 15)
                                         .overlay {
                                             Circle()
-                                                .fill(selectIncrease ? .clear : accentColors.last ?? .blue)
+                                                .fill(linkBalAmtObj.isIncreaseBal ?
+                                                    .clear : isEdit ? .gray : accentColors.last ?? .blue)
                                                 .frame(width: 10)
                                         }
                                 }
@@ -312,38 +331,48 @@ struct RegistIncConsFormView: View {
                     }.padding(.horizontal, 15)
                         .font(.caption.bold())
                         .foregroundStyle(Color.changeableText)
-                    Text("¥\(balResult.balanceAmt)")
-                        .font(.caption.bold())
-                        .fontDesign(.rounded)
-                        .foregroundStyle(Color.changeableText)
-                        .padding(.horizontal, 15)
-                        .frame(width: width * (3 / 4), alignment: .leading)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                    TextField("", text: $linkBalAmtArray[index].incConsAmt)
-                        .focused($inputAmtFocused)
-                        .padding(10)
-                        .padding(.horizontal, 10)
-                        .multilineTextAlignment(.trailing)
-                        .keyboardType(.numberPad)
-                        .foregroundStyle(self.selectForm == 0 || selectIncrease ? .blue : .red)
-                        .font(.title3.bold())
-                        .background(
-                            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
-                                .frame(height: 50)
-                                .padding(.horizontal, 10)
-                        ).onTapGesture {
-                            if self.linkBalAmtArray[index].incConsAmt == "0" {
-                                self.linkBalAmtArray[index].incConsAmt = ""
+                    if isEdit {
+                        HStack {
+                            Spacer()
+                            Text(linkBalAmtObj.isIncreaseBal ?
+                                 "+\(linkBalAmtObj.incConsAmt)" : "-\(linkBalAmtObj.incConsAmt)")
+                            .foregroundStyle(linkBalAmtObj.isIncreaseBal ? .blue : .red)
+                            .font(.system(.title3, design: .rounded, weight: .bold))
+                        }.padding(.horizontal, 15)
+                    } else {
+                        Text("¥\(balResult.balanceAmt)")
+                            .font(.caption.bold())
+                            .fontDesign(.rounded)
+                            .foregroundStyle(Color.changeableText)
+                            .padding(.horizontal, 15)
+                            .frame(width: width * (3 / 4), alignment: .leading)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                        TextField("", text: $linkBalAmtArray[index].incConsAmt)
+                            .focused($inputAmtFocused)
+                            .padding(10)
+                            .padding(.horizontal, 10)
+                            .multilineTextAlignment(.trailing)
+                            .keyboardType(.numberPad)
+                            .foregroundStyle(linkBalAmtObj.isIncreaseBal ? .blue : .red)
+                            .font(.system(.title3, design: .rounded, weight: .bold))
+                            .background(
+                                generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+                                    .frame(height: 50)
+                                    .padding(.horizontal, 10)
+                            ).onTapGesture {
+                                if self.linkBalAmtArray[index].incConsAmt == "0" {
+                                    self.linkBalAmtArray[index].incConsAmt = ""
+                                }
+                                self.inputLeastIndex = index
                             }
-                            self.inputLeastIndex = index
-                        }
+                    }
                 }
             }
         }.clipShape(RoundedRectangle(cornerRadius: 10))
-            .frame(height: 110)
+            .frame(height: isEdit ? 80 : 110)
             .compositingGroup()
-            .shadow(color: .changeableShadow, radius: 3)
+            .shadow(color: isEdit ? .clear : .changeableShadow, radius: 3)
     }
     
     @ViewBuilder
@@ -373,7 +402,7 @@ struct RegistIncConsFormView: View {
             HStack(spacing: 0) {
                 Image(systemName: isSelected ? "checkmark.circle" : "circle")
                     .font(.subheadline.bold())
-                    .foregroundStyle(accentColors.last ?? .blue)
+                    .foregroundStyle(isEdit ? .gray : accentColors.last ?? .blue)
                     .padding(.horizontal, 5)
                 Text(balResult.balanceNm)
                     .font(.caption2.bold())
@@ -418,6 +447,7 @@ struct RegistIncConsFormView: View {
                         toggleLinkBalance()
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .padding(.top, 20)
+                            .disabled(isEdit)
                         if self.linkBalFlg {
                             if self.balResults.isEmpty {
                                 VStack {
@@ -458,18 +488,19 @@ struct RegistIncConsFormView: View {
                                                     }
                                                 }
                                         }.disabled(isEdit)
-                                        generalView.glassCircleButton(imageColor: accentColors.last ?? .blue,
-                                                                      imageNm: "plus") {
-                                            withAnimation {
-                                                self.inputAmtFocused = false
-                                                self.popUpStatus = .addBalance
-                                                self.popUpFlg = true
-                                            }
-                                        }.frame(width: 25)
-                                            .compositingGroup()
-                                            .shadow(color: .changeableShadow, radius: 3)
-                                            .padding(.horizontal, 5)
-                                            .disabled(isEdit)
+                                        if !isEdit {
+                                            generalView.glassCircleButton(imageColor: accentColors.last ?? .blue,
+                                                                          imageNm: "plus") {
+                                                withAnimation {
+                                                    self.inputAmtFocused = false
+                                                    self.popUpStatus = .addBalance
+                                                    self.popUpFlg = true
+                                                }
+                                            }.frame(width: 25)
+                                                .compositingGroup()
+                                                .shadow(color: .changeableShadow, radius: 3)
+                                                .padding(.horizontal, 5)
+                                        }
                                     }.padding(.leading, 5)
                                 }.scrollDisabled(balResults.isEmpty)
                             }
@@ -480,8 +511,13 @@ struct RegistIncConsFormView: View {
                                         .foregroundStyle(Color.changeableText)
                                     Spacer()
                                     Button(action: {
+                                        self.inputAmtTotal = 0
                                         linkBalAmtArray.forEach { data in
-                                            self.inputAmtTotal += Int(data.incConsAmt) ?? 0
+                                            if data.isIncreaseBal {
+                                                self.inputAmtTotal += Int(data.incConsAmt) ?? 0
+                                            } else {
+                                                self.inputAmtTotal -= Int(data.incConsAmt) ?? 0
+                                            }
                                         }
                                         withAnimation {
                                             self.isChekAmtTotal.toggle()
@@ -496,7 +532,7 @@ struct RegistIncConsFormView: View {
                             if isChekAmtTotal {
                                 checkAmtTotalCard()
                             } else {
-                                VStack(spacing: 20) {
+                                VStack(spacing: isEdit ? 10 : 15) {
                                     ForEach(linkBalAmtArray.indices, id: \.self) {index in
                                         textFieldLinkBal(size: size, index: index)
                                     }.disabled(isEdit)
@@ -537,13 +573,14 @@ struct RegistIncConsFormView: View {
                                             }
                                         } label: {
                                             ZStack {
-                                                generalView.RoundedIcon(radius: 10, color: color,
+                                                generalView.RoundedIcon(radius: 10,
+                                                                        color: isEdit && !isSelectSec ? .gray : color,
                                                                         image: imageNm, text: secNm,
                                                                         isSelected: isSelectSec)
                                                 .frame(width: 50, height: 50)
                                             }
                                         }.padding(.vertical, 5)
-                                    }
+                                    }.disabled(isEdit)
                                 }.padding(.horizontal, 5)
                             }.scrollIndicators(.hidden)
                         }
@@ -558,7 +595,7 @@ struct RegistIncConsFormView: View {
                                         self.dateDownFlg.toggle()
                                     }
                                 }.disabled(isEdit)
-                            VStack(spacing: 5) {
+                            VStack(spacing: 3) {
                                 if self.dateDownFlg {
                                     DatePicker("", selection: $selectDate, displayedComponents: .date)
                                         .datePickerStyle(.graphical)
@@ -596,8 +633,8 @@ struct RegistIncConsFormView: View {
                         }
                     }.padding(.horizontal, 20)
                     // 登録
-                    generalView.registButton(colors: accentColors, radius: 10, isDisAble: isEdit) {
-                        if !self.isEdit {
+                    if !isEdit {
+                        generalView.registButton(colors: accentColors, radius: 10, isDisAble: isEdit) {
                             if linkBalFlg {
                                 withAnimation {
                                     self.popUpFlg = true
@@ -628,11 +665,9 @@ struct RegistIncConsFormView: View {
                                 }
                                 self.memo = ""
                             }
-                        } else {
-                            
-                        }
-                    }.frame(height: 70)
-                        .shadow(color: .changeableShadow, radius: 3)
+                        }.frame(height: 70)
+                            .shadow(color: .changeableShadow, radius: 3)
+                    }
                 }
             }.scrollIndicators(.hidden)
         }
@@ -655,14 +690,14 @@ struct RegistIncConsFormView: View {
     }
 }
 
-#Preview {
-    @State var registIncConsFlg = true
-    @State var accentColors: [Color] = [.purple, .indigo]
-    return RegistIncConsFormView(registIncConsFlg: $registIncConsFlg,
-                                 accentColors: accentColors,
-                                 isEdit: false)
-}
-
 //#Preview {
-//    ContentView()
+//    @State var registIncConsFlg = true
+//    @State var accentColors: [Color] = [.purple, .indigo]
+//    return RegistIncConsFormView(registIncConsFlg: $registIncConsFlg,
+//                                 accentColors: accentColors,
+//                                 isEdit: false)
 //}
+
+#Preview {
+    ContentView()
+}

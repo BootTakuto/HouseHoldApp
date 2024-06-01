@@ -165,7 +165,7 @@ struct PaymentView: View {
                     VStack {
                         HStack(spacing: 0) {
                             VStack {
-                                Text("\(incTotal)")
+                                Text("¥\(incTotal)")
                                     .font(.system(.body, design: .rounded, weight: .bold))
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
@@ -177,7 +177,7 @@ struct PaymentView: View {
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 5)
                             VStack {
-                                Text("\(consTotal)")
+                                Text("¥\(consTotal)")
                                     .font(.system(.body, design: .rounded, weight: .bold))
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
@@ -189,7 +189,7 @@ struct PaymentView: View {
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, 5)
                             VStack {
-                                Text("\(totalGap)")
+                                Text("¥\(totalGap)")
                                     .font(.system(.body, design: .rounded, weight: .bold))
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
@@ -252,7 +252,7 @@ struct PaymentView: View {
                             Text("収支一覧")
                             Image(systemName: "list.bullet")
                         }.font(.caption.bold())
-                            .foregroundStyle(selectListView ? accentColors.last! : Color.changeableText)
+                            .foregroundStyle(Color.changeableText)
                     }
                 }
                 VStack {
@@ -272,7 +272,7 @@ struct PaymentView: View {
                             Text("カレンダー")
                             Image(systemName: "calendar")
                         }.font(.caption.bold())
-                            .foregroundStyle(selectListView ? Color.changeableText : accentColors.last!)
+                            .foregroundStyle(Color.changeableText)
                     }
                 }
             }.frame(height: rectHeight)
@@ -281,6 +281,67 @@ struct PaymentView: View {
                 .offset(y: minY <= 100 ? -(minY - 100) : minY > 220 ? -(minY - 220): 0)
         }.frame(height: rectHeight)
             .zIndex(1000)
+    }
+    
+    @ViewBuilder
+    func DetailCard(result: IncomeConsumeModel, houseHoldType: Int, incConsAmt: Int,
+                    secKey: String, catgKey: String) -> some View {
+        let secResult = incConsSecCatgService.getIncConsSecSingle(secKey: secKey)
+        let symbol = incConsService.getAmountSymbol(result: result)
+        let rectWidth: CGFloat = 300
+        let iconWH: CGFloat = 40
+        let iconPadding: CGFloat = 5
+        HStack(spacing: 0) {
+            let catgResult = incConsSecCatgService.getIncConsCatgSingle(catgKey: catgKey)
+            let color = result.houseHoldType == 2 ?
+            Color(uiColor: .systemGray3) : ColorAndImage.colors[secResult.incConsSecColorIndex]
+            let image = secResult.incConsSecImage
+            let text = catgResult.incConsCatgNm
+            generalView.RoundedIcon(radius: 8, color: color, image: image, text: text)
+                .frame(width: iconWH, height: iconWH)
+                .padding(iconPadding)
+            VStack(spacing: 10) {
+                HStack {
+                    Text(text)
+                    Spacer()
+                    Menu {
+                        Button(action: {
+                            self.detailPageFlg = true
+                            self.incConsObject = result
+                        }) {
+                            HStack {
+                                Text("詳細")
+                                Image(systemName: "chevron.right")
+                            }
+                        }
+                        Button(role: .destructive,action: {
+                            self.alertFlg = true
+                            self.incConsObject = result
+                        }) {
+                            HStack {
+                                Text("削除")
+                                Image(systemName: "trash")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .rotationEffect(Angle(degrees: 90))
+                            .padding(3)
+                    }
+                }.font(.caption)
+                    .foregroundStyle(Color.changeableText)
+                Text(symbol + "\(incConsAmt)")
+                    .font(.caption).fontDesign(.rounded)
+                    .fontWeight(result.houseHoldType != 2 ? .bold : .regular) 
+                    .foregroundStyle(result.houseHoldType == 2 ? Color.changeableText : result.houseHoldType == 1 ?
+                        .red : .blue)
+                    .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)),
+                           alignment: .trailing)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+            }.padding(.horizontal, 5)
+                .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)))
+        }.frame(maxWidth: rectWidth, alignment: .leading)
     }
     
     @ViewBuilder
@@ -293,12 +354,10 @@ struct PaymentView: View {
                     let isSelectType = self.incConsListType == index
                     ZStack {
                         if !isSelectType {
-                            RoundedRectangle(cornerRadius: 25)
-                                .stroke(lineWidth: 1)
-                                .fill(accentColors.last ?? .blue)
+                            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 6)
                         } else {
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(accentColors.last ?? .blue)
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color(uiColor: .systemGray2))
                         }
                         Text(labels[index])
                             .font(.caption.bold())
@@ -315,6 +374,7 @@ struct PaymentView: View {
             }.padding(5)
         }.frame(height: 30)
             .padding(.vertical, 5)
+            .padding(.bottom, 10)
         if incConsDic.isEmpty {
             Text("収支情報が存在しません。")
                 .font(.caption)
@@ -331,14 +391,6 @@ struct PaymentView: View {
                             .font(.system(.caption, design: .rounded, weight: .bold))
                             .foregroundStyle(Color.changeableText)
                             .padding(.vertical, 5)
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 25)
-                                .fill(accentColors.last ?? .changeable)
-                            Text(value.count <= 99 ? "\(value.count)" : "99+")
-                                .font(.system(.caption2, design: .rounded, weight: .bold))
-                                .foregroundStyle(Color.white)
-                        }.frame(width: 30, height: 10)
-                            .padding(.leading, 10)
                         Spacer()
                         Image(systemName: "chevron.down")
                             .font(.subheadline.bold())
@@ -379,65 +431,6 @@ struct PaymentView: View {
                 }
             }
         }
-    }
-    
-    @ViewBuilder
-    func DetailCard(result: IncomeConsumeModel, houseHoldType: Int, incConsAmt: Int,
-                    secKey: String, catgKey: String) -> some View {
-        let secResult = incConsSecCatgService.getIncConsSecSingle(secKey: secKey)
-        let textColor: Color = incConsService.getAmountTextColor(result: result)
-        let symbol = incConsService.getAmountSymbol(result: result)
-        let rectWidth: CGFloat = 300
-        let iconWH: CGFloat = 40
-        let iconPadding: CGFloat = 5
-        HStack(spacing: 0) {
-            let catgResult = incConsSecCatgService.getIncConsCatgSingle(catgKey: catgKey)
-            let color = ColorAndImage.colors[secResult.incConsSecColorIndex]
-            let image = secResult.incConsSecImage
-            let text = catgResult.incConsCatgNm
-            generalView.RoundedIcon(radius: 10, color: color, image: image, text: text)
-                .frame(width: iconWH, height: iconWH)
-                .padding(iconPadding)
-            VStack(spacing: 10) {
-                HStack {
-                    Text(text)
-                    Spacer()
-                    Menu {
-                        Button(action: {
-                            self.detailPageFlg = true
-                            self.incConsObject = result
-                        }) {
-                            HStack {
-                                Text("詳細")
-                                Image(systemName: "chevron.right")
-                            }
-                        }
-                        Button(role: .destructive,action: {
-                            self.alertFlg = true
-                            self.incConsObject = result
-                        }) {
-                            HStack {
-                                Text("削除")
-                                Image(systemName: "trash")
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .rotationEffect(Angle(degrees: 90))
-                            .padding(3)
-                    }
-                }.font(.caption)
-                    .foregroundStyle(Color.changeableText)
-                Text(symbol + "\(incConsAmt)")
-                    .font(.system(.caption, design: .rounded, weight: .bold))
-                    .foregroundStyle(textColor)
-                    .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)),
-                           alignment: .trailing)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-            }.padding(.horizontal, 5)
-                .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)))
-        }.frame(maxWidth: rectWidth, alignment: .leading)
     }
     
     @ViewBuilder
@@ -520,3 +513,5 @@ struct PaymentView: View {
 #Preview {
     PaymentView(accentColors: [.orange, .pink])
 }
+
+

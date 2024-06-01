@@ -445,43 +445,17 @@ class IncomeConsumeService: CommonService {
      @return 金額記号
      */
     func getAmountSymbol(result: IncomeConsumeModel) -> String {
-        var symbol = "¥"
+        var symbol = ""
         if result.houseHoldType == 2 {
             if result.incConsAmtValue == 0 {
                 symbol = "±"
-                result.balLinkAmtList.forEach { obj in
-                    if obj.incConsAmt == "0" {
-                        symbol = "¥"
-                    }
-                }
+            } else if result.incConsAmtValue > 0 {
+                symbol = "+"
             }
+        } else {
+            symbol = "¥"
         }
         return symbol
-    }
-    
-    /** 金額による文字カラーを取得する
-     @param 収入・支出情報
-     @return 金額文字カラー
-     */
-    func getAmountTextColor(result: IncomeConsumeModel) -> Color {
-        var color: Color
-        switch result.houseHoldType {
-        case 0:
-            color = .blue
-        case 1:
-            color = .red
-        case 2:
-            if result.incConsAmtValue == 0 {
-                color = .changeableText
-            } else if result.incConsAmtValue > 0 {
-                color = .blue
-            } else {
-                color = .red
-            }
-        default:
-            color = .changeableText
-        }
-        return color
     }
     
     /** 日毎の収入・支出の表示を切り替えるフラグ配列の取得
