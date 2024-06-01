@@ -78,7 +78,7 @@ class FinanceCharts {
                 }
             }
             VStack {
-                Text(incFlg ? "資産総額" : "負債総額")
+                Text(incFlg ? "収入総額" : "支出総額")
                     .font(.caption2)
                     .foregroundStyle(Color.changeableText)
                 Text("¥\(totalAmt)")
