@@ -490,7 +490,9 @@ struct PaymentView: View {
                                     }.frame(width: (width / 7) - 5)
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.5)
-                                        .font(.system(.caption2, design: .rounded, weight: .bold))
+                                        .font(.caption2)
+                                        .fontDesign(.rounded)
+                                        .fontWeight(isOffsetDay ? .regular : .bold)
                             }
                         }.frame(width: width / 7, height: 80)
                             .contentShape(Rectangle())

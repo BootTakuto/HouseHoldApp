@@ -75,7 +75,7 @@ struct BalanceSummaryView: View {
                                 .foregroundStyle(accentColors.last ?? .blue)
                         }
                     } else {
-                        generalView.glassTextRounedButton(color: accentColors.last ?? .blue, text: "編集", imageNm: "", radius: 25) {
+                        generalView.glassTextRounedButton(color: .changeableText, text: "編集", imageNm: "", radius: 25) {
                             withAnimation {
                                 self.isEditMode.toggle()
                             }
@@ -207,7 +207,7 @@ struct BalanceSummaryView: View {
                 }
             }
             if balResults.isEmpty {
-                generalView.glassTextRounedButton(color: accentColors.last ?? .blue,
+                generalView.glassTextRounedButton(color: .changeableText,
                                                   text: "追加", imageNm: "plus", radius: 25)
                 {
                     withAnimation {
@@ -218,7 +218,7 @@ struct BalanceSummaryView: View {
                     .compositingGroup()
                     .shadow(color: .changeableShadow, radius: 3)
             } else {
-                generalView.glassCircleButton(imageColor: accentColors.last ?? .blue, imageNm: "plus") {
+                generalView.glassCircleButton(imageColor: .changeableText, imageNm: "plus") {
                     withAnimation {
                         self.popUpFlg = true
                         self.popUpStatus = .addBalance

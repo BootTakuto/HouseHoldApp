@@ -412,7 +412,7 @@ struct RegistIncConsFormView: View {
             }.foregroundStyle(Color.changeableText)
                 .frame(maxWidth: 150, alignment: .leading)
                 .frame(minWidth: 80)
-        }.clipShape(RoundedRectangle(cornerRadius: 25))
+        }.clipShape(RoundedRectangle(cornerRadius: 8))
             .frame(height: 30)
             .compositingGroup()
             .shadow(color: .changeableShadow, radius: isSelected ? 0 : 3)
