@@ -33,7 +33,9 @@ struct ContentView: View {
                 case 2:
                     PaymentView(accentColors: accentColors)
                 case 3:
-                    SettingMenu(accentColors: accentColors)
+                    SettingMenu(accentColors: accentColors,
+                                popUpFlg: $popUpFlg,
+                                popUpStatus: $popUpStatus)
                 default:
                     HomeView(accentColors: accentColors,
                                  popUpFlg: $popUpFlg,
@@ -51,11 +53,7 @@ struct ContentView: View {
                     self.firstOpenFlg = false
                 }
             }.custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
-                if self.popUpStatus == .addBalance   {
-                    PopUpView(accentColors: accentColors,
-                              popUpFlg: $popUpFlg,
-                              status: popUpStatus)
-                } else if self.popUpStatus == .editBalance {
+                if self.popUpStatus == .editBalance {
                     PopUpView(accentColors: accentColors,
                               popUpFlg: $popUpFlg,
                               status: popUpStatus,
@@ -79,6 +77,10 @@ struct ContentView: View {
                               status: popUpStatus,
                               text: "登録失敗",
                               imageNm:"xmark.circle")
+                } else {
+                    PopUpView(accentColors: accentColors,
+                              popUpFlg: $popUpFlg,
+                              status: popUpStatus)
                 }
             }
             .ignoresSafeArea(edges: .bottom)

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C01F3B82C1A50DC00312EEA /* SwipeActioin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C01F3B72C1A50DC00312EEA /* SwipeActioin.swift */; };
 		2C0C4FDF2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */; };
 		2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1210E52BC564F300C531C2 /* PaymentView.swift */; };
 		2C22A64C2B6E414900D220E2 /* BalanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64B2B6E414900D220E2 /* BalanceModel.swift */; };
@@ -37,6 +38,8 @@
 		2CB1ECF52B6F50720014B5FC /* ColorAndImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB1ECF42B6F50720014B5FC /* ColorAndImage.swift */; };
 		2CB405C42B774AC400CC0F25 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB405C32B774AC400CC0F25 /* CalendarService.swift */; };
 		2CB405C92B77AE1900CC0F25 /* GeneralComponentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB405C82B77AE1900CC0F25 /* GeneralComponentView.swift */; };
+		2CC24F702C1F99F600237A6C /* IncConsCatgListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC24F6F2C1F99F600237A6C /* IncConsCatgListView.swift */; };
+		2CC9DD352C13CBCE00196188 /* IncConsSecListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC9DD342C13CBCE00196188 /* IncConsSecListView.swift */; };
 		2CD172E02B588128006E3FBD /* BalanceSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD172DF2B588128006E3FBD /* BalanceSummaryView.swift */; };
 		2CFDF8DB2A792E3F00D5C194 /* HouseHoldAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFDF8DA2A792E3F00D5C194 /* HouseHoldAppApp.swift */; };
 		2CFDF8DD2A792E3F00D5C194 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFDF8DC2A792E3F00D5C194 /* ContentView.swift */; };
@@ -62,6 +65,7 @@
 /* Begin PBXFileReference section */
 		06D2819D643D68109B034181 /* Pods-HouseHoldApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HouseHoldApp.debug.xcconfig"; path = "Target Support Files/Pods-HouseHoldApp/Pods-HouseHoldApp.debug.xcconfig"; sourceTree = "<group>"; };
 		202EDEBA268BF4D5687E3778 /* Pods_HouseHoldApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HouseHoldApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C01F3B72C1A50DC00312EEA /* SwipeActioin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeActioin.swift; sourceTree = "<group>"; };
 		2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsBalLinkAmtModel.swift; sourceTree = "<group>"; };
 		2C1210E52BC564F300C531C2 /* PaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentView.swift; sourceTree = "<group>"; };
 		2C22A64B2B6E414900D220E2 /* BalanceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceModel.swift; sourceTree = "<group>"; };
@@ -92,6 +96,8 @@
 		2CB1ECF42B6F50720014B5FC /* ColorAndImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorAndImage.swift; sourceTree = "<group>"; };
 		2CB405C32B774AC400CC0F25 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
 		2CB405C82B77AE1900CC0F25 /* GeneralComponentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralComponentView.swift; sourceTree = "<group>"; };
+		2CC24F6F2C1F99F600237A6C /* IncConsCatgListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsCatgListView.swift; sourceTree = "<group>"; };
+		2CC9DD342C13CBCE00196188 /* IncConsSecListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsSecListView.swift; sourceTree = "<group>"; };
 		2CD172DF2B588128006E3FBD /* BalanceSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceSummaryView.swift; sourceTree = "<group>"; };
 		2CFDF8D72A792E3F00D5C194 /* HouseHoldApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HouseHoldApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CFDF8DA2A792E3F00D5C194 /* HouseHoldAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseHoldAppApp.swift; sourceTree = "<group>"; };
@@ -119,6 +125,7 @@
 			children = (
 				2C58DE6A2B7EB80D00BF1DB8 /* ColorExtension.swift */,
 				2CA911552BE8822800D635A9 /* ViewExtension.swift */,
+				2C01F3B72C1A50DC00312EEA /* SwipeActioin.swift */,
 				2C2975492C015D2A00E09614 /* Samples */,
 			);
 			path = Helpers;
@@ -195,6 +202,8 @@
 			isa = PBXGroup;
 			children = (
 				2CFDF8EE2A7A733300D5C194 /* SettingMenu.swift */,
+				2CC9DD342C13CBCE00196188 /* IncConsSecListView.swift */,
+				2CC24F6F2C1F99F600237A6C /* IncConsCatgListView.swift */,
 			);
 			path = menuView;
 			sourceTree = "<group>";
@@ -475,9 +484,12 @@
 				2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */,
 				2CA911562BE8822800D635A9 /* ViewExtension.swift in Sources */,
 				2C2C30462BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift in Sources */,
+				2CC24F702C1F99F600237A6C /* IncConsCatgListView.swift in Sources */,
 				2CFDF8DB2A792E3F00D5C194 /* HouseHoldAppApp.swift in Sources */,
+				2CC9DD352C13CBCE00196188 /* IncConsSecListView.swift in Sources */,
 				2CA697642BFAAAF800BFE895 /* BudgetModel.swift in Sources */,
 				2CD172E02B588128006E3FBD /* BalanceSummaryView.swift in Sources */,
+				2C01F3B82C1A50DC00312EEA /* SwipeActioin.swift in Sources */,
 				2C786B902B72DD0B0033ECB5 /* IncomeConsumeService.swift in Sources */,
 				2C9439D52BD9B27400313B98 /* FinanceCharts.swift in Sources */,
 				2CB1ECEA2B6F2D280014B5FC /* IncConsSectionModel.swift in Sources */,

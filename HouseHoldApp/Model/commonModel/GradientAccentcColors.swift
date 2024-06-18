@@ -11,17 +11,27 @@ import SwiftUI
 /** 背景色 */
 struct GradientAccentcColors {
     static let gradients: [[Color]] = [
-        [.purple, .indigo],
+        // 青系
         [.mint, .blue],
-        [.yellow, .salmon],
+        [.blue, .violet],
+        [.indigo, .navy],
+        // 緑系
         [.mint, .green],
-        [.orange, .pink],
-        [.peach, .pink],
-        [.lightPurple, .violet],
         [.green, .mossGreen],
+        [.mossGreen, .billiard],
+        // 柑橘色
+        [.yellow, .salmon],
+        [.orange, .pink],
+        [.scarlet, .darkBroun],
+        // 淡い系
         [.lightPink, .lightPurple],
-        [.salmon, .mint]
+        [.peach, .pink],
+        [.pink, .violet]
     ]
 }
 
+#Preview {
+    @State var popUpFlg = false
+    return PopUpView(accentColors: [.purple, .indigo], popUpFlg: $popUpFlg, status: .selectAccentColor)
+}
 

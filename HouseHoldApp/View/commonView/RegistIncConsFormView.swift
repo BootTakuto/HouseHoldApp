@@ -34,7 +34,7 @@ struct RegistIncConsFormView: View {
     @State private var isChekAmtTotal = false               // 残高連携金額確認表示フラグ　※
     @State private var inputAmtTotal = 0                    // 残高連携金額確認で表示する合計金額　※
     /** results */
-    @State private var sectionResults = IncConSecCatgService().getIncConsSec(houseHoldType: 0)
+    @State private var sectionResults = IncConSecCatgService().getIncConsSecResults(houseHoldType: 0)
     let balResults = BalanceService().getBalanceResults()
     /** 汎用ビュー */
     let generalView = GeneralComponentView()
@@ -47,29 +47,27 @@ struct RegistIncConsFormView: View {
         NavigationStack {
             GeometryReader {
                 let size = $0.size
-                NavigationStack {
-                    VStack(spacing: 0) {
-                        headerAndTab(size: size)
-                        if !isEdit {
-                            TabView(selection: $selectForm) {
-                                registIncForm(size: size)
-                                    .tag(0)
-                                registConsForm(size: size)
-                                    .tag(1)
-                                registOthersForm(size: size)
-                                    .tag(2)
-                            }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                        } else {
-                            switch self.selectForm {
-                            case 0:
-                                registIncForm(size: size)
-                            case 1:
-                                registConsForm(size: size)
-                            case 2:
-                                registOthersForm(size: size)
-                            default:
-                                Text("収支情報が存在しません。")
-                            }
+                VStack(spacing: 0) {
+                    headerAndTab(size: size)
+                    if !isEdit {
+                        TabView(selection: $selectForm) {
+                            registIncForm(size: size)
+                                .tag(0)
+                            registConsForm(size: size)
+                                .tag(1)
+                            registOthersForm(size: size)
+                                .tag(2)
+                        }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                    } else {
+                        switch self.selectForm {
+                        case 0:
+                            registIncForm(size: size)
+                        case 1:
+                            registConsForm(size: size)
+                        case 2:
+                            registOthersForm(size: size)
+                        default:
+                            Text("")
                         }
                     }
                 }
@@ -83,7 +81,7 @@ struct RegistIncConsFormView: View {
                     self.incConsSecKey = ""
                     self.incConsCatgKey = ""
                 } else {
-                    self.sectionResults = incConsSecCatgService.getIncConsSec(houseHoldType: self.selectForm)
+                    self.sectionResults = incConsSecCatgService.getIncConsSecResults(houseHoldType: self.selectForm)
                     // タブが変更されたタイミングで選択を「未分類」の項目キー、カテゴリーキーに変更する
                     self.incConsSecKey = incConsSecCatgService.getUnCatgSecKey(houseHoldType: self.selectForm)
                     self.incConsCatgKey = incConsSecCatgService.getUnCatgCatgKey(houseHoldType: self.selectForm)
@@ -156,7 +154,7 @@ struct RegistIncConsFormView: View {
                 }
             }.onAppear {
                 if isEdit {
-                    self.sectionResults = incConsSecCatgService.getIncConsSec(houseHoldType: self.selectForm)
+                    self.sectionResults = incConsSecCatgService.getIncConsSecResults(houseHoldType: self.selectForm)
                 }
             }
         }
@@ -197,7 +195,7 @@ struct RegistIncConsFormView: View {
         VStack {
             GeometryReader { geometry in
                 let local = geometry.frame(in: .local)
-                let offset = (local.width / 3) / 3
+                let offset = local.width / 9
                 let offsets: [CGFloat] = [offset - 15, offset * 4 - 15, offset * 7 - 15]
                 HStack(spacing: 0) {
                     Group {

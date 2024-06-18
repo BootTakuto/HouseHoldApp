@@ -8,44 +8,119 @@
 import SwiftUI
 
 struct SettingMenu: View {
-    @AppStorage("ACCENT_COLORS_INDEX") var accentColorsIndex = 0
     var accentColors: [Color]
+    @Binding var popUpFlg: Bool
+    @Binding var popUpStatus: PopUpStatus
+    @Environment(\.colorScheme) var colorScheme
+    @State var isSecPresented = false
+    @State var pageStatus: PageStatusFromSetting = .howToUse
     let generalView = GeneralComponentView()
     let commonService = CommonService()
     var body: some View {
         NavigationStack {
-            GeometryReader {
-                let size = $0.size
-                VStack(alignment: .leading) {
-                    Text("アクセントカラー")
-                        .foregroundStyle(Color.changeableText)
-                        .font(.caption.bold())
-                    ScrollView(.horizontal) {
-                        LazyHStack(spacing: 0) {
-                            ForEach(GradientAccentcColors.gradients.indices, id:\.self) { index in
-                                let gradient = GradientAccentcColors.gradients[index]
-                                let isSelect = index == accentColorsIndex
-                                Button(action: {
-                                    withAnimation {
-                                        accentColorsIndex = index
-                                    }
-                                }){
-                                    generalView.GradientCard(colors: gradient, radius: 10)
-                                        .padding(isSelect ? 2 : 5)
-                                        .shadow(color: isSelect ? .changeableShadow : .clear, radius: 2)
-                                }.frame(width: size.width / 5)
+            GeometryReader { geometry in
+                VStack {
+                    header()
+                    ScrollView {
+                        VStack {
+                            HStack(spacing: 30) {
+                                changeAccentColor()
+                                howTo()
+                            }.padding()
+                            HStack(spacing: 30) {
+                                changeIncConsSection()
+                                budget()
                             }
                         }
-                    }.frame(height: 60)
-                        .scrollIndicators(.hidden)
-                }.padding(.horizontal, 20)
-                    .padding(.bottom, 100)
-            }
+                    }
+                }
+            }.padding(.bottom, 100)
+                .navigationDestination(isPresented: $isSecPresented) {
+                    switch pageStatus {
+                    case .howToUse:
+                        Text("")
+                    case .secCatg:
+                        IncConsSecListView(accentColors: accentColors,
+                                           isSecPresented: $isSecPresented)
+                    case .budget:
+                        Text("")
+                    }
+                }
         }
     }
+    
+    @ViewBuilder
+    func header() -> some View {
+        HStack(spacing: 0) {
+            Text("メニュー")
+                .font(.title.bold())
+            Spacer()
+        }.foregroundStyle(Color.changeableText)
+            .padding(.bottom, 20)
+            .padding(.horizontal, 20)
+    }
+    
+    @ViewBuilder
+    func howTo() -> some View {
+        generalView.menuIconButton(isColorCard: false,
+                                   accentColors: accentColors,
+                                   iconNm: "使い方",
+                                   imageNm: "questionmark.circle") {
+            self.isSecPresented = true
+            self.pageStatus = .howToUse
+        }.compositingGroup()
+            .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray4),radius: 8)
+    }
+    
+    @ViewBuilder
+    func changeAccentColor() -> some View {
+        generalView.menuIconButton(isColorCard: true,
+                                   accentColors: accentColors,
+                                   iconNm: "テーマカラー",
+                                   imageNm: "paintpalette") {
+            withAnimation {
+                self.popUpFlg = true
+                self.popUpStatus = .selectAccentColor
+            }
+        }.compositingGroup()
+            .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray),radius: 8)
+    }
+    
+    @ViewBuilder
+    func changeIncConsSection() -> some View {
+        generalView.menuIconButton(isColorCard: false,
+                                   accentColors: accentColors,
+                                   iconNm: "項目・カテゴリー",
+                                   imageNm: "rectangle.grid.2x2") {
+                self.isSecPresented = true
+                self.pageStatus = .secCatg
+        }.compositingGroup()
+            .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray4),radius: 8)
+    }
+    
+    @ViewBuilder
+    func budget() -> some View {
+        generalView.menuIconButton(isColorCard: false,
+                                   accentColors: accentColors,
+                                   iconNm: "予算の設定",
+                                   imageNm: "chineseyuanrenminbisign.square") {
+            self.isSecPresented = true
+            self.pageStatus = .budget
+        }.compositingGroup()
+            .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray4),radius: 8)
+    }
+
+}
+
+enum PageStatusFromSetting {
+    case howToUse
+    case secCatg
+    case budget
 }
 
 #Preview {
-    var accentColors = [Color.red, Color.green, Color.mint]
-    return SettingMenu(accentColors: accentColors)
+    @State var popUpFlg = false
+    @State var popUpStatus: PopUpStatus = .selectAccentColor
+    var accentColors = [Color.purple, Color.indigo]
+    return SettingMenu(accentColors: accentColors, popUpFlg: $popUpFlg, popUpStatus: $popUpStatus)
 }

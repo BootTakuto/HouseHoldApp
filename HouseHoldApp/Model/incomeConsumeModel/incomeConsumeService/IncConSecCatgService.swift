@@ -14,8 +14,17 @@ class IncConSecCatgService: CommonService {
      @param 家計タイプ
      @return 収支項目リスト
      */
-    func getIncConsSec(houseHoldType: Int) -> Results<IncConsSectionModel> {
+    func getIncConsSecResults(houseHoldType: Int) -> Results<IncConsSectionModel> {
         @ObservedResults(IncConsSectionModel.self, where: {$0.houseHoldType == houseHoldType}) var results
+        return results
+    }
+    
+    /** 収入・支出カテゴリー結果リストの取得
+     @param 項目主キー
+     @return 収支項目リスト
+     */
+    func getIncConsCatgResults(secKey: String) -> Results<IncConsCategoryModel> {
+        @ObservedResults(IncConsCategoryModel.self, where: {$0.incConsSecKey == secKey}) var results
         return results
     }
     
@@ -75,6 +84,47 @@ class IncConSecCatgService: CommonService {
         }
     }
     
+    /** 収入・支出項目の更新
+     @param 収支項目主キー
+     @param 更新する項目名
+     @param カラーインデックス
+     @param イメージ名
+     @return void
+     */
+    func updateIncConsSec(incConsSecKey: String,
+                          incConsSecNm: String,
+                          incConsSecColorIndex: Int,
+                          incConsSecImageNm: String) {
+        let secObject = realm.object(ofType: IncConsSectionModel.self, forPrimaryKey: incConsSecKey)
+        try! realm.write() {
+            if let secData = secObject {
+                secData.incConsSecName = incConsSecNm
+                secData.incConsSecColorIndex = incConsSecColorIndex
+                secData.incConsSecImage = incConsSecImageNm
+                let incConsCatgKey = secData.incConsCatgOfSecList.first?.incConsCatgKey
+                let catgObject = realm.object(ofType: IncConsCategoryModel.self, forPrimaryKey: incConsCatgKey)
+                if let catgData = catgObject {
+                    catgData.incConsCatgNm = incConsSecNm
+                }
+            }
+        }
+    }
+    
+    /** 収支項目の削除後、収支項目リストを再取得
+     @param 収支項目主キー
+     @return 収支項目リスト
+     */
+    func deleteIncConsSec(incConsSecKey: String) {
+        let object = realm.object(ofType: IncConsSectionModel.self, forPrimaryKey: incConsSecKey)
+        try! realm.write() {
+            if let data = object {
+                realm.delete(data)
+                let catgResults = realm.objects(IncConsCategoryModel.self).where({$0.incConsSecKey == data.incConsSecKey})
+                realm.delete(catgResults)
+            }
+        }
+    }
+    
     /** 初期表示の収支セクションの未分類セクションキーを取得 
      @param 収入フラグ
      @return 未分類セクションキー
@@ -109,6 +159,32 @@ class IncConSecCatgService: CommonService {
         try! realm.write() {
             if let data = incConsSec {
                 data.incConsCatgOfSecList.append(incConsCatg)
+            }
+        }
+    }
+    
+    /** カテゴリーの編集
+     @param カテゴリー主キー
+     @param 変更するカテゴリー名
+     */
+    func updateIncConsCatg(catgNm: String, incConsCatgKey: String) {
+        let catgObj = realm.object(ofType: IncConsCategoryModel.self, forPrimaryKey: incConsCatgKey)
+        try! realm.write() {
+            if let data = catgObj {
+                data.incConsCatgNm = catgNm
+            }
+        }
+    }
+    
+    /** カテゴリーの削除 
+     @param カテゴリー主キー
+     @return void
+     */
+    func deleteIncConsCatg(catgKey: String) {
+        let catgObj = realm.object(ofType: IncConsCategoryModel.self, forPrimaryKey: catgKey)
+        try! realm.write() {
+            if let data = catgObj {
+                realm.delete(data)
             }
         }
     }

@@ -39,7 +39,10 @@ class GeneralComponentView {
     
     /** アイコン */
     @ViewBuilder // 表示のみ
-    func RoundedIcon(radius: CGFloat, color: Color, image: String, text: String) -> some View {
+    func RoundedIcon(radius: CGFloat,
+                     color: Color,
+                     image: String,
+                     text: String) -> some View {
         GeometryReader {
             let size = $0.size
             ZStack {
@@ -51,18 +54,24 @@ class GeneralComponentView {
                         .scaledToFit()
                         .foregroundStyle(.white)
                         .fontDesign(.rounded)
-                    Text(text)
-                        .font(.caption.bold())
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 2)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
+                    if text != "" {
+                        Text(text)
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 2)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
                 }
             }
         }
     }
     @ViewBuilder // 選択によって表示を変更する
-    func RoundedIcon(radius: CGFloat, color: Color, image: String, text: String, isSelected: Bool) -> some View {
+    func RoundedIcon(radius: CGFloat,
+                     color: Color,
+                     image: String,
+                     text: String,
+                     isSelected: Bool) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: radius)
                 .fill(color)
@@ -102,7 +111,10 @@ class GeneralComponentView {
     }
     
     /** 登録ボタン */
-    func registButton(colors: [Color], radius: CGFloat,  isDisAble: Bool, action: @escaping () -> Void) -> some View {
+    func registButton(colors: [Color],
+                      radius: CGFloat,
+                      isDisAble: Bool,
+                      action: @escaping () -> Void) -> some View {
         Button(action: action) {
             ZStack {
                 if isDisAble {
@@ -120,7 +132,9 @@ class GeneralComponentView {
     }
     
     /** すりガラス円ボタン */
-    func glassCircleButton(imageColor: Color, imageNm: String,  action: @escaping () -> Void) -> some View {
+    func glassCircleButton(imageColor: Color,
+                           imageNm: String,
+                           action: @escaping () -> Void) -> some View {
         Button(action: action) {
             ZStack {
                 UIGlassCard(effect: .systemUltraThinMaterial)
@@ -132,7 +146,11 @@ class GeneralComponentView {
         }
     }
     
-    func glassTextRounedButton(color: Color, text: String, imageNm: String, radius: CGFloat ,action: @escaping () -> Void) -> some View {
+    func glassTextRounedButton(color: Color,
+                               text: String,
+                               imageNm: String,
+                               radius: CGFloat,
+                               action: @escaping () -> Void) -> some View {
         Button(action: action) {
             ZStack {
                 GlassBlur(effect: .systemUltraThinMaterial, radius: radius)
@@ -144,6 +162,37 @@ class GeneralComponentView {
                 }.font(.caption.bold())
                     .foregroundStyle(color)
             }
+        }
+    }
+    
+    @ViewBuilder
+    func menuIconButton(isColorCard: Bool,
+                        accentColors: [Color],
+                        iconNm: String,
+                        imageNm: String,
+                        action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            ZStack {
+                if isColorCard {
+                    GradientCard(colors: accentColors, radius: 10)
+                        .frame(width: 150, height: 150)
+                } else {
+                    GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+                        .frame(width: 150, height: 150)
+                }
+                VStack {
+                    Image(systemName: imageNm)
+                        .resizable()
+                        .frame(width: 50)
+                        .scaledToFit()
+                        .padding(5)
+                    Text(iconNm)
+                        .fontWeight(.medium)
+                        .frame(width: 120)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                }
+            }.foregroundStyle(isColorCard ? Color.white : .changeableText)
         }
     }
 }
