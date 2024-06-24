@@ -20,27 +20,27 @@ struct IncConsSecListView: View {
     let generalView = GeneralComponentView()
     var body: some View {
         NavigationStack {
-                GeometryReader { geometry in
-                    let global = geometry.frame(in: .global)
-                    let maxX = global.maxX
-                    VStack {
-                        header(size: geometry.size)
-                        TabView(selection: $houseHoldType) {
-                            list()
-                                .tag(0)
-                            list()
-                                .tag(1)
-                        }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                    }
-                    generalView.glassCircleButton(imageColor: .changeableText, imageNm: "plus") {
-                        withAnimation {
-                            self.popUpFlg = true
-                            self.popUpStatus = .addIncConsSec
-                        }
-                    }.frame(width: 60, height: 60)
-                    .shadow(radius: 10)
-                    .offset(x: maxX - 100, y: global.height - 80)
+            GeometryReader { geometry in
+                let global = geometry.frame(in: .global)
+                let maxX = global.maxX
+                VStack {
+                    header(size: geometry.size)
+                    TabView(selection: $houseHoldType) {
+                        list()
+                            .tag(0)
+                        list()
+                            .tag(1)
+                    }.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 }
+                generalView.glassCircleButton(imageColor: .changeableText, imageNm: "plus") {
+                    withAnimation {
+                        self.popUpFlg = true
+                        self.popUpStatus = .addIncConsSec
+                    }
+                }.frame(width: 60, height: 60)
+                .shadow(radius: 10)
+                .offset(x: maxX - 100, y: global.height - 80)
+            }
         }.navigationBarBackButtonHidden(true)
             .navigationDestination(isPresented: $isCatgPresented) {
                 IncConsCatgListView(accentColors: accentColors,
@@ -155,14 +155,13 @@ struct IncConsSecListView: View {
                         .foregroundStyle(Color.changeableText)
                         .fontWeight(.medium)
                     HStack {
-                        ForEach(result.incConsCatgOfSecList.indices, id: \.self) { catgIndex in
-                        let catgResult = result.incConsCatgOfSecList[catgIndex]
-                            Text(catgResult.incConsCatgNm)
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .foregroundStyle(.gray)
-                        }
+                        let catgDispText = getCatgDisplayText(result: result)
+                        Text(catgDispText)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.gray)
                     }.lineLimit(1)
+                        .padding(.trailing, 10)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
@@ -170,6 +169,15 @@ struct IncConsSecListView: View {
                     .padding(.trailing, 10)
             }.frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+    
+    func getCatgDisplayText(result: IncConsSectionModel) -> String {
+        var dispText = ""
+        result.incConsCatgOfSecList.indices.forEach { index in
+            let catgObj = result.incConsCatgOfSecList[index]
+            dispText += catgObj.incConsCatgNm + " "
+        }
+        return dispText
     }
     
     @ViewBuilder

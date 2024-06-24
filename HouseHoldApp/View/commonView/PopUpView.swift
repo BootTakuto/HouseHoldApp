@@ -392,15 +392,12 @@ struct PopUpView: View {
                     generalView.Bar()
                         .foregroundStyle(.changeable)
                     Button(action: {
-                        let interval: TimeInterval = 0.25
-                        DispatchQueue.main.asyncAfter(deadline: .now() + interval) {
-                            if self.status == .deleteBalance {
-                                balanceService.deleteBalance(balanceKey: balKey)
-                            } else if self.status == .deleteIncConsSec {
-                                incConsSecCatgService.deleteIncConsSec(incConsSecKey: incConsSecKey)
-                            } else if self.status == .deleteIncConsCatg {
-                                incConsSecCatgService.deleteIncConsCatg(catgKey: incConsCatgKey)
-                            }
+                        if self.status == .deleteBalance {
+                            balanceService.deleteBalance(balanceKey: balKey)
+                        } else if self.status == .deleteIncConsSec {
+                            incConsSecCatgService.deleteIncConsSec(incConsSecKey: incConsSecKey)
+                        } else if self.status == .deleteIncConsCatg {
+                            incConsSecCatgService.deleteIncConsCatg(catgKey: incConsCatgKey)
                         }
                         withAnimation {
                             self.popUpFlg = false

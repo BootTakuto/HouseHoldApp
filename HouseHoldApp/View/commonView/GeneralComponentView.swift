@@ -175,20 +175,21 @@ class GeneralComponentView {
             ZStack {
                 if isColorCard {
                     GradientCard(colors: accentColors, radius: 10)
-                        .frame(width: 150, height: 150)
+                        .frame(width: 120, height: 120)
                 } else {
                     GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
-                        .frame(width: 150, height: 150)
+                        .frame(width: 120, height: 120)
                 }
                 VStack {
                     Image(systemName: imageNm)
                         .resizable()
-                        .frame(width: 50)
                         .scaledToFit()
+                        .frame(width: 40)
                         .padding(5)
                     Text(iconNm)
+                        .font(.headline)
                         .fontWeight(.medium)
-                        .frame(width: 120)
+                        .frame(width: 100)
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                 }

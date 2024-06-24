@@ -118,8 +118,8 @@ class IncConSecCatgService: CommonService {
         let object = realm.object(ofType: IncConsSectionModel.self, forPrimaryKey: incConsSecKey)
         try! realm.write() {
             if let data = object {
-                realm.delete(data)
                 let catgResults = realm.objects(IncConsCategoryModel.self).where({$0.incConsSecKey == data.incConsSecKey})
+                realm.delete(data)
                 realm.delete(catgResults)
             }
         }

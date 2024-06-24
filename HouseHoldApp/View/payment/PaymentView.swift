@@ -251,7 +251,8 @@ struct PaymentView: View {
                         HStack {
                             Text("収支一覧")
                             Image(systemName: "list.bullet")
-                        }.font(.caption.bold())
+                        }.font(.footnote)
+                            .fontWeight(.medium)
                             .foregroundStyle(Color.changeableText)
                     }
                 }
@@ -271,7 +272,8 @@ struct PaymentView: View {
                         HStack {
                             Text("カレンダー")
                             Image(systemName: "calendar")
-                        }.font(.caption.bold())
+                        }.font(.footnote)
+                            .fontWeight(.medium)
                             .foregroundStyle(Color.changeableText)
                     }
                 }
@@ -299,48 +301,28 @@ struct PaymentView: View {
             let text = catgResult.incConsCatgNm
             generalView.RoundedIcon(radius: 8, color: color, image: image, text: text)
                 .frame(width: iconWH, height: iconWH)
-                .padding(iconPadding)
-            VStack(spacing: 10) {
-                HStack {
-                    Text(text)
-                    Spacer()
-                    Menu {
-                        Button(action: {
-                            self.detailPageFlg = true
-                            self.incConsObject = result
-                        }) {
-                            HStack {
-                                Text("詳細")
-                                Image(systemName: "chevron.right")
-                            }
-                        }
-                        Button(role: .destructive,action: {
-                            self.alertFlg = true
-                            self.incConsObject = result
-                        }) {
-                            HStack {
-                                Text("削除")
-                                Image(systemName: "trash")
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .rotationEffect(Angle(degrees: 90))
-                            .padding(3)
-                    }
-                }.font(.caption)
-                    .foregroundStyle(Color.changeableText)
+                .padding(.vertical, iconPadding)
+                .padding(.trailing, iconPadding)
+            HStack {
+                Text(text)
+                    .font(.footnote)
+                    .fontWeight(.medium)
+                Spacer()
                 Text(symbol + "\(incConsAmt)")
-                    .font(.caption).fontDesign(.rounded)
-                    .fontWeight(result.houseHoldType != 2 ? .bold : .regular) 
+                    .font(.footnote).fontDesign(.rounded)
+                    .fontWeight(result.houseHoldType != 2 ? .medium : .regular)
                     .foregroundStyle(result.houseHoldType == 2 ? Color.changeableText : result.houseHoldType == 1 ?
                         .red : .blue)
                     .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)),
                            alignment: .trailing)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
-            }.padding(.horizontal, 5)
+            }.foregroundStyle(Color.changeableText)
+            .padding(.horizontal, 5)
                 .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)))
+            Image(systemName: "chevron.right")
+                .foregroundStyle(Color.changeableText)
+                .padding(.leading, 5)
         }.frame(maxWidth: rectWidth, alignment: .leading)
     }
     
@@ -360,10 +342,11 @@ struct PaymentView: View {
                                 .fill(Color(uiColor: .systemGray2))
                         }
                         Text(labels[index])
-                            .font(.caption.bold())
+                            .font(.footnote)
+                            .fontWeight(.medium)
                             .foregroundStyle(isSelectType ? .white :  Color.changeableText)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
                     }.padding(.trailing, 10)
                     .onTapGesture {
                         withAnimation {
@@ -377,7 +360,8 @@ struct PaymentView: View {
             .padding(.bottom, 10)
         if incConsDic.isEmpty {
             Text("収支情報が存在しません。")
-                .font(.caption)
+                .font(.footnote)
+                .fontWeight(.medium)
                 .foregroundStyle(Color.changeableText)
                 .padding(.top, 100)
         } else {
@@ -388,12 +372,16 @@ struct PaymentView: View {
                 VStack {
                     HStack {
                         Text(day)
-                            .font(.system(.caption, design: .rounded, weight: .bold))
+                            .font(.footnote)
+                            .fontDesign(.rounded)
+                            .fontWeight(.medium)
                             .foregroundStyle(Color.changeableText)
                             .padding(.vertical, 5)
+                            .padding(.bottom, 5)
                         Spacer()
                         Image(systemName: "chevron.down")
-                            .font(.subheadline.bold())
+                            .font(.subheadline)
+                            .fontWeight(.medium)
                             .rotationEffect(.degrees(self.dispFlgs[index] ? 0 : 180))
                             .foregroundStyle(Color.changeableText)
                             .onTapGesture {
@@ -409,22 +397,40 @@ struct PaymentView: View {
                                 .foregroundStyle(Color.changeableText)
                             ZStack {
                                 generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
-                                VStack(spacing: 2) {
+                                VStack(spacing: 0) {
                                     ForEach(value.indices, id: \.self) { index in
                                         let result = value[index]
-                                        DetailCard(result: result,
-                                                   houseHoldType: result.houseHoldType,
-                                                   incConsAmt: result.incConsAmtValue,
-                                                   secKey: result.incConsSecKey,
-                                                   catgKey: result.incConsCatgKey)
+                                        SwipeActioin(direction: .trailing, content: {
+                                            Button(action: {
+                                                self.detailPageFlg = true
+                                                self.incConsObject = result
+                                            }) {
+                                                ZStack {
+                                                    Color.changeable
+                                                    UIGlassCard(effect: .systemThinMaterial)
+                                                    DetailCard(result: result,
+                                                               houseHoldType: result.houseHoldType,
+                                                               incConsAmt: result.incConsAmtValue,
+                                                               secKey: result.incConsSecKey,
+                                                               catgKey: result.incConsCatgKey)
+                                                    .padding(.vertical, 5)
+                                                }
+                                            }
+                                        }) {
+                                            Action(buttonColor: .red, iconNm: "trash") {
+                                                withAnimation {
+                                                    self.alertFlg = true
+                                                    self.incConsObject = result
+                                                }
+                                            }
+                                        }
                                         if value.count - 1 != index {
                                             generalView.Border()
                                                 .foregroundStyle(Color(uiColor: .systemGray3))
-                                                .padding(5)
-                                                .padding(.horizontal, 5)
+                                                .padding(.horizontal, 10)
                                         }
                                     }
-                                }.padding(.vertical, 10)
+                                }.clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                         }
                     }

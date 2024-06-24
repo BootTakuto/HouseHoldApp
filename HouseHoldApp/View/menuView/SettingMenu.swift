@@ -22,16 +22,16 @@ struct SettingMenu: View {
                 VStack {
                     header()
                     ScrollView {
-                        VStack {
-                            HStack(spacing: 30) {
+                        VStack(spacing: 40) {
+                            HStack(spacing: 40) {
                                 changeAccentColor()
                                 howTo()
-                            }.padding()
-                            HStack(spacing: 30) {
+                            }
+                            HStack(spacing: 40) {
                                 changeIncConsSection()
                                 budget()
                             }
-                        }
+                        }.padding()
                     }
                 }
             }.padding(.bottom, 100)

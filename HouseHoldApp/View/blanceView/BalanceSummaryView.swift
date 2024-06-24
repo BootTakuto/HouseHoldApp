@@ -15,8 +15,6 @@ struct BalanceSummaryView: View {
     @Binding var balModel: BalanceModel
     // results
     let balResults = BalanceService().getBalanceResults()
-    /** 表示 */
-    @State var isEditMode = false           // 編集モードフラグ
     /** service */
     let balanceService = BalanceService()
     /** ビュー関連 **/
@@ -27,8 +25,10 @@ struct BalanceSummaryView: View {
     let charts = FinanceCharts()
     var body: some View {
         NavigationStack {
-            GeometryReader {
-                let size =  $0.size
+            GeometryReader { geometry in
+                let size =  geometry.size
+                let global = geometry.frame(in: .global)
+                let maxX = global.maxX
                 ScrollView {
                     VStack(spacing: 0) {
                         BalanceTotalCard(size: size)
@@ -39,17 +39,16 @@ struct BalanceSummaryView: View {
                             .padding(.horizontal, 20)
                         BalanceList(size: size)
                             .padding(.horizontal, 20)
-                            .padding(.bottom, 100)
-                    }
+                    }.padding(.bottom, 150)
                 }.scrollIndicators(.hidden)
-            }.onChange(of: popUpFlg) {
-                if !popUpFlg {
+                generalView.glassCircleButton(imageColor: .changeableText, imageNm: "plus") {
                     withAnimation {
-                        self.isEditMode = false
+                        self.popUpFlg = true
+                        self.popUpStatus = .addBalance
                     }
-                }
-            }.onDisappear {
-                self.isEditMode = false
+                }.frame(width: 50, height: 50)
+                .shadow(radius: 10)
+                .offset(x: maxX - 70, y: global.height - 150)
             }
         }
     }
@@ -63,28 +62,8 @@ struct BalanceSummaryView: View {
                     .padding(.vertical, 12)
                 Image(systemName: "list.bullet")
                 Spacer()
-                if !balResults.isEmpty {
-                    if isEditMode {
-                        Button(action: {
-                            withAnimation {
-                                self.isEditMode.toggle()
-                            }
-                        }) {
-                            Text("完了")
-                                .font(.caption.bold())
-                                .foregroundStyle(accentColors.last ?? .blue)
-                        }
-                    } else {
-                        generalView.glassTextRounedButton(color: .changeableText, text: "編集", imageNm: "", radius: 25) {
-                            withAnimation {
-                                self.isEditMode.toggle()
-                            }
-                        }.frame(width: 80, height: 20)
-                            .compositingGroup()
-                            .shadow(color: .changeableShadow, radius: 3)
-                    }
-                }
-            }.font(.caption.bold())
+            }.font(.subheadline)
+                .fontWeight(.medium)
                 .foregroundStyle(Color.changeableText)
                 .frame(maxWidth: abs(areaWidth))
         }
@@ -104,7 +83,8 @@ struct BalanceSummaryView: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
                         Text("残 高 合 計")
-                            .font(.caption.bold())
+                            .font(.subheadline)
+                            .fontWeight(.medium)
                     }
                     .foregroundStyle(Color.white)
                         .frame(maxWidth: abs(rectWidth * (3 / 5)), alignment: .center)
@@ -133,8 +113,35 @@ struct BalanceSummaryView: View {
     func BalancePieChart() -> some View {
         ZStack {
             generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
-            
         }
+    }
+    
+    @ViewBuilder
+    func BalanceDetailCard(size: CGSize, result: BalanceModel) -> some View {
+        ZStack {
+            Color.changeable
+            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+            HStack(spacing: 0) {
+                Rectangle().fill(ColorAndImage.colors[result.colorIndex]).frame(width: 10)
+                VStack {
+                    Text(result.balanceNm)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.changeableText)
+                        .frame(width: abs(size.width - 100),
+                               alignment: .leading)
+                    Text("¥\(result.balanceAmt)")
+                        .font(.headline)
+                        .fontDesign(.rounded)
+                        .fontWeight(.bold)
+                        .foregroundStyle(result.balanceAmt > 0 ? .blue : .red)
+                        .frame(width: abs(size.width - 100),
+                               alignment: .trailing)
+                }
+                .frame(maxWidth: abs(size.width - 40))
+            }
+        }.frame(height: 80)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     
     @ViewBuilder
@@ -149,84 +156,25 @@ struct BalanceSummaryView: View {
             } else {
                 ForEach(balResults.indices, id: \.self) { index in
                     let result = balResults[index]
-                    ZStack {
-                        generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
-                        HStack(spacing: 0) {
-                            Rectangle().fill(ColorAndImage.colors[result.colorIndex]).frame(width: 10)
-                            VStack {
-                                Text(result.balanceNm)
-                                    .font(.caption.bold())
-                                    .foregroundStyle(Color.changeableText)
-                                    .frame(width: isEditMode ? abs(size.width - 200) : abs(size.width - 100),
-                                           alignment: .leading)
-                                Text("¥\(result.balanceAmt)")
-                                    .fontDesign(.rounded)
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(result.balanceAmt > 0 ? .blue : .red)
-                                    .frame(width: isEditMode ? abs(size.width - 200) : abs(size.width - 100),
-                                           alignment: .trailing)
-                            }
-                            .frame(maxWidth: isEditMode ? abs(size.width - 140) : abs(size.width - 40))
-                            if isEditMode {
-                                Button(action: {
-                                    withAnimation {
-                                        self.balModel = result
-                                        self.popUpFlg = true
-                                        self.popUpStatus = .editBalance
-                                    }
-                                }) {
-                                    ZStack {
-                                        Rectangle().fill(.gray).frame(width: 50)
-                                        VStack {
-                                            Image(systemName: "pencil")
-                                            Text("変更")
-                                                .font(.caption.bold())
-                                        }.foregroundStyle(.white)
-                                    }
-                                }
-                                Button(action: {
-                                    withAnimation {
-                                        self.balModel = result
-                                        self.popUpFlg = true
-                                        self.popUpStatus = .deleteBalance
-                                    }
-                                }) {
-                                    ZStack {
-                                        Rectangle().fill(.red).frame(width: 50)
-                                        VStack {
-                                            Image(systemName: "trash")
-                                            Text("削除")
-                                                .font(.caption.bold())
-                                        }.foregroundStyle(.white)
-                                    }
-                                }
+                    SwipeActioin(direction: .trailing, content: {
+                        BalanceDetailCard(size: size, result: result)
+                    }) {
+                        Action(buttonColor: .gray, iconNm: "pencil.line") {
+                            withAnimation {
+                                self.balModel = result
+                                self.popUpFlg = true
+                                self.popUpStatus = .editBalance
                             }
                         }
-                    }.frame(height: 80)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        Action(buttonColor: .red, iconNm: "trash") {
+                            withAnimation {
+                                self.balModel = result
+                                self.popUpFlg = true
+                                self.popUpStatus = .deleteBalance
+                            }
+                        }
+                    }.clipShape(RoundedRectangle(cornerRadius: 10))
                 }
-            }
-            if balResults.isEmpty {
-                generalView.glassTextRounedButton(color: .changeableText,
-                                                  text: "追加", imageNm: "plus", radius: 25)
-                {
-                    withAnimation {
-                        self.popUpFlg = true
-                        self.popUpStatus = .addBalance
-                    }
-                }.frame(width: 100, height: 30)
-                    .compositingGroup()
-                    .shadow(color: .changeableShadow, radius: 3)
-            } else {
-                generalView.glassCircleButton(imageColor: .changeableText, imageNm: "plus") {
-                    withAnimation {
-                        self.popUpFlg = true
-                        self.popUpStatus = .addBalance
-                    }
-                }.frame(width: 40, height:  40)
-                    .compositingGroup()
-                    .shadow(color: .changeableShadow, radius: 3)
-                    .padding(.vertical, 5)
             }
         }
     }

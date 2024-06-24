@@ -29,7 +29,7 @@ struct ContentTabBar: View {
                                      accentColors: accentColors,
                                      contentIndex: 0,
                                      selectedContent: $selectedContent)
-                        TabBarButton(image: "yensign.square",
+                        TabBarButton(image: "yensign",
                                      text: "残　高",
                                      accentColors: accentColors,
                                      contentIndex: 1,
@@ -52,7 +52,7 @@ struct ContentTabBar: View {
                                     .foregroundStyle(Color.changeableText)
                             }.frame(maxWidth: .infinity, maxHeight: .infinity)
                         }.frame(height: screen.height / 12)
-                        TabBarButton(image: "arrow.down.left.arrow.up.right",
+                        TabBarButton(image: "arrow.up.arrow.down",
                                      text: "入出金",
                                      accentColors: accentColors,
                                      contentIndex: 2,

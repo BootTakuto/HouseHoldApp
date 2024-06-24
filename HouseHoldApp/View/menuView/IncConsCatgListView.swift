@@ -41,7 +41,10 @@ struct IncConsCatgListView: View {
                 }
             }
         }.navigationBarBackButtonHidden(true)
-            .custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
+            .onAppear {
+                let secKey = incConsSecObj.incConsSecKey
+                self.incConsCatgResults = incConsSecCatgService.getIncConsCatgResults(secKey: secKey)
+            }.custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
                 if popUpStatus == .addincConsCatg {
                     PopUpView(accentColors: accentColors,
                               popUpFlg: $popUpFlg,
@@ -67,11 +70,6 @@ struct IncConsCatgListView: View {
                               incConsCatgKey: self.incConsCatgObj.incConsCatgKey)
                 }
             }
-            .onAppear {
-                let secKey = incConsSecObj.incConsSecKey
-                self.incConsCatgResults = incConsSecCatgService.getIncConsCatgResults(secKey: secKey)
-            }
-        
     }
     
     @ViewBuilder
@@ -137,13 +135,11 @@ struct IncConsCatgListView: View {
                             .padding(.horizontal, 10)
                     }
                 }
-            }
-                .background {
-                    UIGlassCard(effect: .systemThinMaterial)
-                }.clipShape(RoundedRectangle(cornerRadius: 10))
-                .frame(height: rectHeight * CGFloat(self.incConsCatgResults.count))
-        }.padding(.horizontal, 20)
+            }.clipShape(RoundedRectangle(cornerRadius: 10))
+            .frame(height: rectHeight * CGFloat(self.incConsCatgResults.count))
             .padding(.bottom, 100)
+        }.padding(.horizontal, 20)
+            .scrollIndicators(.hidden)
     }
 }
 

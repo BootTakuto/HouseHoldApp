@@ -64,7 +64,9 @@ struct ContentView: View {
                     PopUpView(accentColors: accentColors,
                               popUpFlg: $popUpFlg,
                               status: popUpStatus,
-                              balKey: self.balModel.balanceKey)
+                              balKey: self.balModel.balanceKey,
+                              delTitle: "残高の削除",
+                              delExplain: "この残高を削除してよろしいですか。")
                 } else if self.popUpStatus == .success {
                     PopUpView(accentColors: accentColors,
                               popUpFlg: $popUpFlg,
