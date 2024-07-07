@@ -91,6 +91,14 @@ class CalendarService: CommonService {
         return component
     }
     
+    /** 曜日の取得 
+     @param 曜日インデックス
+     @return 曜日
+     */
+    func getDayOfWeekSymbol(dayOfWeek: Int) -> String {
+        return calendar.weekdaySymbols[dayOfWeek - 1]
+    }
+    
     /** 異なる月であるかを判定する
         カレンダーで表示されている日付が別の月の日付かを判定するために使用
      @param 日付(Date)

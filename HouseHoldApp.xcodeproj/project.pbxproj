@@ -10,6 +10,7 @@
 		2C01F3B82C1A50DC00312EEA /* SwipeActioin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C01F3B72C1A50DC00312EEA /* SwipeActioin.swift */; };
 		2C0C4FDF2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */; };
 		2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1210E52BC564F300C531C2 /* PaymentView.swift */; };
+		2C1CE1022C2CC3A30035CADC /* PagingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1CE1012C2CC3A30035CADC /* PagingIndicator.swift */; };
 		2C22A64C2B6E414900D220E2 /* BalanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64B2B6E414900D220E2 /* BalanceModel.swift */; };
 		2C22A64F2B6E42EA00D220E2 /* BalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */; };
 		2C276B832BD8577600A69F87 /* IncConsSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C276B822BD8577600A69F87 /* IncConsSummaryView.swift */; };
@@ -23,6 +24,7 @@
 		2C786B902B72DD0B0033ECB5 /* IncomeConsumeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C786B8F2B72DD0B0033ECB5 /* IncomeConsumeService.swift */; };
 		2C89BE272BF096AD008E1DFD /* PopUpStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C89BE262BF096AD008E1DFD /* PopUpStatus.swift */; };
 		2C8C38512A9FE73200F388A7 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8C38502A9FE73200F388A7 /* HomeView.swift */; };
+		2C8D99722C37463600931CD8 /* IncConsMonTotalBySec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8D99712C37463600931CD8 /* IncConsMonTotalBySec.swift */; };
 		2C90F6C92BE76DFB0095BE5D /* PopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C90F6C82BE76DFB0095BE5D /* PopUpView.swift */; };
 		2C9439D52BD9B27400313B98 /* FinanceCharts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9439D42BD9B27400313B98 /* FinanceCharts.swift */; };
 		2C9D8A612B6AE6D7004B8A1E /* GradientAccentcColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9D8A602B6AE6D7004B8A1E /* GradientAccentcColors.swift */; };
@@ -68,6 +70,7 @@
 		2C01F3B72C1A50DC00312EEA /* SwipeActioin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeActioin.swift; sourceTree = "<group>"; };
 		2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsBalLinkAmtModel.swift; sourceTree = "<group>"; };
 		2C1210E52BC564F300C531C2 /* PaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentView.swift; sourceTree = "<group>"; };
+		2C1CE1012C2CC3A30035CADC /* PagingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingIndicator.swift; sourceTree = "<group>"; };
 		2C22A64B2B6E414900D220E2 /* BalanceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceModel.swift; sourceTree = "<group>"; };
 		2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceService.swift; sourceTree = "<group>"; };
 		2C276B822BD8577600A69F87 /* IncConsSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsSummaryView.swift; sourceTree = "<group>"; };
@@ -81,6 +84,7 @@
 		2C786B8F2B72DD0B0033ECB5 /* IncomeConsumeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomeConsumeService.swift; sourceTree = "<group>"; };
 		2C89BE262BF096AD008E1DFD /* PopUpStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpStatus.swift; sourceTree = "<group>"; };
 		2C8C38502A9FE73200F388A7 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		2C8D99712C37463600931CD8 /* IncConsMonTotalBySec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsMonTotalBySec.swift; sourceTree = "<group>"; };
 		2C90F6C82BE76DFB0095BE5D /* PopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpView.swift; sourceTree = "<group>"; };
 		2C9439D42BD9B27400313B98 /* FinanceCharts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinanceCharts.swift; sourceTree = "<group>"; };
 		2C9D8A602B6AE6D7004B8A1E /* GradientAccentcColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientAccentcColors.swift; sourceTree = "<group>"; };
@@ -126,6 +130,7 @@
 				2C58DE6A2B7EB80D00BF1DB8 /* ColorExtension.swift */,
 				2CA911552BE8822800D635A9 /* ViewExtension.swift */,
 				2C01F3B72C1A50DC00312EEA /* SwipeActioin.swift */,
+				2C1CE1012C2CC3A30035CADC /* PagingIndicator.swift */,
 				2C2975492C015D2A00E09614 /* Samples */,
 			);
 			path = Helpers;
@@ -181,6 +186,19 @@
 			path = calendarService;
 			sourceTree = "<group>";
 		};
+		2C742CE52C349E7F00500F9B /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				2CB1ECF42B6F50720014B5FC /* ColorAndImage.swift */,
+				2C2C30452BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift */,
+				2C89BE262BF096AD008E1DFD /* PopUpStatus.swift */,
+				2C9D8A602B6AE6D7004B8A1E /* GradientAccentcColors.swift */,
+				2C2DB7882B8A01D900B631E9 /* LabelsModel.swift */,
+				2C8D99712C37463600931CD8 /* IncConsMonTotalBySec.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		2C7C53CD2AB26079004458FD /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -220,6 +238,7 @@
 		2C7C53D22AB2620A004458FD /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				2C742CE52C349E7F00500F9B /* ViewModel */,
 				2CA697652BFAAB0100BFE895 /* BudgetModel */,
 				2CB19A042B1C3F8C009441EE /* incomeConsumeModel */,
 				2C6AB4D42AEAFFFC00F6F58C /* calendarModel */,
@@ -252,7 +271,6 @@
 				2CB1ECEB2B6F2DB40014B5FC /* IncConsCategoryModel.swift */,
 				2C3CA8222B440AB800EC2D1B /* IncomeConsumeModel.swift */,
 				2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */,
-				2C2C30452BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift */,
 				2CB1ECEF2B6F2E450014B5FC /* incomeConsumeService */,
 			);
 			path = incomeConsumeModel;
@@ -297,10 +315,6 @@
 		2CD59D6F2AF98158006D49D7 /* commonModel */ = {
 			isa = PBXGroup;
 			children = (
-				2C9D8A602B6AE6D7004B8A1E /* GradientAccentcColors.swift */,
-				2CB1ECF42B6F50720014B5FC /* ColorAndImage.swift */,
-				2C2DB7882B8A01D900B631E9 /* LabelsModel.swift */,
-				2C89BE262BF096AD008E1DFD /* PopUpStatus.swift */,
 				2C89BE252BF00AAE008E1DFD /* commonService */,
 			);
 			path = commonModel;
@@ -493,12 +507,14 @@
 				2C786B902B72DD0B0033ECB5 /* IncomeConsumeService.swift in Sources */,
 				2C9439D52BD9B27400313B98 /* FinanceCharts.swift in Sources */,
 				2CB1ECEA2B6F2D280014B5FC /* IncConsSectionModel.swift in Sources */,
+				2C1CE1022C2CC3A30035CADC /* PagingIndicator.swift in Sources */,
 				2CB405C42B774AC400CC0F25 /* CalendarService.swift in Sources */,
 				2CB1ECEE2B6F2E230014B5FC /* IncConSecCatgService.swift in Sources */,
 				2CB405C92B77AE1900CC0F25 /* GeneralComponentView.swift in Sources */,
 				2C3B3C4D2BA70ADD0080A278 /* RegistIncConsFormView.swift in Sources */,
 				2CA5726A2B74236F002BD1CA /* CommonService.swift in Sources */,
 				2C276B832BD8577600A69F87 /* IncConsSummaryView.swift in Sources */,
+				2C8D99722C37463600931CD8 /* IncConsMonTotalBySec.swift in Sources */,
 				2CFDF8EF2A7A733300D5C194 /* SettingMenu.swift in Sources */,
 				2CB1ECF52B6F50720014B5FC /* ColorAndImage.swift in Sources */,
 				2C58DE6B2B7EB80D00BF1DB8 /* ColorExtension.swift in Sources */,

@@ -35,23 +35,40 @@ class FinanceCharts {
         let selectMonth = incConsService.getStringDate(date: selectDate, format: "yy年M月")
         Chart {
             ForEach(chartEntries) { data in
-                if data.type != "収支合計" {
+                if data.type == "収支合計" {
+                    if makeSize > 0 {
+                        LineMark(x: .value("month", data.month),
+                                 y: .value("totalAmt", data.amount)
+                        ).lineStyle(StrokeStyle(lineWidth: 0.5))
+                            .foregroundStyle(data.color)
+                        PointMark(x: .value("month", data.month),
+                                  y: .value("totalAmt", data.amount)
+                        ).foregroundStyle(data.color)
+                            .annotation(position: .bottom, alignment: .bottomLeading) {
+                                Text("¥\(data.amount)")
+                                    .font(.caption2)
+                                    .fontWeight(.light)
+                            }
+                    }
+                } else {
                     BarMark(
                         x: .value("month", data.month),
                         y: .value("amount", data.amount)
                     ).foregroundStyle(selectMonth == data.month ? data.color : data.color.opacity(0.5))
                         .position(by: .value("type", data.type))
-                } else {
-                    LineMark(x: .value("month", data.month),
-                             y: .value("totalAmt", data.amount)
-                    ).lineStyle(StrokeStyle(lineWidth: 0.5))
-                        .foregroundStyle(data.color)
-                    PointMark(x: .value("month", data.month),
-                              y: .value("totalAmt", data.amount)
-                    ).foregroundStyle(data.color)
+                        .annotation(position: .top) {
+                            if makeSize == 0 {
+                                Text("¥\(data.amount)")
+                                    .font(.caption2)
+                                    .fontWeight(.light)
+                                    .frame(width: 50)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
+                            }
+                        }
                 }
             }
-        }.chartForegroundStyleScale(["収入": .blue, "支出": .red, "収支合計": .changeableText])
+        }.padding(.top, 5)
     }
     
     @ViewBuilder
@@ -63,18 +80,19 @@ class FinanceCharts {
             Chart {
                 ForEach(secAmtDic.sorted(by: >), id: \.key) { key, value in
                     let colorIndex = self.incConsService.getColorIndex(incConsSecKey: key)
+                    let color = ColorAndImage.colors[colorIndex]
                     SectorMark(
-                        angle: .value("count", value),
+                        angle: .value("count", totalAmt == 0 ? 1 : value),
                         innerRadius: .inset(30),
-                        angularInset: 1
-                    ).foregroundStyle(ColorAndImage.colors[colorIndex])
-                        .annotation(position: .overlay) {
-                            Text("¥\(value)")
-                                .font(.system(.caption2, design: .rounded))
-                                .foregroundStyle(Color.changeableText)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.5)
-                        }
+                        angularInset: 0.5
+                    ).foregroundStyle(totalAmt != 0 ? color : incFlg ? .blue.opacity(0.25) : .red.opacity(0.25))
+//                        .annotation(position: .overlay) {
+//                            Text("¥\(value)")
+//                                .font(.system(.caption2, design: .rounded))
+//                                .foregroundStyle(Color.changeableText)
+//                                .lineLimit(1)
+//                                .minimumScaleFactor(0.5)
+//                        }
                 }
             }
             VStack {
@@ -104,6 +122,13 @@ struct IncConsChartEntry: Identifiable {
     }
 }
 
+//#Preview {
+//    ContentView()
+//}
+
 #Preview {
-    ContentView()
+    @State var isPresentedFlg = false
+    @State var chartIndex = 0
+    return IncConsSummaryView(accentColors: [.purple, .indigo],
+                              isPresentedFlg: $isPresentedFlg, chartIndex: 0)
 }

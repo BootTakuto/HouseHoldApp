@@ -153,6 +153,5 @@ struct IncConsCatgListView: View {
 #Preview {
     @State var popUpFlg = false
     @State var popUpStatus: PopUpStatus = .selectAccentColor
-    var accentColors = [Color.purple, Color.indigo]
-    return SettingMenu(accentColors: accentColors, popUpFlg: $popUpFlg, popUpStatus: $popUpStatus)
+    return SettingMenu(accentColors: [Color.purple, Color.indigo], popUpFlg: $popUpFlg, popUpStatus: $popUpStatus)
 }

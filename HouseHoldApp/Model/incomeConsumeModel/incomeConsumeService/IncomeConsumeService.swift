@@ -183,32 +183,6 @@ class IncomeConsumeService: CommonService {
         return total
     }
     
-    /** 日毎の入出金合計金額を取得する
-     @param 日付(String)
-     @param 収入フラグ
-     @return 日毎の入出金合計金額
-     */
-    func getIncConsAmtTotalPerDay(dateStr: String, incFlg: Bool) -> Int {
-        var total = 0
-        let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr})
-        results.forEach { result in
-            total += result.incConsAmtValue
-        }
-        return total
-    }
-    
-    /** 日毎の収支情報が存在するか(カレンダーの収支情報の表示有無で使用)
-     @param 日付(String)
-     @param 収入・支出フラグ
-     @return 存在するか否か
-     */
-    func isExsistIncConsData(dateStr: String, incFlg: Bool) -> Bool {
-        var exsistFlg = false
-        let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 0 && $0.incConsDate == dateStr})
-        exsistFlg = !results.isEmpty
-        return exsistFlg
-    }
-    
     /** 月の全日付を取得する
      @param 現在日付
      @return 月の全日付配列を返却
@@ -373,7 +347,17 @@ class IncomeConsumeService: CommonService {
         return amtTotalPerDay
     }
     
-    /** 日毎の収入または支出の取引の有無を取得
+    /** 当月の収入または支出の取引の有無を取得
+     @param
+     @param
+     */
+    func isExistIncConsMonth(refDate: Date) -> Bool {
+        let str_yyyyMM = getStringDate(date: refDate, format: "yyyyMM")
+        let results = realm.objects(IncomeConsumeModel.self).filter("incConsDate LIKE %@", "*\(str_yyyyMM)*")
+        return results.isEmpty ? false : true
+    }
+    
+    /** 当日の収入または支出の取引の有無を取得
      @param 日付(Date型)
      @param 収入・支出フラグ
      @return 日毎の収入または支出の有無
@@ -381,7 +365,7 @@ class IncomeConsumeService: CommonService {
     func isExsistIncConsData(day: Date, houseHoldType: Int) -> Bool {
         let dateStr = getStringDate(date: day, format: dateFormatter)
         let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == houseHoldType && $0.incConsDate == dateStr})
-        return !results.isEmpty
+        return results.isEmpty ? false : true
     }
     
     /* チャート表示用の収入・支出情報を取得 収支項目ごとのカラーインデックスと金額を取得
@@ -403,6 +387,40 @@ class IncomeConsumeService: CommonService {
             }
         }
         return dicForChart
+    }
+    
+    /* 項目別の収支合計を取得する（最新を取得する）
+     @param getSize: 取得数
+     @param selectDate: 日付
+     @return 表示用モデル
+     */
+    func getIncConsTotalBySec(getSize: Int, selectDate: Date) -> [IncConsMonTotalBySec]{
+        let str_yyyyMM = getStringDate(date: selectDate, format: "yyyyMM")
+        // 該当月の最新の収支結果を取得する
+        let resultsByMon = realm.objects(IncomeConsumeModel.self).filter("incConsDate LIKE %@", "*\(str_yyyyMM)*")
+                                                           .sorted(byKeyPath: "incConsDate", ascending: false)
+        // 返却用配列
+        var amtTotalBySecArray: [IncConsMonTotalBySec] = []
+        // 重複判定用項目主キー配列
+        var secKeyArray: [String] = []
+        resultsByMon.forEach { result in
+            if !secKeyArray.contains(result.incConsSecKey) {
+                secKeyArray.append(result.incConsSecKey)
+                // 収支項目を取得
+                let secObj = realm.object(ofType: IncConsSectionModel.self, forPrimaryKey: result.incConsSecKey) ?? IncConsSectionModel()
+                // 項目別金額合計を取得
+                let resultsBySecMon = resultsByMon.where({$0.incConsSecKey == result.incConsSecKey})
+                let total: Int = resultsBySecMon.sum(ofProperty: "incConsAmtValue")
+                // 表示用モデルの格納
+                let viewModel = IncConsMonTotalBySec(incConsSecObj: secObj, amtTotalBySecMon: total)
+                amtTotalBySecArray.append(viewModel)
+            }
+            // 取得サイズを超える場合は、ループを抜ける
+            if secKeyArray.count == getSize {
+                return
+            }
+        }
+        return amtTotalBySecArray
     }
     
     /** 収支項目からカラーインデックスを取得する

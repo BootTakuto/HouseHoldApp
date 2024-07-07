@@ -118,7 +118,7 @@ struct IncConsSummaryView: View {
                         }.padding(.horizontal, 20)
                         .font(.caption)
                         .foregroundStyle(self.chartIndex != index ? .white : .changeableText)
-                    }.frame(width: (size.width - 40) / 3)
+                    }.frame(width: abs((size.width - 40) / 3))
                         .onTapGesture {
                             withAnimation {
                                 self.chartIndex = index

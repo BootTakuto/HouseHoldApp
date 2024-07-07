@@ -22,6 +22,8 @@ struct HomeView: View {
     @State var incConsChartDestFlg = false
     /** 残高 */
     @State var balResults = BalanceService().getBalanceResults()
+    // 項目アイコン　項目別月間収支合計
+    let amtTotalBySecMon = IncomeConsumeService().getIncConsTotalBySec(getSize: 6, selectDate: Date())
     // charts
     let financeCharts = FinanceCharts()
     // 汎用ビュー
@@ -38,36 +40,30 @@ struct HomeView: View {
             GeometryReader {
                 let size = $0.size
                 VStack(spacing: 0) {
-                    Header()
                     ScrollView {
-                        VStack {
-                            generalView.Border()
-                                .foregroundStyle(Color(uiColor: .systemGray3))
-                                .padding(.horizontal, 20)
-                            BalanceChartArea(size: size)
-                                .padding(.bottom, 10)
-//                                .compositingGroup()
-//                                .shadow(color: .changeableShadow, radius: 5)
-//                            FixedCostArea(size: size)
+                        VStack(spacing: 30) {
+                            let height = (size.width / 2) - 40
+                            HStack(spacing: 0) {
+                                IncConsTodayCard(height: height)
+                                    .frame(height: abs(height))
+                                    .padding(.trailing, 10)
+                                BudgetCard(height: height)
+                                    .frame(height: abs(height))
+                                    .padding(.leading, 10)
+                            }
+                            IncConsCard()
+                                .frame(height: 350)
+                            BalnceCard()
+                                .frame(height: 300)
+//                            BalanceChartArea(size: size)
 //                                .padding(.bottom, 10)
-//                                .compositingGroup()
-//                                .shadow(color: .changeableShadow, radius: 5)
-                            generalView.Border()
-                                .foregroundStyle(Color(uiColor: .systemGray3))
-                                .padding(.horizontal, 20)
-                            BudgetArea(size: size)
-                                .padding(.bottom, 10)
-                            generalView.Border()
-                                .foregroundStyle(Color(uiColor: .systemGray3))
-                                .padding(.horizontal, 20)
-                            IncConsChartArea(size: size)
-                                .padding(.bottom, 10)
-                            generalView.Border()
-                                .foregroundStyle(Color(uiColor: .systemGray3))
-                                .padding(.horizontal, 20)
-                                .padding(.bottom, 100)
-                        }
-                            .padding(.top, 10)
+//                            BudgetArea(size: size)
+//                                .padding(.bottom, 10)
+//                            IncConsChartArea(size: size)
+//                                .padding(.bottom, 100)
+                        }.padding(.top, 10)
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 120)
                     }.scrollIndicators(.hidden)
                 }
             }.navigationDestination(isPresented: $assetsChartDestFlg) {
@@ -80,46 +76,250 @@ struct HomeView: View {
         }
     }
     
-    /**▼共通view**/
     @ViewBuilder
-    func Header() -> some View {
-        HStack(spacing: 0) {
-            Text("ホーム")
-                .font(.title.bold())
-            Spacer()
-            VStack {
-                Image(systemName: "questionmark.circle")
-                Text("使い方")
-                    .font(.caption2)
+    func IncConsTodayCard(height: CGFloat) -> some View {
+        let dispCount = 2
+        GeometryReader {
+            let size = $0.size
+            ZStack {
+                generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+                    .shadow(color: colorScheme == .dark ? .clear : .changeableShadow, radius: 5)
+                VStack(spacing: 0) {
+                    HStack {
+                        let day = calendarService.getOnlyComponent(date: selectDate, component: .day)
+                        let dayOfWeek = calendarService.getOnlyComponent(date: selectDate, component: .weekday)
+                        let dayOfWeekSymbol = calendarService.getDayOfWeekSymbol(dayOfWeek: dayOfWeek)
+                        Text("\(day)")
+                            .font(.largeTitle)
+                            .padding(.leading, 10)
+                        generalView.Bar()
+                            .frame(height: 20)
+                        Text(dayOfWeekSymbol)
+                        Spacer()
+                    }.foregroundStyle(Color.changeableText)
+                    ScrollView(.horizontal) {
+                        HStack {
+                            ForEach(0 ..< dispCount, id: \.self) {houseHoldType in
+                                let isExsist = incConsService.isExsistIncConsData(day: selectDate,
+                                                                                  houseHoldType: houseHoldType)
+                                let amt = incConsService.getIncConsTotalPerDay(day: selectDate,
+                                                                               houseHoldType: houseHoldType)
+                                let type = houseHoldType == 0 ? "収入" : "支出"
+                                VStack(alignment: .leading) {
+                                    if isExsist {
+                                        Text(type)
+                                            .font(.caption)
+                                        Text("¥\(amt)")
+                                            .foregroundStyle(amt > 0 ? .blue : amt == 0 ? .changeableText : .red)
+                                    } else {
+                                        Text("本日の" + type + "はありません。")
+                                            .font(.caption)
+                                            .foregroundStyle(.gray)
+                                    }
+                                }.frame(width: size.width)
+                            }
+                        }.scrollTargetLayout()
+                            .frame(height: abs(height * (2 / 3) - 20))
+                        PagingIndicator(activeTint: .changeableText,
+                                        inActiveTint: .gray.opacity(0.5))
+                        .frame(height: 10)
+                    }.scrollTargetBehavior(.viewAligned)
+                }
             }
-        }.foregroundStyle(Color.changeableText)
-            .padding(.bottom, 20)
-          .padding(.horizontal, 20)
+        }
     }
     
     @ViewBuilder
-    func DispHeadline(text: String, dispFlgIndex: Int, isExprain: Bool, exprain: String) -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(text)
-                    .font(.title3)
-                    .fontWeight(.medium)
-                if isExprain {
-                    Text(exprain)
+    func BudgetCard(height: CGFloat) -> some View {
+        ZStack {
+            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+                .shadow(color: colorScheme == .dark ? .clear : .changeableShadow, radius: 5)
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Text("今月の予算")
+                    Spacer()
+                    Image(systemName: "chevron.right")
                         .font(.caption)
-                        .foregroundStyle(.gray)
+                }.padding(.top, 10)
+                    .padding(.horizontal, 10)
+                ZStack {
+                    Circle()
+                        .stroke(lineWidth: 15)
+                        .fill(Color(uiColor: .systemGray6)
+                            .shadow(.inner(color: Color(uiColor: .systemGray3), radius: 3))
+                        )
+                        .overlay {
+                            Circle()
+                                .trim(from: 0, to: 0.7)
+                                .stroke(lineWidth: 8)
+                                .fill(.linearGradient(colors: accentColors,
+                                                      startPoint: .topLeading, endPoint: .bottomLeading))
+                                .rotationEffect(.degrees(270))
+                        }
+                    VStack {
+                        Text("残り")
+                        Text("¥1000")
+                    }.font(.caption)
+                        .fontWeight(.medium)
+                }.padding()
+            }.foregroundStyle(Color.changeableText)
+        }
+    }
+    
+    @ViewBuilder
+    func IncConsCard() -> some View {
+        GeometryReader {
+            let size = $0.size
+            let iconsRowCount = (amtTotalBySecMon.count - 1) / 2 + 1
+            ZStack {
+                generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+                    .shadow(color: colorScheme == .dark ? .clear : .changeableShadow, radius: 5)
+                let isExistMonthData = incConsService.isExistIncConsMonth(refDate: selectDate)
+                    VStack(spacing: 0) {
+                        HStack {
+                            let month = calendarService.getOnlyComponent(date: selectDate,
+                                                                         component: .month)
+                            Text("\(month)" + "月の収入・支出")
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                        }.padding(.horizontal, 10)
+                            .padding(.vertical, 10)
+                            .foregroundStyle(Color.changeableText)
+                        if isExistMonthData {
+                            ScrollView(.horizontal) {
+                                HStack(spacing: 0) {
+                                    Group {
+//                                        IncConsCompareChartArea(size: size)
+                                        financeCharts.IncConsCompareChart(selectDate: selectDate, makeSize: 0)
+                                        financeCharts.IncConsRateChart(houseHoldType: 0, date: Date())
+                                        financeCharts.IncConsRateChart(houseHoldType: 1, date: Date())
+                                    }.frame(width: iconsRowCount == 1 ? size.width - 60 : iconsRowCount == 2 ?
+                                            size.width - 50 : size.width - 40
+                                    ).padding(iconsRowCount == 1 ? 10 : iconsRowCount == 2 ? 5 : 0)
+                                }.scrollTargetLayout()
+                                PagingIndicator(activeTint: .changeableText,
+                                                inActiveTint: .gray.opacity(0.5))
+                                .frame(height: 8)
+                                .padding(.vertical, 5)
+                            }
+//                            .frame(height: size.height * (5 / 10))
+                                .padding(.horizontal, 20)
+                                .scrollTargetBehavior(.viewAligned)
+                                .scrollIndicators(.hidden)
+                        } else {
+                            Text("今月の収入・支出はありません。")
+                                .foregroundStyle(.gray)
+                                .font(.caption)
+//                                .frame(height: size.height * (5 / 10))
+                        }
+                        Rectangle()
+                            .fill(colorScheme == .dark ? Color(uiColor: .systemGray5) : .white)
+                            .overlay {
+                                IncConsIcons(size: size)
+                            }.frame(height: 40 * CGFloat(iconsRowCount) + 10)
+                }.clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+        }.onTapGesture {
+            self.incConsChartDestFlg = true
+        }
+    }
+    
+    @ViewBuilder
+    func IncConsIcons(size: CGSize) -> some View {
+        HStack(spacing: 10) {
+            ForEach(0 ..< 2, id: \.self) { col in
+                VStack(spacing: 10) {
+                    ForEach(0 ..< 3, id: \.self) { row in
+                        let index = col + (row * 2)
+                        if index < amtTotalBySecMon.count {
+                            let viewModel = amtTotalBySecMon[index]
+                            let secObj = viewModel.incConsSecObj
+                            let color = ColorAndImage.colors[secObj.incConsSecColorIndex]
+                            let imageNm = secObj.incConsSecImage
+                            HStack {
+                                generalView.RoundedIcon(radius: 5, color: color, image: imageNm, text: "")
+                                    .frame(width: 30, height: 30)
+                                VStack(alignment: .leading, spacing: 0) {
+                                    Text(secObj.incConsSecName)
+                                    Text("¥\(viewModel.amtTotalBySecMon)")
+                                        .font(.caption)
+                                        .foregroundStyle(secObj.houseHoldType == 0 ? .blue : .red)
+                                }.font(.caption)
+                                    .foregroundStyle(Color.changeableText)
+                            }.frame(width: size.width / 2 - 20, height: 30, alignment: .topLeading)
+                        } else if amtTotalBySecMon.count % 2 == 1 {
+                            Color.clear
+                                .frame(width: size.width / 2 - 20, height: 30, alignment: .topLeading)
+                        } else if amtTotalBySecMon.count == 0 && index < 2 {
+                            HStack {
+                                generalView.RoundedIcon(radius: 5, color: Color(uiColor: .systemGray3), image: "", text: "")
+                                    .frame(width: 30, height: 30)
+                                VStack(alignment: .leading, spacing: 0) {
+                                    Text("---")
+                                    Text("---")
+                                }.foregroundStyle(.gray)
+                                    .font(.caption)
+                            }.frame(width: size.width / 2 - 20, height: 30, alignment: .topLeading)
+                        }
+                    }
                 }
             }
-            Spacer()
-            Image(systemName: "chevron.down")
-                .rotationEffect(.degrees(self.dispFlg[dispFlgIndex] ? 180 : 0))
-        }.foregroundStyle(Color.changeableText)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                withAnimation {
-                    self.dispFlg[dispFlgIndex].toggle()
+        }
+    }
+    
+    @ViewBuilder
+    func IncConsCompareChartArea(size: CGSize) -> some View {
+        VStack(spacing: 0) {
+            financeCharts.IncConsCompareChart(selectDate: Date(), makeSize: 0)
+            GeometryReader { geometry in
+                HStack(spacing: 5) {
+                    let incMonthTotal = incConsService.getIncOrConsAmtTotal(date: selectDate,
+                                                                            houseHoldType: 0)
+                    let consMonthTotal = incConsService.getIncOrConsAmtTotal(date: selectDate,
+                                                                             houseHoldType: 1)
+                    let gapMonthTotal = incMonthTotal - consMonthTotal
+                    Group {
+                        VStack(alignment: .leading) {
+                            Text("収入")
+                            Text("¥\(incMonthTotal)")
+                                .foregroundStyle(Color.blue)
+                        }
+                        VStack(alignment: .leading) {
+                            Text("支出")
+                            Text("¥\(consMonthTotal)")
+                                .foregroundStyle(Color.red)
+                        }
+                        VStack(alignment: .leading) {
+                            Text("差額")
+                            Text("¥\(gapMonthTotal)")
+                                .foregroundStyle(gapMonthTotal > 0 ? Color.blue : Color.red)
+                        }
+                    }.frame(width: geometry.size.width / 3, alignment: .leading)
                 }
-            }
+            }.font(.caption)
+            .frame(height: 30)
+                .foregroundStyle(Color.changeableText)
+                .padding(.top, 10)
+                
+        }
+    }
+    
+    @ViewBuilder
+    func BalnceCard() -> some View {
+        ZStack {
+            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+                .shadow(color: colorScheme == .dark ? .clear : .changeableShadow, radius: 5)
+            VStack(alignment: .leading, spacing: 0) {
+                Text("残高")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .padding(.leading, 20)
+                    .padding(.top, 10)
+                financeCharts.BalCompareChart()
+                    .padding()
+            }.foregroundStyle(Color.changeableText)
+        }
     }
     
     /** ▼残高チャート **/
@@ -154,8 +354,6 @@ struct HomeView: View {
     func BalanceChartArea(size: CGSize) -> some View {
         let balTotal = balanceService.getBalanceTotal()
         VStack {
-            DispHeadline(text: "残 高", dispFlgIndex: 0, isExprain: true,
-                         exprain: "現時点での残高を把握できます")
             if self.dispFlg[0] {
                 ScrollView(.horizontal) {
                     HStack {
@@ -165,22 +363,6 @@ struct HomeView: View {
                     }.padding(.horizontal, 5)
                         .padding(.vertical, 8)
                 }
-//                HStack(spacing: 0) {
-//                    Text("合計")
-//                        .foregroundStyle(Color.changeableText)
-//                        .frame(width: abs((size.width - 60) / 2), alignment: .leading)
-//                    Text("¥\(balTotal)")
-//                        .foregroundStyle(balTotal > 0 ? .blue : .red)
-//                        .frame(width: abs((size.width - 60) / 2), alignment: .trailing)
-//                        .lineLimit(1)
-//                        .minimumScaleFactor(0.5)
-//                } .font(.subheadline.bold())
-//                    .frame(width: abs(size.width - 40))
-//                    .padding(.vertical)
-//                    .background(Color(uiColor: .systemGray6))
-//                    .clipShape(RoundedRectangle(cornerRadius: 10))
-//                    .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray3),
-//                            radius: colorScheme == .dark ? 0 : 5)
                 ZStack {
                     if colorScheme == .dark {
                         Color(uiColor: .systemGray5)
@@ -228,132 +410,6 @@ struct HomeView: View {
                     }.frame(height: 250)
                 }.clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray4), radius: 5)
-            }
-        }.padding(.vertical, 10)
-            .padding(.horizontal, 20)
-    }
-    
-    /**▼固定費**/
-//    @ViewBuilder
-//    func FixedCostArea(size: CGSize) -> some View {
-//        let fixedCostTotal = 25000
-//        VStack(alignment: .trailing) {
-//            DispHeadline(text: "固定費", dispFlgIndex: 1, isExprain: false, exprain: "")
-//            if self.dispFlg[1] {
-//                ScrollView(.horizontal) {
-//                    HStack(spacing: 10) {
-//                        ForEach(0 ..< 5, id: \.self) { index in
-//                            FixedCostCard(incConsModel: IncomeConsumeModel())
-//                        }
-//                    }.padding(3)
-//                }.padding(.top, 10)
-//                HStack(spacing: 0) {
-//                    Text("合計")
-//                        .foregroundStyle(Color.changeableText)
-//                        .frame(width: abs((size.width - 60) / 2), alignment: .leading)
-//                    Text("¥\(fixedCostTotal)")
-//                        .foregroundStyle(.red)
-//                        .frame(width: abs((size.width - 60) / 2), alignment: .trailing)
-//                        .lineLimit(1)
-//                        .minimumScaleFactor(0.5)
-//                }.font(.subheadline.bold())
-//                    .frame(width: abs(size.width - 40))
-//                    .padding(.vertical)
-//                    .background(.changeable)
-//                    .clipShape(RoundedRectangle(cornerRadius: 10))
-//                generalView.glassTextRounedButton(color: accentColors.last ?? .blue, text: "設定", imageNm: "", radius: 25) {
-//                    
-//                }.frame(width: 100, height: 25)
-//                    .compositingGroup()
-//                    .shadow(color: .changeableShadow, radius: 3)
-//                    .padding(.top, 5)
-//            }
-//        }.padding(10)
-//                .padding(.vertical, 10)
-//    }
-    
-//    @ViewBuilder
-//    func FixedCostCard(incConsModel: IncomeConsumeModel) -> some View {
-//        let rectWidth: CGFloat = 100
-//        let rectHeight: CGFloat = 80
-//        let secResult = incConsCatgService.getIncConsSecSingle(secKey: incConsModel.incConsSecKey)
-//        let color = ColorAndImage.colors[secResult.incConsSecColorIndex]
-//        ZStack {
-//            Color.changeable
-//            VStack {
-//                HStack {
-//                    generalView.RoundedIcon(radius: 5, color: color,
-//                                            image: secResult.incConsSecImage, text: secResult.incConsSecName)
-//                    .frame(width: 30, height: 30)
-//                    Text(secResult.incConsSecName)
-//                        .font(.caption)
-//                        .foregroundStyle(Color.changeableText)
-//                }
-//                Text("2024/5/21")
-//                    .font(.system(.caption, design: .rounded))
-//                    .foregroundStyle(Color.changeableText)
-//                    .frame(width: rectWidth - 10, alignment: .trailing)
-//                Text("¥\(5000)")
-//                    .font(.system(.caption, design: .rounded, weight: .bold))
-//                    .foregroundStyle(Color.red)
-//                    .frame(width: rectWidth - 10, alignment: .trailing)
-//                
-//            }
-//        }.frame(width: rectWidth, height: rectHeight)
-//            .clipShape(RoundedRectangle(cornerRadius: 10))
-//            .compositingGroup()
-//            .shadow(color: .changeableShadow, radius: 3)
-//    }
-    
-    /**▼予算 **/
-    @ViewBuilder
-    func BudgetArea(size: CGSize) -> some View {
-        VStack(alignment: .trailing) {
-            DispHeadline(text: "予 算", dispFlgIndex: 2, isExprain: true, exprain: "予算を設定し、支出を管理しましょう")
-            if self.dispFlg[2] {
-                HStack {
-                    Text("予算(固定費を含む)")
-                        .foregroundStyle(Color.changeableText)
-                    Spacer()
-                    Text("¥\(30000)")
-                        .fontDesign(.rounded)
-                        .foregroundStyle(Color.changeableText)
-                }.font(.subheadline)
-                    .fontWeight(.medium)
-                    .padding(.horizontal, 10)
-                    .padding(.top, 10)
-                HStack {
-                    Text("支出")
-                    Text("¥\(18000)")
-                        .fontDesign(.rounded)
-                        .foregroundStyle(.red)
-                    Spacer()
-                    Text("残り")
-                    Text("¥\(12000)")
-                        .fontDesign(.rounded)
-                }.padding(.horizontal, 10)
-                    .padding(.vertical, 1)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.changeableText)
-                ZStack {
-                    Group {
-                        let rate: CGFloat = 12000 / 30000
-                        RoundedRectangle(cornerRadius: 25)
-                            .fill(Color(uiColor: .systemGray6)
-                                .shadow(.inner(color: .gray, radius: 1))
-                            ).frame(height: 15)
-                        generalView.GradientCard(colors: accentColors, radius: 25)
-                            .frame(width: abs((size.width - 46) * rate), height: 10)
-                            .padding(.horizontal, 3)
-                    }.frame(width: abs(size.width - 40), alignment: .trailing)
-                }
-                generalView.glassTextRounedButton(color: .changeableText, text: "設 定", imageNm: "", radius: 25) {
-                    
-                }.frame(width: 100, height: 25)
-                    .compositingGroup()
-//                    .shadow(color: .changeableShadow, radius: 3)
-                    .padding(.top, 5)
             }
         }.padding(.vertical, 10)
             .padding(.horizontal, 20)
@@ -446,23 +502,7 @@ struct HomeView: View {
     @ViewBuilder
     func IncConsChartArea(size: CGSize) -> some View {
         VStack {
-            let dateStr = calendarService.getStringDate(date: selectDate, format: "yyyy年M月")
-            DispHeadline(text: "収入・支出" + " (" + dateStr + ") ", dispFlgIndex: 3, isExprain: true,
-                         exprain: "今月の収入・支出を確認できます")
             if self.dispFlg[3] {
-                ScrollView(.horizontal) {
-                    let texts = ["収入合計", "支出合計", "収入 - 支出"]
-                    let incTotal = incConsService.getIncOrConsAmtTotal(date: selectDate, houseHoldType: 0)
-                    let consTotal = incConsService.getIncOrConsAmtTotal(date: selectDate, houseHoldType: 1)
-                    let gapTotal = incTotal - consTotal
-                    let amts = [incTotal, consTotal, gapTotal]
-                    HStack {
-                        ForEach(0 ..< 3, id: \.self) { index in
-                            incConsBalMiniIcon(isKindFlg: index, label: texts[index], amt: amts[index])
-                        }
-                    }.padding(.horizontal, 5)
-                        .padding(.vertical, 8)
-                }
                 ScrollView(.horizontal) {
                     HStack(spacing: 0) {
                         ForEach (0 ..< 3, id: \.self) {index in
