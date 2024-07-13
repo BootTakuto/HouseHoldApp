@@ -131,11 +131,12 @@ struct PaymentView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Text(String(year))
-                        .font(.system(.title2, design: .rounded, weight: .bold))
+                        .font(.title2.bold())
                     Text("年")
                         .font(.caption.bold())
                     Text(String(month))
-                        .font(.system(.title2, design: .rounded, weight: .bold))
+//                        .font(.system(.title2, design: .rounded, weight: .bold))
+                        .font(.title2.bold())
                     Text("月")
                         .font(.caption.bold())
                     Spacer()
@@ -166,11 +167,12 @@ struct PaymentView: View {
                         HStack(spacing: 0) {
                             VStack {
                                 Text("¥\(incTotal)")
-                                    .font(.system(.body, design: .rounded, weight: .bold))
+//                                    .font(.system(.body, design: .rounded, weight: .bold))
+                                    .font(.body.bold())
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
                                 Text("収入合計")
-                                    .font(.caption2.bold())
+                                    .font(.caption)
                             }.frame(width: abs((cardWidth / 3) - 10))
                             generalView.Bar()
                                 .frame(height: cardHeight / 2)
@@ -178,11 +180,12 @@ struct PaymentView: View {
                                 .padding(.horizontal, 5)
                             VStack {
                                 Text("¥\(consTotal)")
-                                    .font(.system(.body, design: .rounded, weight: .bold))
+//                                    .font(.system(.body, design: .rounded, weight: .bold))
+                                    .font(.body.bold())
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
                                 Text("支出合計")
-                                    .font(.caption2.bold())
+                                    .font(.caption)
                             }.frame(width: abs((cardWidth / 3) - 10))
                             generalView.Bar()
                                 .frame(height: cardHeight / 2)
@@ -190,11 +193,12 @@ struct PaymentView: View {
                                 .padding(.horizontal, 5)
                             VStack {
                                 Text("¥\(totalGap)")
-                                    .font(.system(.body, design: .rounded, weight: .bold))
+//                                    .font(.system(.body, design: .rounded, weight: .bold))
+                                    .font(.body.bold())
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
                                 Text("収支合計")
-                                    .font(.caption2.bold())
+                                    .font(.caption)
                             }.frame(width: abs((cardWidth / 3) - 10))
                         }.foregroundStyle(.white)
                         ZStack {
@@ -204,7 +208,7 @@ struct PaymentView: View {
                             HStack(spacing: 10) {
                                 Text("月間情報")
                                 Image(systemName: "chevron.right")
-                            }.font(.caption2.bold())
+                            }.font(.caption)
                                 .foregroundStyle(Color.changeableText)
                                 .frame(width: abs(cardWidth - 30), alignment: .trailing)
                         }
@@ -251,8 +255,7 @@ struct PaymentView: View {
                         HStack {
                             Text("収支一覧")
                             Image(systemName: "list.bullet")
-                        }.font(.footnote)
-                            .fontWeight(.medium)
+                        }.font(.caption)
                             .foregroundStyle(Color.changeableText)
                     }
                 }
@@ -272,8 +275,7 @@ struct PaymentView: View {
                         HStack {
                             Text("カレンダー")
                             Image(systemName: "calendar")
-                        }.font(.footnote)
-                            .fontWeight(.medium)
+                        }.font(.caption)
                             .foregroundStyle(Color.changeableText)
                     }
                 }
@@ -309,7 +311,8 @@ struct PaymentView: View {
                     .fontWeight(.medium)
                 Spacer()
                 Text(symbol + "\(incConsAmt)")
-                    .font(.footnote).fontDesign(.rounded)
+                    .font(.footnote)
+//                    .fontDesign(.rounded)
                     .fontWeight(result.houseHoldType != 2 ? .medium : .regular)
                     .foregroundStyle(result.houseHoldType == 2 ? Color.changeableText : result.houseHoldType == 1 ?
                         .red : .blue)
@@ -342,8 +345,7 @@ struct PaymentView: View {
                                 .fill(Color(uiColor: .systemGray2))
                         }
                         Text(labels[index])
-                            .font(.footnote)
-                            .fontWeight(.medium)
+                            .font(.caption)
                             .foregroundStyle(isSelectType ? .white :  Color.changeableText)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 7)
@@ -360,9 +362,8 @@ struct PaymentView: View {
             .padding(.bottom, 10)
         if incConsDic.isEmpty {
             Text("収支情報が存在しません。")
-                .font(.footnote)
-                .fontWeight(.medium)
-                .foregroundStyle(Color.changeableText)
+                .font(.caption)
+                .foregroundStyle(.gray)
                 .padding(.top, 100)
         } else {
             ForEach(Array(incConsDic.sorted(by: {$0.key > $1.key})).indices, id: \.self) { index in
@@ -373,7 +374,7 @@ struct PaymentView: View {
                     HStack {
                         Text(day)
                             .font(.footnote)
-                            .fontDesign(.rounded)
+//                            .fontDesign(.rounded)
                             .fontWeight(.medium)
                             .foregroundStyle(Color.changeableText)
                             .padding(.vertical, 5)
@@ -486,7 +487,8 @@ struct PaymentView: View {
                                                 isToday ? .white : isOffsetDay ?
                                                 Color(uiColor: .systemGray3) : Color.changeableText
                                             )
-                                            .font(.system(.caption2, design: .rounded))
+//                                            .font(.system(.caption2, design: .rounded))
+                                            .font(.caption2)
                                     )
                                     Group {
                                         Text(isExsistInc ? "¥\(incAmt)" : "")
@@ -497,7 +499,7 @@ struct PaymentView: View {
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.5)
                                         .font(.caption2)
-                                        .fontDesign(.rounded)
+//                                        .fontDesign(.rounded)
                                         .fontWeight(isOffsetDay ? .regular : .bold)
                             }
                         }.frame(width: width / 7, height: 80)

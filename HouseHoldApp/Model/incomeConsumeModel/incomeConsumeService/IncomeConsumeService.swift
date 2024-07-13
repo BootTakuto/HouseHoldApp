@@ -515,5 +515,28 @@ class IncomeConsumeService: CommonService {
         }
         return array
     }
+    
+    /** 項目別支出合計学を取得する
+     @param 日付
+     @return 項目・金額辞書
+     */
+    func getConsTotalBySec(date: Date) -> [String: Int] {
+        var dic: [String: Int] = [:]
+        // 支出項目を全件取得
+        let consSecResults = realm.objects(IncConsSectionModel.self).where({$0.houseHoldType == 1})
+        // 該当月の支出情報を取得
+        let str_yyyyMM = getStringDate(date: date, format: "yyyyMM")
+        let consResults = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 1})
+                                                                .filter("incConsDate LIKE %@", "*\(str_yyyyMM)*")
+        print(consResults)
+        consSecResults.forEach { consSecResult in
+            let secKey = consSecResult.incConsSecKey
+            // 該当月の支出情報から一致する項目の合計金額を取得する
+            let consTotalBySec: Int = consResults.where({$0.incConsSecKey == secKey}).sum(ofProperty: "incConsAmtValue") ?? 0
+            // 支出項目の主キーと支出合計金額を保持
+            dic[secKey] = consTotalBySec
+        }
+        return dic
+    }
 }
 

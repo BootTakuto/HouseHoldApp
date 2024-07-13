@@ -19,4 +19,5 @@ enum PopUpStatus {
     case addincConsCatg     // 収入・支出カテゴリーの登録
     case editIncConsCatg    // 収入・支出カテゴリーの編集
     case deleteIncConsCatg  // 収入・支出カテゴリーの削除
+    case addBudget          // 予算の追加
 }

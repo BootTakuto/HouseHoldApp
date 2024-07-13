@@ -21,8 +21,10 @@
 		2C3B3C4D2BA70ADD0080A278 /* RegistIncConsFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3B3C4C2BA70ADC0080A278 /* RegistIncConsFormView.swift */; };
 		2C3CA8232B440AB800EC2D1B /* IncomeConsumeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3CA8222B440AB800EC2D1B /* IncomeConsumeModel.swift */; };
 		2C58DE6B2B7EB80D00BF1DB8 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C58DE6A2B7EB80D00BF1DB8 /* ColorExtension.swift */; };
+		2C5DE0662C3C8C8B005D6436 /* BudgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5DE0652C3C8C8B005D6436 /* BudgetView.swift */; };
 		2C786B902B72DD0B0033ECB5 /* IncomeConsumeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C786B8F2B72DD0B0033ECB5 /* IncomeConsumeService.swift */; };
 		2C89BE272BF096AD008E1DFD /* PopUpStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C89BE262BF096AD008E1DFD /* PopUpStatus.swift */; };
+		2C8AB0C02C4073FD00D4F6B7 /* BudgetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8AB0BF2C4073FD00D4F6B7 /* BudgetService.swift */; };
 		2C8C38512A9FE73200F388A7 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8C38502A9FE73200F388A7 /* HomeView.swift */; };
 		2C8D99722C37463600931CD8 /* IncConsMonTotalBySec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8D99712C37463600931CD8 /* IncConsMonTotalBySec.swift */; };
 		2C90F6C92BE76DFB0095BE5D /* PopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C90F6C82BE76DFB0095BE5D /* PopUpView.swift */; };
@@ -81,8 +83,10 @@
 		2C3B3C4C2BA70ADC0080A278 /* RegistIncConsFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistIncConsFormView.swift; sourceTree = "<group>"; };
 		2C3CA8222B440AB800EC2D1B /* IncomeConsumeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomeConsumeModel.swift; sourceTree = "<group>"; };
 		2C58DE6A2B7EB80D00BF1DB8 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
+		2C5DE0652C3C8C8B005D6436 /* BudgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetView.swift; sourceTree = "<group>"; };
 		2C786B8F2B72DD0B0033ECB5 /* IncomeConsumeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomeConsumeService.swift; sourceTree = "<group>"; };
 		2C89BE262BF096AD008E1DFD /* PopUpStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpStatus.swift; sourceTree = "<group>"; };
+		2C8AB0BF2C4073FD00D4F6B7 /* BudgetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetService.swift; sourceTree = "<group>"; };
 		2C8C38502A9FE73200F388A7 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		2C8D99712C37463600931CD8 /* IncConsMonTotalBySec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsMonTotalBySec.swift; sourceTree = "<group>"; };
 		2C90F6C82BE76DFB0095BE5D /* PopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpView.swift; sourceTree = "<group>"; };
@@ -170,6 +174,14 @@
 			path = Samples;
 			sourceTree = "<group>";
 		};
+		2C5DE0692C3C9805005D6436 /* budgetService */ = {
+			isa = PBXGroup;
+			children = (
+				2C8AB0BF2C4073FD00D4F6B7 /* BudgetService.swift */,
+			);
+			path = budgetService;
+			sourceTree = "<group>";
+		};
 		2C6AB4D42AEAFFFC00F6F58C /* calendarModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -186,7 +198,7 @@
 			path = calendarService;
 			sourceTree = "<group>";
 		};
-		2C742CE52C349E7F00500F9B /* ViewModel */ = {
+		2C742CE52C349E7F00500F9B /* viewModel */ = {
 			isa = PBXGroup;
 			children = (
 				2CB1ECF42B6F50720014B5FC /* ColorAndImage.swift */,
@@ -196,7 +208,7 @@
 				2C2DB7882B8A01D900B631E9 /* LabelsModel.swift */,
 				2C8D99712C37463600931CD8 /* IncConsMonTotalBySec.swift */,
 			);
-			path = ViewModel;
+			path = viewModel;
 			sourceTree = "<group>";
 		};
 		2C7C53CD2AB26079004458FD /* View */ = {
@@ -238,8 +250,8 @@
 		2C7C53D22AB2620A004458FD /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				2C742CE52C349E7F00500F9B /* ViewModel */,
-				2CA697652BFAAB0100BFE895 /* BudgetModel */,
+				2C742CE52C349E7F00500F9B /* viewModel */,
+				2CA697652BFAAB0100BFE895 /* budgetModel */,
 				2CB19A042B1C3F8C009441EE /* incomeConsumeModel */,
 				2C6AB4D42AEAFFFC00F6F58C /* calendarModel */,
 				2C293B7C2ABEB1B300CBB2BF /* balanceModel */,
@@ -256,12 +268,13 @@
 			path = commonService;
 			sourceTree = "<group>";
 		};
-		2CA697652BFAAB0100BFE895 /* BudgetModel */ = {
+		2CA697652BFAAB0100BFE895 /* budgetModel */ = {
 			isa = PBXGroup;
 			children = (
 				2CA697632BFAAAF800BFE895 /* BudgetModel.swift */,
+				2C5DE0692C3C9805005D6436 /* budgetService */,
 			);
-			path = BudgetModel;
+			path = budgetModel;
 			sourceTree = "<group>";
 		};
 		2CB19A042B1C3F8C009441EE /* incomeConsumeModel */ = {
@@ -300,6 +313,7 @@
 				2C276B822BD8577600A69F87 /* IncConsSummaryView.swift */,
 				2C90F6C82BE76DFB0095BE5D /* PopUpView.swift */,
 				2CB405C82B77AE1900CC0F25 /* GeneralComponentView.swift */,
+				2C5DE0652C3C8C8B005D6436 /* BudgetView.swift */,
 			);
 			path = commonView;
 			sourceTree = "<group>";
@@ -499,6 +513,7 @@
 				2CA911562BE8822800D635A9 /* ViewExtension.swift in Sources */,
 				2C2C30462BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift in Sources */,
 				2CC24F702C1F99F600237A6C /* IncConsCatgListView.swift in Sources */,
+				2C5DE0662C3C8C8B005D6436 /* BudgetView.swift in Sources */,
 				2CFDF8DB2A792E3F00D5C194 /* HouseHoldAppApp.swift in Sources */,
 				2CC9DD352C13CBCE00196188 /* IncConsSecListView.swift in Sources */,
 				2CA697642BFAAAF800BFE895 /* BudgetModel.swift in Sources */,
@@ -507,6 +522,7 @@
 				2C786B902B72DD0B0033ECB5 /* IncomeConsumeService.swift in Sources */,
 				2C9439D52BD9B27400313B98 /* FinanceCharts.swift in Sources */,
 				2CB1ECEA2B6F2D280014B5FC /* IncConsSectionModel.swift in Sources */,
+				2C8AB0C02C4073FD00D4F6B7 /* BudgetService.swift in Sources */,
 				2C1CE1022C2CC3A30035CADC /* PagingIndicator.swift in Sources */,
 				2CB405C42B774AC400CC0F25 /* CalendarService.swift in Sources */,
 				2CB1ECEE2B6F2E230014B5FC /* IncConSecCatgService.swift in Sources */,

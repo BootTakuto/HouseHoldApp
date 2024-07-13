@@ -164,7 +164,7 @@ struct IncConsSummaryView: View {
                             Text("¥\(value)")
                                 .frame(maxWidth: size.width - 40 / 2, alignment: .trailing)
                                 .foregroundStyle(Color.changeableText)
-                                .fontDesign(.rounded)
+//                                .fontDesign(.rounded)
                                 .fontWeight(.bold)
                         }.padding(10)
                     }.padding(.horizontal, 10)

@@ -25,6 +25,14 @@ class FinanceCharts {
                     x: .value("label", result.balanceNm),
                     y: .value("amount", result.balanceAmt)
                 ).foregroundStyle(ColorAndImage.colors[result.colorIndex])
+                    .annotation {
+                        Text("¥\(result.balanceAmt)")
+                            .font(.caption2)
+                            .fontWeight(.light)
+                            .foregroundStyle(Color.changeableText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                    }
             }
         }
     }
@@ -61,6 +69,7 @@ class FinanceCharts {
                                 Text("¥\(data.amount)")
                                     .font(.caption2)
                                     .fontWeight(.light)
+                                    .foregroundStyle(Color.changeableText)
                                     .frame(width: 50)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
@@ -122,13 +131,13 @@ struct IncConsChartEntry: Identifiable {
     }
 }
 
-//#Preview {
-//    ContentView()
-//}
-
 #Preview {
-    @State var isPresentedFlg = false
-    @State var chartIndex = 0
-    return IncConsSummaryView(accentColors: [.purple, .indigo],
-                              isPresentedFlg: $isPresentedFlg, chartIndex: 0)
+    ContentView()
 }
+
+//#Preview {
+//    @State var isPresentedFlg = false
+//    @State var chartIndex = 0
+//    return IncConsSummaryView(accentColors: [.purple, .indigo],
+//                              isPresentedFlg: $isPresentedFlg, chartIndex: 0)
+//}

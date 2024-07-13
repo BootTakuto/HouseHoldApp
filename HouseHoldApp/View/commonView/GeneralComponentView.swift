@@ -53,7 +53,7 @@ class GeneralComponentView {
                         .frame(height: size.height / 2)
                         .scaledToFit()
                         .foregroundStyle(.white)
-                        .fontDesign(.rounded)
+//                        .fontDesign(.rounded)
                     if text != "" {
                         Text(text)
                             .font(.caption.bold())
@@ -88,7 +88,7 @@ class GeneralComponentView {
                     .scaledToFit()
                     .padding(.horizontal, 5)
                     .padding(.top, 8)
-                    .fontDesign(.rounded)
+//                    .fontDesign(.rounded)
                 Text(text)
                     .font(.caption.bold())
                     .padding(.horizontal, 2)

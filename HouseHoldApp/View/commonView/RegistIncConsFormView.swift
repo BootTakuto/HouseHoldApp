@@ -335,12 +335,13 @@ struct RegistIncConsFormView: View {
                             Text(linkBalAmtObj.isIncreaseBal ?
                                  "+\(linkBalAmtObj.incConsAmt)" : "-\(linkBalAmtObj.incConsAmt)")
                             .foregroundStyle(linkBalAmtObj.isIncreaseBal ? .blue : .red)
-                            .font(.system(.title3, design: .rounded, weight: .bold))
+//                            .font(.system(.title3, design: .rounded, weight: .bold))
+                            .font(.title3.bold())
                         }.padding(.horizontal, 15)
                     } else {
                         Text("¥\(balResult.balanceAmt)")
                             .font(.caption.bold())
-                            .fontDesign(.rounded)
+//                            .fontDesign(.rounded)
                             .foregroundStyle(Color.changeableText)
                             .padding(.horizontal, 15)
                             .frame(width: width * (3 / 4), alignment: .leading)
@@ -353,7 +354,8 @@ struct RegistIncConsFormView: View {
                             .multilineTextAlignment(.trailing)
                             .keyboardType(.numberPad)
                             .foregroundStyle(linkBalAmtObj.isIncreaseBal ? .blue : .red)
-                            .font(.system(.title3, design: .rounded, weight: .bold))
+//                            .font(.system(.title3, design: .rounded, weight: .bold))
+                            .font(.title3.bold())
                             .background(
                                 generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
                                     .frame(height: 50)
@@ -427,7 +429,8 @@ struct RegistIncConsFormView: View {
                 .frame(height: 80)
             VStack {
                 Text("\(inputAmtTotal)")
-                    .font(.system(.title3, design: .rounded, weight: .bold))
+//                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .font(.title3.bold())
                     .foregroundStyle(selectForm == 0 ? .blue : .red)
                 Text(selectForm == 0 ? "収入額合計" : "支出額合計")
                     .font(.caption.bold())
@@ -461,7 +464,7 @@ struct RegistIncConsFormView: View {
                                     }.frame(width: 100, height: 25)
                                         .compositingGroup()
                                         .shadow(color: .changeableShadow, radius: 3)
-                                }.frame(width: size.width - 40)
+                                }.frame(width: abs(size.width - 40))
                             } else {
                                 ScrollView(.horizontal) {
                                     HStack {

@@ -11,9 +11,7 @@ import RealmSwift
 class BudgetModel: Object, Identifiable {
     // 主キー(日付)
     @Persisted(primaryKey: true) var budgetDateKey = ""
-    // 予算金額
-    @Persisted var budgetAmt = 0
-    // 固定費を含むかモデル()
-    @Persisted var isConcludeFixedCons = true
+    // 予算額合計
+    @Persisted var budgetAmtTotal = 0
 }
 

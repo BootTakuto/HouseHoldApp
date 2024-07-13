@@ -59,7 +59,8 @@ struct IncConsListPerDayView: View {
                             generalView.RoundedIcon(radius: 5, color: color, image: image, text: text)
                                 .frame(width: 40, height: 40)
                             Text(catgResult.incConsCatgNm)
-                                .font(.system(.caption, design: .rounded, weight: .bold))
+//                                .font(.system(.caption, design: .rounded, weight: .bold))
+                                .font(.caption.bold())
                                 .foregroundStyle(Color.changeableText)
                         } else {
                             let color = ColorAndImage.colors[24]
@@ -94,7 +95,8 @@ struct IncConsListPerDayView: View {
                     }
                 }
                 Text("¥\(result.incConsAmtValue)")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
+//                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .font(.title2.bold())
                     .foregroundStyle(result.incConsAmtValue == 0 ? .gray : result.houseHoldType == 0 ? .blue : .red)
             }.padding(.horizontal, 20)
         }

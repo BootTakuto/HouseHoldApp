@@ -11,8 +11,8 @@ struct PopUpView: View {
     /** 共通 */
     @State var accentColors: [Color]
     @Binding var popUpFlg: Bool
-   
     var status: PopUpStatus
+    var selectDate = Date()
     /** 残高登録アラート情報(.addBal) */
     @FocusState var addBalNmFocused
     @FocusState var addBalInitAmountFocused
@@ -45,6 +45,7 @@ struct PopUpView: View {
     // service
     let balanceService = BalanceService()
     let incConsSecCatgService = IncConSecCatgService()
+    let budgetService = BudgetService()
     // 汎用ビュー
     let generalView = GeneralComponentView()
     var body: some View {
@@ -75,6 +76,8 @@ struct PopUpView: View {
                 InputAlert()
             case .deleteIncConsCatg:
                 deleteAlert(title: delTitle, explain: delExplain)
+            case .addBudget:
+                InputAlert()
             }
         }.ignoresSafeArea()
             .onTapGesture {
@@ -694,6 +697,8 @@ struct PopUpView: View {
                             } else if status == .editIncConsCatg {
                                 incConsSecCatgService.updateIncConsCatg(catgNm: self.inputText,
                                                                         incConsCatgKey: self.incConsCatgKey)
+                            } else if status == .addBudget {
+                                budgetService.registBudget(selectDate: selectDate, amount: self.inputText)
                             }
                             self.popUpFlg = false
                         }

@@ -79,7 +79,8 @@ struct BalanceSummaryView: View {
                 HStack {
                     VStack {
                         Text("¥\(balTotal)")
-                            .font(.system(.title3, design: .rounded, weight: .bold))
+//                            .font(.system(.title3, design: .rounded, weight: .bold))
+                            .font(.title3.bold())
                             .lineLimit(1)
                             .minimumScaleFactor(0.5)
                         Text("残 高 合 計")
@@ -132,7 +133,7 @@ struct BalanceSummaryView: View {
                                alignment: .leading)
                     Text("¥\(result.balanceAmt)")
                         .font(.headline)
-                        .fontDesign(.rounded)
+//                        .fontDesign(.rounded)
                         .fontWeight(.bold)
                         .foregroundStyle(result.balanceAmt > 0 ? .blue : .red)
                         .frame(width: abs(size.width - 100),
@@ -150,9 +151,9 @@ struct BalanceSummaryView: View {
             if balResults.isEmpty {
                 VStack {
                     Text("残高が存在しません。")
-                        .font(.caption.bold())
-                        .foregroundStyle(Color.changeableText)
-                }.padding(.top, 50)
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                }.padding(.top, 100)
             } else {
                 ForEach(balResults.indices, id: \.self) { index in
                     let result = balResults[index]
