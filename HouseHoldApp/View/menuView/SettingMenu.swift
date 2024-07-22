@@ -12,7 +12,7 @@ struct SettingMenu: View {
     @Binding var popUpFlg: Bool
     @Binding var popUpStatus: PopUpStatus
     @Environment(\.colorScheme) var colorScheme
-    @State var isSecPresented = false
+    @State var isPresented = false
     @State var pageStatus: PageStatusFromSetting = .howToUse
     let generalView = GeneralComponentView()
     let commonService = CommonService()
@@ -35,15 +35,16 @@ struct SettingMenu: View {
                     }
                 }
             }.padding(.bottom, 100)
-                .navigationDestination(isPresented: $isSecPresented) {
+                .navigationDestination(isPresented: $isPresented) {
                     switch pageStatus {
                     case .howToUse:
                         Text("")
                     case .secCatg:
                         IncConsSecListView(accentColors: accentColors,
-                                           isSecPresented: $isSecPresented)
+                                           isSecPresented: $isPresented)
                     case .budget:
-                        Text("")
+                        BudgetView(accentColors: accentColors,
+                                   budgetDestFlg: $isPresented)
                     }
                 }
         }
@@ -66,7 +67,7 @@ struct SettingMenu: View {
                                    accentColors: accentColors,
                                    iconNm: "使い方",
                                    imageNm: "questionmark.circle") {
-            self.isSecPresented = true
+            self.isPresented = true
             self.pageStatus = .howToUse
         }.compositingGroup()
             .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray4),radius: 8)
@@ -92,7 +93,7 @@ struct SettingMenu: View {
                                    accentColors: accentColors,
                                    iconNm: "項目・カテゴリー",
                                    imageNm: "rectangle.grid.2x2") {
-                self.isSecPresented = true
+                self.isPresented = true
                 self.pageStatus = .secCatg
         }.compositingGroup()
             .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray4),radius: 8)
@@ -104,7 +105,7 @@ struct SettingMenu: View {
                                    accentColors: accentColors,
                                    iconNm: "予算の設定",
                                    imageNm: "chineseyuanrenminbisign.square") {
-            self.isSecPresented = true
+            self.isPresented = true
             self.pageStatus = .budget
         }.compositingGroup()
             .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray4),radius: 8)

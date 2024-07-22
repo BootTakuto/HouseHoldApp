@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SwipeActioin<Content: View>: View {
     var direction: Alignment = .trailing
+    @State var scrollMinX: CGFloat = 0
     @ViewBuilder var content: Content
     @ActionBuilder var actions: [Action]
     var id = UUID()
@@ -19,11 +20,18 @@ struct SwipeActioin<Content: View>: View {
                     content
                         .containerRelativeFrame(.horizontal)
                         .background {
-                            if let firstAction = actions.first {
-                                Rectangle()
-                                    .fill(firstAction.buttonColor)
+                            GeometryReader { geometry in
+                                let minX = geometry.frame(in: .scrollView).minX
+                                if let firstAction = actions.first {
+                                    Rectangle()
+                                        .fill(-minX > 0 ? firstAction.buttonColor : .clear)
+                                        .onChange(of: minX) {
+                                            scrollMinX = minX
+                                        }
+                                }
                             }
-                        }.id(id)
+                        }
+                        .id(id)
                     ActionButtons {
                         withAnimation(.smooth) {
                             scrollProxy.scrollTo(id, anchor: .topLeading)
@@ -39,8 +47,7 @@ struct SwipeActioin<Content: View>: View {
             .scrollTargetBehavior(.viewAligned)
             .background {
                 if let lastAction = actions.last {
-                    Rectangle()
-                        .fill(lastAction.buttonColor)
+                    -scrollMinX > 1 ? lastAction.buttonColor : .clear
                 }
             }
         }
@@ -58,14 +65,14 @@ struct SwipeActioin<Content: View>: View {
                             resetPosition()
                             action.action()
                         }) {
-                            ZStack {
-                                action.buttonColor
-                                Image(systemName: action.iconNm)
-                                    .foregroundStyle(action.iconColor)
-                                    .font(.title2)
-                                    .fontWeight(.medium)
-                            }
-                        }
+                            Image(systemName: action.iconNm)
+                                .foregroundStyle(action.iconColor)
+                                .font(.title2)
+                                .fontWeight(.medium)
+                                .frame(width: 80)
+                                .frame(maxHeight: .infinity)
+                                .contentShape(.rect)
+                        }.background(action.buttonColor)
                     }
                 }
             }
@@ -90,4 +97,8 @@ struct ActionBuilder {
     static func buildBlock(_ components: Action...) -> [Action] {
         return components
     }
+}
+
+#Preview {
+    ContentView()
 }

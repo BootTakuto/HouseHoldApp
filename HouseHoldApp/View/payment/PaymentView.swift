@@ -326,6 +326,7 @@ struct PaymentView: View {
             Image(systemName: "chevron.right")
                 .foregroundStyle(Color.changeableText)
                 .padding(.leading, 5)
+                .font(.caption)
         }.frame(maxWidth: rectWidth, alignment: .leading)
     }
     
@@ -396,8 +397,8 @@ struct PaymentView: View {
                             generalView.Bar()
                                 .padding(.horizontal, 15)
                                 .foregroundStyle(Color.changeableText)
-                            ZStack {
-                                generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
+//                            ZStack {
+//                                generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
                                 VStack(spacing: 0) {
                                     ForEach(value.indices, id: \.self) { index in
                                         let result = value[index]
@@ -407,8 +408,8 @@ struct PaymentView: View {
                                                 self.incConsObject = result
                                             }) {
                                                 ZStack {
-                                                    Color.changeable
-                                                    UIGlassCard(effect: .systemThinMaterial)
+                                                    generalView.GlassBlur(effect: .systemUltraThinMaterial,
+                                                                          radius: 0)
                                                     DetailCard(result: result,
                                                                houseHoldType: result.houseHoldType,
                                                                incConsAmt: result.incConsAmtValue,
@@ -416,7 +417,8 @@ struct PaymentView: View {
                                                                catgKey: result.incConsCatgKey)
                                                     .padding(.vertical, 5)
                                                 }
-                                            }
+                                            }.buttonStyle(.plain)
+                                                .background(Color.changeable)
                                         }) {
                                             Action(buttonColor: .red, iconNm: "trash") {
                                                 withAnimation {
@@ -432,7 +434,7 @@ struct PaymentView: View {
                                         }
                                     }
                                 }.clipShape(RoundedRectangle(cornerRadius: 10))
-                            }
+//                            }
                         }
                     }
                 }
@@ -500,7 +502,7 @@ struct PaymentView: View {
                                         .minimumScaleFactor(0.5)
                                         .font(.caption2)
 //                                        .fontDesign(.rounded)
-                                        .fontWeight(isOffsetDay ? .regular : .bold)
+//                                        .fontWeight(isOffsetDay ? .regular : .bold)
                             }
                         }.frame(width: width / 7, height: 80)
                             .contentShape(Rectangle())

@@ -180,8 +180,6 @@ struct RegistIncConsFormView: View {
                             self.registIncConsFlg = false
                         }
                     Spacer()
-                    Image(systemName: "questionmark.circle")
-                        .foregroundStyle(isEdit ? Color.changeableText : .white)
                 }.padding(.horizontal, 20)
                 formTabBar()
                     .padding(.vertical, 10)
