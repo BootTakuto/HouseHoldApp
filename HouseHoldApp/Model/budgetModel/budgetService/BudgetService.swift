@@ -14,7 +14,7 @@ class BudgetService: CommonService {
     
     /** 予算の登録
      @param 日付
-     @return --
+     @param 金額
      */
     func registBudget(selectDate: Date, amount: String) {
         let budget = BudgetModel()
@@ -22,6 +22,19 @@ class BudgetService: CommonService {
         budget.budgetAmtTotal = Int(amount) ?? 0
         try! realm.write() {
             realm.add(budget)
+        }
+    }
+    
+    /** ,予算の更新
+     @param 日付
+     @param 金額
+     */
+    func updateBudget(selectDate: Date, amount: String) {
+        let budget = realm.object(ofType: BudgetModel.self, forPrimaryKey: getStringDate(date: selectDate, format: dateKeyFormat))
+        try! realm.write() {
+            if let unWrapObj = budget {
+                unWrapObj.budgetAmtTotal = Int(amount) ?? 0
+            }
         }
     }
     

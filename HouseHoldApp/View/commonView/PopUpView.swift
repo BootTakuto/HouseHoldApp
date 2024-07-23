@@ -78,6 +78,8 @@ struct PopUpView: View {
                 deleteAlert(title: delTitle, explain: delExplain)
             case .addBudget:
                 InputAlert()
+            case .updateBudget:
+                InputAlert()
             }
         }.ignoresSafeArea()
             .onTapGesture {
@@ -699,6 +701,8 @@ struct PopUpView: View {
                                                                         incConsCatgKey: self.incConsCatgKey)
                             } else if status == .addBudget {
                                 budgetService.registBudget(selectDate: selectDate, amount: self.inputText)
+                            } else if status == .updateBudget {
+                                budgetService.updateBudget(selectDate: selectDate, amount: self.inputText)
                             }
                             self.popUpFlg = false
                         }

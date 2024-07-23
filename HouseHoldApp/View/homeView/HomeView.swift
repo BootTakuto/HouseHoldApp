@@ -145,14 +145,14 @@ struct HomeView: View {
                     .padding(.horizontal, 10)
                 ZStack {
                     Circle()
-                        .stroke(lineWidth: 15)
+                        .stroke(lineWidth: 10)
                         .fill(Color(uiColor: .systemGray6)
                             .shadow(.inner(color: Color(uiColor: .systemGray3), radius: 3))
                         )
                         .overlay {
                             Circle()
                                 .trim(from: 0, to: budgetRate)
-                                .stroke(lineWidth: 8)
+                                .stroke(lineWidth: 3)
                                 .fill(.linearGradient(colors: accentColors,
                                                       startPoint: .topLeading, endPoint: .bottomLeading))
                                 .rotationEffect(.degrees(270))

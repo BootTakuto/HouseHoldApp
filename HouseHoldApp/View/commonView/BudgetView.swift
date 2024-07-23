@@ -39,7 +39,7 @@ struct BudgetView: View {
                           popUpFlg: $popUpFlg,
                           status: popUpStatus,
                           selectDate: selectDate,
-                          inputTitle: "予算の設定",
+                          inputTitle: popUpStatus == .addBalance ? "予算の設定" : "予算の変更",
                           inputPlaceHolder: "未設定",
                           inputText: budgetObj != nil ? String(budgetObj!.budgetAmtTotal) : ""
                 )
@@ -68,6 +68,11 @@ struct BudgetView: View {
                     Button(action: {
                         withAnimation {
                             self.popUpFlg = true
+                            if budgetObj != nil {
+                                self.popUpStatus = .updateBudget
+                            } else {
+                                self.popUpStatus = .addBudget
+                            }
                         }
                     }) {
                         Text("設定")
