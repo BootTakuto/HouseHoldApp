@@ -162,7 +162,7 @@ class CalendarService: CommonService {
         return dates
     }
     
-    /** 任意で年月を取得する
+    /** 任意な年月の1日を取得する
      @param 年、月
      @return 任意で作成された日付
      */

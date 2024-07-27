@@ -118,7 +118,7 @@ struct BudgetView: View {
     @ViewBuilder
     func budgetTotalInput() -> some View {
         let budgetRate: Double = budgetService.getBudgetRate(selectDate: selectDate)
-        let consTotal = incConsService.getIncOrConsAmtTotal(date: selectDate, houseHoldType: 1)
+        let consTotal = incConsService.getMonthIncOrConsAmtTotal(date: selectDate, houseHoldType: 1)
         ZStack {
             Circle()
                 .stroke(lineWidth: 15)
@@ -155,15 +155,15 @@ struct BudgetView: View {
     func budgetDetailInput() -> some View {
         let secResults = incConsSecService.getIncConsSecResults(houseHoldType: 1)
         let dicConsAmtBySec = incConsService.getConsTotalBySec(date: selectDate)
-        VStack(spacing: 20) {
+        VStack {
             ForEach(secResults.indices, id: \.self) { index in
                 let secResult = secResults[index]
                 let color = ColorAndImage.colors[secResult.incConsSecColorIndex]
                 let imageNm = secResult.incConsSecImage
                 let consTotalBySec = dicConsAmtBySec[secResult.incConsSecKey]!
                 HStack {
-                    generalView.RoundedIcon(radius: 5, color: color, image: imageNm, text: "")
-                        .frame(width: 30, height: 30)
+                    generalView.RoundedIcon(radius: 10, color: color, image: imageNm, text: "")
+                        .frame(width: 40, height: 40)
                     Text(secResult.incConsSecName)
                         .foregroundStyle(Color.changeableText)
                     Spacer()

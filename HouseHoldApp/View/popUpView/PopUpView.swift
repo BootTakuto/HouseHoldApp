@@ -720,7 +720,6 @@ struct PopUpView: View {
         }.frame(height: rectHeight)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .padding(.horizontal, 20)
-        
     }
 }
 

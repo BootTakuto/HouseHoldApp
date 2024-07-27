@@ -9,14 +9,14 @@ import SwiftUI
 import UIKit
 
 class GeneralComponentView {
-    /* すりガラス四角形 */
+    /* すりガラス四角 */
     @ViewBuilder
     func GlassBlur(effect: UIBlurEffect.Style, radius: CGFloat) -> some View {
         UIGlassCard(effect: effect)
             .clipShape(RoundedRectangle(cornerRadius: radius))
     }
     
-    /** グラデーション四角形  */
+    /** グラデーション四角 */
     @ViewBuilder
     func GradientCard(colors: [Color], radius: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: radius)

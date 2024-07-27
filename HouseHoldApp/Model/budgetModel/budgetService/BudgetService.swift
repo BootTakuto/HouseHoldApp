@@ -57,7 +57,7 @@ class BudgetService: CommonService {
         let budgetAmtTotal: Double = Double(budgetObject != nil ? budgetObject!.budgetAmtTotal : 0)
         let incConsService = IncomeConsumeService()
         // 該当月の支出金額合計を取得する
-        let consTotal: Double = Double(incConsService.getIncOrConsAmtTotal(date: selectDate, houseHoldType: 1))
+        let consTotal: Double = Double(incConsService.getMonthIncOrConsAmtTotal(date: selectDate, houseHoldType: 1))
         var budgetRate: Double = 0.0
         if budgetAmtTotal > 0 {
             budgetRate = (consTotal / budgetAmtTotal) > 1 ? 0 : 1.0 - (consTotal / budgetAmtTotal)

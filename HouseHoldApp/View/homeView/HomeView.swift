@@ -131,7 +131,7 @@ struct HomeView: View {
     @ViewBuilder
     func BudgetCard(height: CGFloat) -> some View {
         let budgetRate: Double = budgetService.getBudgetRate(selectDate: selectDate)
-        let consTotal = incConsService.getIncOrConsAmtTotal(date: selectDate, houseHoldType: 1)
+        let consTotal = incConsService.getMonthIncOrConsAmtTotal(date: selectDate, houseHoldType: 1)
         ZStack {
             generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
                 .shadow(color: colorScheme == .dark ? .clear : .changeableShadow, radius: 5)
@@ -185,8 +185,7 @@ struct HomeView: View {
                 let isExistMonthData = incConsService.isExistIncConsMonth(refDate: selectDate)
                     VStack(spacing: 0) {
                         HStack {
-                            let month = calendarService.getOnlyComponent(date: selectDate,
-                                                                         component: .month)
+                            let month = calendarService.getOnlyComponent(date: selectDate, component: .month)
                             Text("\(month)" + "月の収入・支出")
                             Spacer()
                             Image(systemName: "chevron.right")
@@ -198,10 +197,9 @@ struct HomeView: View {
                             ScrollView(.horizontal) {
                                 HStack(spacing: 0) {
                                     Group {
-//                                        IncConsCompareChartArea(size: size)
-                                        financeCharts.IncConsCompareChart(selectDate: selectDate, makeSize: 0)
-                                        financeCharts.IncConsRateChart(houseHoldType: 0, date: Date())
-                                        financeCharts.IncConsRateChart(houseHoldType: 1, date: Date())
+                                        financeCharts.MonthIncConsCompareChart(selectDate: selectDate)
+                                        financeCharts.MonthIncConsRateChart(houseHoldType: 0, date: Date())
+                                        financeCharts.MonthIncConsRateChart(houseHoldType: 1, date: Date())
                                     }.frame(width: iconsRowCount == 1 ? size.width - 60 : iconsRowCount == 2 ?
                                             size.width - 50 : size.width - 40
                                     ).padding(iconsRowCount == 1 ? 10 : iconsRowCount == 2 ? 5 : 0)
@@ -210,8 +208,7 @@ struct HomeView: View {
                                                 inActiveTint: .gray.opacity(0.5))
                                 .frame(height: 8)
                                 .padding(.vertical, 5)
-                            }
-                                .padding(.horizontal, 20)
+                            }.padding(.horizontal, 20)
                                 .scrollTargetBehavior(.viewAligned)
                                 .scrollIndicators(.hidden)
                         } else {

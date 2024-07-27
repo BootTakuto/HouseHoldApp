@@ -10,8 +10,6 @@ import RealmSwift
 import SwiftUI
 
 class CommonService {
-    let UD_ACCENT_COLORS_INDEX = "ACCENT_COLORS_INDEX"
-    
     /* ▼マイグレーションを兼ねたrealmの生成　*/
     let realm: Realm = {
 //        let newSchemaVersion: UInt64 = 0
@@ -65,4 +63,5 @@ class CommonService {
         let text = targetText
         return String(text.prefix(prefix)) + insertText + String(text.suffix(text.count - prefix))
     }
+    
 }

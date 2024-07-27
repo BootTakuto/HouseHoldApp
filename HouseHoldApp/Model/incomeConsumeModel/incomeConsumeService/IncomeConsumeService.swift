@@ -163,23 +163,31 @@ class IncomeConsumeService: CommonService {
         return resultDictionary
     }
     
-    /** 日付を基に収入・支出データを取得する
+    /** 日付を基に月間の収入・支出合計金額を取得する
      @param 現在日付
      @param 収入フラグ true: 収入, false: 支出
      @return 合計金額
      */
-    func getIncOrConsAmtTotal(date: Date, houseHoldType: Int) -> Int {
-        var total = 0
-        let dateArray = getAllDayOfMonth(date: date)
-        dateArray.forEach { dateInt in
-            let dateStr = String(dateInt)
-            let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == houseHoldType && $0.incConsDate == dateStr})
-            if !results.isEmpty {
-                results.forEach { result in
-                    total += result.incConsAmtValue
-                }
-            }
-        }
+    func getMonthIncOrConsAmtTotal(date: Date, houseHoldType: Int) -> Int {
+        let str_yyyyMM = getStringDate(date: date, format: "yyyyMM")
+        let total = realm.objects(IncomeConsumeModel.self)
+            .where({$0.houseHoldType == houseHoldType})
+            .filter("incConsDate LIKE %@", "*\(str_yyyyMM)*")
+            .sum(ofProperty: "incConsAmtValue") ?? 0
+        return total
+    }
+    
+    /** 年間の収入・支出合計金額を取得する
+     @param 現在日付
+     @param 収入フラグ true: 収入, false: 支出
+     @return 合計金額
+     */
+    func getYearIncOrConsAmtTotal(year: Int, houseHoldType: Int) -> Int {
+        let str_yyyy = String(year)
+        let total = realm.objects(IncomeConsumeModel.self)
+            .where({$0.houseHoldType == houseHoldType})
+            .filter("incConsDate LIKE %@", "*\(str_yyyy)*")
+            .sum(ofProperty: "incConsAmtValue") ?? 0
         return total
     }
     
@@ -368,23 +376,52 @@ class IncomeConsumeService: CommonService {
         return results.isEmpty ? false : true
     }
     
-    /* チャート表示用の収入・支出情報を取得 収支項目ごとのカラーインデックスと金額を取得
-     @param incFlg
+    /* チャート表示用の月間収入・支出情報を取得 収支項目ごとのカラーインデックスと金額を取得
+     @param houseHoldType 家計タイプ
+     @param selectDate 選択日
      @return Dicionary[収支項目主キー : 項目ごとの金額合計]
      */
-    func getIncConsDataForChart(houseHoldType: Int, selectDate: Date) -> [String: Int] {
-        let dates = getAllDayOfMonth(date: selectDate)
+    func getMonthIncConsDataForChart(houseHoldType: Int, selectDate: Date) -> [String: Int] {
         var dicForChart = [String : Int]()
-        dates.forEach { date in
-            let results = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == houseHoldType && $0.incConsDate == String(date)})
-            results.forEach { result in
-                let incConsSecKey = result.incConsSecKey
-                if dicForChart[incConsSecKey] != nil {
-                    dicForChart[incConsSecKey]! += result.incConsAmtValue
-                } else {
-                    dicForChart[incConsSecKey] = result.incConsAmtValue
-                }
+        
+        let str_yyyyMM = getStringDate(date: selectDate, format: "yyyyMM")
+        let results = realm.objects(IncomeConsumeModel.self)
+            .where({$0.houseHoldType == houseHoldType})
+            .filter("incConsDate LIKE %@", "*\(str_yyyyMM)*")
+        
+        results.forEach { result in
+            let incConsSecKey = result.incConsSecKey
+            if dicForChart[incConsSecKey] != nil {
+                dicForChart[incConsSecKey]! += result.incConsAmtValue
+            } else {
+                dicForChart[incConsSecKey] = result.incConsAmtValue
             }
+        }
+        return dicForChart
+    }
+    
+    /* チャート表示用の年間収入・支出情報を取得 収支項目ごとのカラーインデックスと金額を取得
+     @param houseHoldType 家計タイプ
+     @param year 該当年
+     @return Dicionary[収支項目主キー : 項目ごとの金額合計]
+     */
+    func getYearIncConsDataForChart(houseHoldType: Int, year: Int) -> [String: Int] {
+        var dicForChart = [String : Int]()
+        let str_yyyy = String(year)
+        // 年間の家計別項目主キーを取得(項目主キーの重複はなし)
+        let distSecKeyResults = realm.objects(IncomeConsumeModel.self)
+            .where({$0.houseHoldType == houseHoldType})
+            .filter("incConsDate LIKE %@", "*\(str_yyyy)*")
+            .distinct(by: ["incConsSecKey"])
+        
+        // 項目ごと取得する
+        distSecKeyResults.forEach { result in
+            let incConsSecKey = result.incConsSecKey
+            let amtTotalBySecKey: Int = realm.objects(IncomeConsumeModel.self)
+                .filter("incConsDate LIKE %@", "*\(str_yyyy)*")
+                .where({$0.incConsSecKey == incConsSecKey})
+                .sum(ofProperty: "incConsAmtValue")
+            dicForChart[incConsSecKey] = amtTotalBySecKey
         }
         return dicForChart
     }
@@ -437,25 +474,47 @@ class IncomeConsumeService: CommonService {
      @param 何ヶ月分の作成か(viewのサイズによって作成量を調整したい)
      @return 月別 収入・支出チャートデータ
      */
-    func getIncConsChartEntry(selectDate: Date, makeSize: Int) -> [IncConsChartEntry] {
+    func getYearIncConsChartEntry(year: Int) -> [IncConsChartEntry] {
+        let thisDecember = calendarService.getSettingDate(year: year + 1, month: 1)
         // 返却用チャート配列
-        var returnArray: [IncConsChartEntry] = []
+        var chartEntries: [IncConsChartEntry] = []
         // dateから一年前を取得する
-        let aYearAgo = calendarService.xAfterMonth(date: selectDate, value: -makeSize)
+        let aYearAgo = calendarService.xAfterMonth(date: thisDecember, value: -12)
         var months: [Date] = [aYearAgo]
-        while months.count <= makeSize {
+        while months.count <= 12 {
             months.append(calendarService.nextMonth(date: months.last!))
         }
         months.forEach { date in
-            let incTotalPerMonth = getIncOrConsAmtTotal(date: date, houseHoldType: 0)
-            let consTotalPerMonth = getIncOrConsAmtTotal(date: date, houseHoldType: 1)
+            let incTotalPerMonth = getMonthIncOrConsAmtTotal(date: date, houseHoldType: 0)
+            let consTotalPerMonth = getMonthIncOrConsAmtTotal(date: date, houseHoldType: 1)
             let totalGap = incTotalPerMonth - consTotalPerMonth
-            let monthStr = getStringDate(date: date, format: "yy年M月")
-            returnArray.append(.init(type: "収入額", month: monthStr, amount: incTotalPerMonth, color: .blue))
-            returnArray.append(.init(type: "支出額", month: monthStr, amount: consTotalPerMonth, color: .red))
-            returnArray.append(.init(type: "収支合計", month: monthStr, amount: totalGap, color: .changeableText))
+            let monthStr = getStringDate(date: date, format: "M月")
+            chartEntries.append(.init(type: "収入額", month: monthStr, amount: incTotalPerMonth, color: .blue))
+            chartEntries.append(.init(type: "支出額", month: monthStr, amount: consTotalPerMonth, color: .red))
+            chartEntries.append(.init(type: "収支合計", month: monthStr, amount: totalGap, color: .changeableText))
         }
-        return returnArray
+        return chartEntries
+    }
+    
+    func getMonthIncConsChartEntry(selectDate: Date) -> [IncConsChartEntry] {
+        // 返却用チャート配列
+        var chartEntries: [IncConsChartEntry] = []
+        // dateから一年前を取得する
+//        let aYearAgo = calendarService.xAfterMonth(date: selectDate, value: -makeSize)
+//        var months: [Date] = [aYearAgo]
+//        while months.count <= makeSize {
+//            months.append(calendarService.nextMonth(date: months.last!))
+//        }
+//        months.forEach { date in
+        let incTotalPerMonth = getMonthIncOrConsAmtTotal(date: selectDate, houseHoldType: 0)
+        let consTotalPerMonth = getMonthIncOrConsAmtTotal(date: selectDate, houseHoldType: 1)
+        let totalGap = incTotalPerMonth - consTotalPerMonth
+        let monthStr = getStringDate(date: selectDate, format: "yyyy年M月")
+        chartEntries.append(.init(type: "収入額", month: monthStr, amount: incTotalPerMonth, color: .blue))
+        chartEntries.append(.init(type: "支出額", month: monthStr, amount: consTotalPerMonth, color: .red))
+        chartEntries.append(.init(type: "収支合計", month: monthStr, amount: totalGap, color: .changeableText))
+//        }
+        return chartEntries
     }
     
     /** 家計タイプによって金額記号を取得する
@@ -484,6 +543,17 @@ class IncomeConsumeService: CommonService {
         var flgs = [Bool]()
         let datas = getIncConsPerDate(selectDate: selectDate, listType: listType)
         datas.forEach { data in
+            flgs.append(true)
+        }
+        return flgs
+    }
+    
+    /** 年間収支表示・非表示フラグ配列を作成
+     @return 表示フラグ配列
+     */
+    func getMonthTotalDispFlg() -> [Bool] {
+        var flgs = [Bool]()
+        for _ in 1 ... 12 {
             flgs.append(true)
         }
         return flgs

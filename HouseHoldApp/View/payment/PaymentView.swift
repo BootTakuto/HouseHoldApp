@@ -118,8 +118,8 @@ struct PaymentView: View {
     func Header() -> some View {
         let year: Int = calendarService.getOnlyComponent(date: selectDate, component: .year)
         let month: Int = calendarService.getOnlyComponent(date: selectDate, component: .month)
-        let incTotal: Int = incConsService.getIncOrConsAmtTotal(date: selectDate, houseHoldType: 0)
-        let consTotal: Int = incConsService.getIncOrConsAmtTotal(date: selectDate, houseHoldType: 1)
+        let incTotal: Int = incConsService.getMonthIncOrConsAmtTotal(date: selectDate, houseHoldType: 0)
+        let consTotal: Int = incConsService.getMonthIncOrConsAmtTotal(date: selectDate, houseHoldType: 1)
         let totalGap = incTotal - consTotal
         GeometryReader {
             let size = $0.size
