@@ -24,6 +24,9 @@ struct RegistIncConsFormView: View {
     IncConSecCatgService().getUnCatgCatgKey(houseHoldType: 0)// 項目カテゴリー主キー
     @State var selectDate = Date()                  // 日付
     @State var memo = ""                            // メモ
+    // 残高の登録
+    @State var balNm = ""
+    @State var colorIndex = 0
     /** 表示 */
     @State private var dateDownFlg = false                  // 日付ピッカーの開閉フラグ　※
     @State private var popUpFlg = false                     // ポップアップ画面フラグ　　※
@@ -71,7 +74,8 @@ struct RegistIncConsFormView: View {
                         }
                     }
                 }
-            }.onChange(of: selectForm) {
+            }.disabled(popUpFlg ? true : false)
+            .onChange(of: selectForm) {
 //                self.dateDownFlg = true
 //                self.inputAmtFocused = false
                 self.isMemoFocused = false
@@ -110,21 +114,44 @@ struct RegistIncConsFormView: View {
                 }
             }.custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
                 if self.popUpStatus == .addBalance {
-                    PopUpView(accentColors: accentColors,
-                              popUpFlg: $popUpFlg,
-                              status: popUpStatus)
+                    InputBalancePopUpView(accentColors: accentColors,
+                                          popUpFlg: $popUpFlg,
+                                          balNm: $balNm,
+                                          colorIndex: $colorIndex) {
+                        balanceService.registBalance(balanceNm: balNm, colorIndex: colorIndex)
+                    }
                 } else if self.popUpStatus == .success {
-                    PopUpView(accentColors: accentColors,
-                              popUpFlg: $popUpFlg,
-                              status: popUpStatus,
-                              text: "登録成功",
-                              imageNm:"checkmark.circle")
+//                    PopUpView(accentColors: accentColors,
+//                              popUpFlg: $popUpFlg,
+//                              status: popUpStatus,
+//                              text: "登録成功",
+//                              imageNm:"checkmark.circle")
+                    GeneralPopUpView(popUpFlg: $popUpFlg) {
+                        VStack(spacing: 5) {
+                            Image(systemName: "checkmark.circle")
+                                .font(.largeTitle)
+                                .fontWeight(.medium)
+                                .foregroundStyle(Color.green)
+                            Text("登録成功")
+                                .foregroundStyle(Color.changeableText)
+                        }
+                    }
                 } else if self.popUpStatus == .failed {
-                    PopUpView(accentColors: accentColors,
-                              popUpFlg: $popUpFlg,
-                              status: popUpStatus,
-                              text: "登録失敗",
-                              imageNm:"xmark.circle")
+//                    PopUpView(accentColors: accentColors,
+//                              popUpFlg: $popUpFlg,
+//                              status: popUpStatus,
+//                              text: "登録失敗",
+//                              imageNm:"xmark.circle")
+                    GeneralPopUpView(popUpFlg: $popUpFlg) {
+                        VStack(spacing: 5) {
+                            Image(systemName: "xkmark.circle")
+                                .font(.largeTitle)
+                                .fontWeight(.medium)
+                                .foregroundStyle(Color.green)
+                            Text("登録失敗")
+                                .foregroundStyle(Color.changeableText)
+                        }
+                    }
                 }
             }.toolbar {
                 if self.inputAmtFocused {

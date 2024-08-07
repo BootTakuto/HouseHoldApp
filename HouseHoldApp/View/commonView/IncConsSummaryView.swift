@@ -18,6 +18,9 @@ struct IncConsSummaryView: View {
     @State var selectTerm = 0
     @State var totalDispFlgs = IncomeConsumeService().getMonthTotalDispFlg()
     @State var year = CalendarService().getOnlyComponent(date: Date(), component: .year)
+    // popUp表示用変数
+    @State var popUpFlg = false
+    @State var popUpStatus: PopUpStatus = .changeDate
     // service
     let incConsService = IncomeConsumeService()
     let calendarService = CalendarService()
@@ -64,6 +67,17 @@ struct IncConsSummaryView: View {
             } else {
                 let month = calendarService.getOnlyComponent(date: selectDate, component: .month)
                 self.selectDate = calendarService.getSettingDate(year: year, month: month)
+            }
+        }.custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
+            if popUpStatus == .changeDate {
+                GeneralPopUpView(popUpFlg: $popUpFlg) {
+                    GeneralPopUpView(popUpFlg: $popUpFlg) {
+                        let yyyyMM = calendarService.getStringDate(date: selectDate, format: "YYYY年M月")
+                        Text(isMonthSummary ? yyyyMM : String(year) + "年")
+                            .foregroundStyle(Color.changeableText)
+                            .font(.subheadline)
+                    }
+                }
             }
         }
     }
@@ -127,6 +141,8 @@ struct IncConsSummaryView: View {
                             self.year -= 1
                         }
                     }
+                    self.popUpFlg = true
+                    self.popUpStatus = .changeDate
                 }
             }) {
                 Image(systemName: "chevron.left")
@@ -142,6 +158,8 @@ struct IncConsSummaryView: View {
                             self.year += 1
                         }
                     }
+                    self.popUpFlg = true
+                    self.popUpStatus = .changeDate
                 }
             }) {
                 Image(systemName: "chevron.right")

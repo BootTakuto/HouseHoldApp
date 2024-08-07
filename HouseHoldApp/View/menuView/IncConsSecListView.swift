@@ -14,6 +14,12 @@ struct IncConsSecListView: View {
     @State var popUpFlg = false
     @State var popUpStatus: PopUpStatus = .addIncConsSec
     @State var houseHoldType = 0
+    // 登録情報
+    @State var secKey = ""
+    @State var secNm = ""
+    @State var colorIndex = 0
+    @State var imageNm = ColorAndImage.imageNames[0]
+    
     @State var incConsSecResults = IncConSecCatgService().getIncConsSecResults(houseHoldType: 0)
     @State var incConsSecObject = IncConsSectionModel()
     let incConsSecCatgService = IncConSecCatgService()
@@ -36,6 +42,9 @@ struct IncConsSecListView: View {
                     withAnimation {
                         self.popUpFlg = true
                         self.popUpStatus = .addIncConsSec
+                        self.secNm = ""
+                        self.colorIndex = 0
+                        self.imageNm = ColorAndImage.imageNames[0]
                     }
                 }.frame(width: 60, height: 60)
                 .shadow(radius: 10)
@@ -58,26 +67,45 @@ struct IncConsSecListView: View {
             }
             .custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
                 if popUpStatus == .addIncConsSec {
-                    PopUpView(accentColors: accentColors,
-                              popUpFlg: $popUpFlg,
-                              status: popUpStatus,
-                              houseHoldType: self.houseHoldType)
-                } else if popUpStatus == .deleteIncConsSec {
-                    PopUpView(accentColors: accentColors,
-                              popUpFlg: $popUpFlg,
-                              status: popUpStatus,
-                              delTitle: self.houseHoldType == 0 ? "収入項目の削除" : "支出項目の削除",
-                              delExplain: "項目を削除します。よろしいですか。\n※該当する情報は「不明」で表示されます。",
-                              incConsSecKey: self.incConsSecObject.incConsSecKey,
-                              houseHoldType: self.houseHoldType)
+                    InputIncConsSecPopUpView(accentColors: accentColors,
+                                             popUpFlg: $popUpFlg,
+                                             incConsSecNm: $secNm,
+                                             incConsImageNm: $imageNm,
+                                             incConsColorIndex: $colorIndex,
+                                             title: "項目の登録",
+                                             buttonText: "保存") {
+                        incConsSecCatgService.registIncConsSec(houseHoldType: self.houseHoldType,
+                                                               sectionNm: self.secNm,
+                                                               colorIndex: self.colorIndex,
+                                                               imageNm: self.imageNm)
+                    }
                 } else if popUpStatus == .editIncConsSec {
-                    PopUpView(accentColors: accentColors,
-                              popUpFlg: $popUpFlg,
-                              status: popUpStatus,
-                              incConsSecKey: self.incConsSecObject.incConsSecKey,
-                              incConsSecNm: self.incConsSecObject.incConsSecName,
-                              incConsColorIndex: self.incConsSecObject.incConsSecColorIndex,
-                              incConsImageNm: self.incConsSecObject.incConsSecImage)
+                    InputIncConsSecPopUpView(accentColors: accentColors,
+                                             popUpFlg: $popUpFlg,
+                                             incConsSecNm: $secNm,
+                                             incConsImageNm: $imageNm,
+                                             incConsColorIndex: $colorIndex,
+                                             title: "項目の変更",
+                                             buttonText: "変更") {
+                        incConsSecCatgService.updateIncConsSec(incConsSecKey: self.secKey,
+                                                               incConsSecNm: self.secNm,
+                                                               incConsSecColorIndex: self.colorIndex,
+                                                               incConsSecImageNm: self.imageNm)
+                    }
+                } else if popUpStatus == .deleteIncConsSec {
+//                    PopUpView(accentColors: accentColors,
+//                              popUpFlg: $popUpFlg,
+//                              status: popUpStatus,
+//                              delTitle: self.houseHoldType == 0 ? "収入項目の削除" : "支出項目の削除",
+//                              delExplain: "項目を削除します。よろしいですか。\n※該当する情報は「不明」で表示されます。",
+//                              incConsSecKey: self.incConsSecObject.incConsSecKey,
+//                              houseHoldType: self.houseHoldType)
+                    DeletePopUpView(accentColors: accentColors,
+                                    popUpFlg: $popUpFlg,
+                                    title: self.houseHoldType == 0 ? "収入項目の削除" : "支出項目の削除",
+                                    explain: "項目を削除します。よろしいですか。\n※該当する情報は「未分類」として表示されます") {
+                        incConsSecCatgService.deleteIncConsSec(incConsSecKey: self.secKey)
+                    }
                 }
             }
     }
@@ -205,14 +233,19 @@ struct IncConsSecListView: View {
                                 withAnimation {
                                     self.popUpFlg = true
                                     self.popUpStatus = .editIncConsSec
-                                    self.incConsSecObject = result
+                                    self.secKey = result.incConsSecKey
+                                    self.secNm = result.incConsSecName
+                                    self.colorIndex = result.incConsSecColorIndex
+                                    self.imageNm = result.incConsSecImage
+//                                    self.incConsSecObject = result
                                 }
                             }
                             Action(buttonColor: .red, iconNm: "trash") {
                                 withAnimation {
                                     self.popUpFlg = true
                                     self.popUpStatus = .deleteIncConsSec
-                                    self.incConsSecObject = result
+                                    self.secKey = result.incConsSecKey
+//                                    self.incConsSecObject = result
                                 }
                             }
                         }.clipShape(RoundedRectangle(cornerRadius: 10))

@@ -21,4 +21,6 @@ enum PopUpStatus {
     case deleteIncConsCatg  // 収入・支出カテゴリーの削除
     case addBudget          // 予算の追加
     case updateBudget       // 予算の更新
+    case changeDate         // 日付の変更
+    case deleteIncCons      // 収入・支出の削除
 }

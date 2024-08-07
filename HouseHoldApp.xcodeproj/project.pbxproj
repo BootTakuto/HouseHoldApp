@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2C01F3B82C1A50DC00312EEA /* SwipeActioin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C01F3B72C1A50DC00312EEA /* SwipeActioin.swift */; };
+		2C02C02D2C5840F90070868A /* DeletePopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C02C02C2C5840F90070868A /* DeletePopUpView.swift */; };
 		2C0C4FDF2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */; };
 		2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1210E52BC564F300C531C2 /* PaymentView.swift */; };
 		2C1CE1022C2CC3A30035CADC /* PagingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1CE1012C2CC3A30035CADC /* PagingIndicator.swift */; };
@@ -15,6 +16,7 @@
 		2C22A64F2B6E42EA00D220E2 /* BalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */; };
 		2C276B832BD8577600A69F87 /* IncConsSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C276B822BD8577600A69F87 /* IncConsSummaryView.swift */; };
 		2C2975482C015D2300E09614 /* MigrationSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2975472C015D2300E09614 /* MigrationSample.swift */; };
+		2C29817E2C56E6CD00AFA1D9 /* InputPopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C29817D2C56E6CD00AFA1D9 /* InputPopUpView.swift */; };
 		2C2C30462BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2C30452BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift */; };
 		2C2DB7852B89755900B631E9 /* UIGlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2DB7842B89755900B631E9 /* UIGlassCard.swift */; };
 		2C2DB7892B8A01D900B631E9 /* LabelsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2DB7882B8A01D900B631E9 /* LabelsModel.swift */; };
@@ -28,7 +30,6 @@
 		2C8AB0C02C4073FD00D4F6B7 /* BudgetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8AB0BF2C4073FD00D4F6B7 /* BudgetService.swift */; };
 		2C8C38512A9FE73200F388A7 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8C38502A9FE73200F388A7 /* HomeView.swift */; };
 		2C8D99722C37463600931CD8 /* IncConsMonTotalBySec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8D99712C37463600931CD8 /* IncConsMonTotalBySec.swift */; };
-		2C90F6C92BE76DFB0095BE5D /* PopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C90F6C82BE76DFB0095BE5D /* PopUpView.swift */; };
 		2C9439D52BD9B27400313B98 /* FinanceCharts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9439D42BD9B27400313B98 /* FinanceCharts.swift */; };
 		2C9D8A612B6AE6D7004B8A1E /* GradientAccentcColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9D8A602B6AE6D7004B8A1E /* GradientAccentcColors.swift */; };
 		2CA407242B59511B0038694B /* ContentTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA407232B59511B0038694B /* ContentTabBar.swift */; };
@@ -43,14 +44,18 @@
 		2CB1ECF52B6F50720014B5FC /* ColorAndImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB1ECF42B6F50720014B5FC /* ColorAndImage.swift */; };
 		2CB405C42B774AC400CC0F25 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB405C32B774AC400CC0F25 /* CalendarService.swift */; };
 		2CB405C92B77AE1900CC0F25 /* GeneralComponentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB405C82B77AE1900CC0F25 /* GeneralComponentView.swift */; };
+		2CB76F4E2C597B5300EFBB76 /* InputBalancePopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB76F4D2C597B5200EFBB76 /* InputBalancePopUpView.swift */; };
 		2CC24F702C1F99F600237A6C /* IncConsCatgListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC24F6F2C1F99F600237A6C /* IncConsCatgListView.swift */; };
 		2CC9DD352C13CBCE00196188 /* IncConsSecListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC9DD342C13CBCE00196188 /* IncConsSecListView.swift */; };
+		2CCB85F92C59909B00EF2468 /* InputIncConsSecPopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCB85F82C59909B00EF2468 /* InputIncConsSecPopUpView.swift */; };
+		2CCB85FB2C599AF300EF2468 /* GeneralPopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCB85FA2C599AF300EF2468 /* GeneralPopUpView.swift */; };
 		2CD172E02B588128006E3FBD /* BalanceSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD172DF2B588128006E3FBD /* BalanceSummaryView.swift */; };
 		2CFDF8DB2A792E3F00D5C194 /* HouseHoldAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFDF8DA2A792E3F00D5C194 /* HouseHoldAppApp.swift */; };
 		2CFDF8DD2A792E3F00D5C194 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFDF8DC2A792E3F00D5C194 /* ContentView.swift */; };
 		2CFDF8DF2A792E4100D5C194 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CFDF8DE2A792E4100D5C194 /* Assets.xcassets */; };
 		2CFDF8E22A792E4100D5C194 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CFDF8E12A792E4100D5C194 /* Preview Assets.xcassets */; };
 		2CFDF8EF2A7A733300D5C194 /* SettingMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFDF8EE2A7A733300D5C194 /* SettingMenu.swift */; };
+		2CFF78182C641E8400560B6C /* SelectAccentColorPopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFF78172C641E8400560B6C /* SelectAccentColorPopUpView.swift */; };
 		4A6D8E16E69F48118DD49E46 /* Pods_HouseHoldApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 202EDEBA268BF4D5687E3778 /* Pods_HouseHoldApp.framework */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +76,7 @@
 		06D2819D643D68109B034181 /* Pods-HouseHoldApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HouseHoldApp.debug.xcconfig"; path = "Target Support Files/Pods-HouseHoldApp/Pods-HouseHoldApp.debug.xcconfig"; sourceTree = "<group>"; };
 		202EDEBA268BF4D5687E3778 /* Pods_HouseHoldApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HouseHoldApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C01F3B72C1A50DC00312EEA /* SwipeActioin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeActioin.swift; sourceTree = "<group>"; };
+		2C02C02C2C5840F90070868A /* DeletePopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletePopUpView.swift; sourceTree = "<group>"; };
 		2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsBalLinkAmtModel.swift; sourceTree = "<group>"; };
 		2C1210E52BC564F300C531C2 /* PaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentView.swift; sourceTree = "<group>"; };
 		2C1CE1012C2CC3A30035CADC /* PagingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingIndicator.swift; sourceTree = "<group>"; };
@@ -78,6 +84,7 @@
 		2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceService.swift; sourceTree = "<group>"; };
 		2C276B822BD8577600A69F87 /* IncConsSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsSummaryView.swift; sourceTree = "<group>"; };
 		2C2975472C015D2300E09614 /* MigrationSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationSample.swift; sourceTree = "<group>"; };
+		2C29817D2C56E6CD00AFA1D9 /* InputPopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputPopUpView.swift; sourceTree = "<group>"; };
 		2C2C30452BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsBalLinkAmtModelForView.swift; sourceTree = "<group>"; };
 		2C2DB7842B89755900B631E9 /* UIGlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIGlassCard.swift; sourceTree = "<group>"; };
 		2C2DB7882B8A01D900B631E9 /* LabelsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelsModel.swift; sourceTree = "<group>"; };
@@ -91,7 +98,6 @@
 		2C8AB0BF2C4073FD00D4F6B7 /* BudgetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetService.swift; sourceTree = "<group>"; };
 		2C8C38502A9FE73200F388A7 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		2C8D99712C37463600931CD8 /* IncConsMonTotalBySec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsMonTotalBySec.swift; sourceTree = "<group>"; };
-		2C90F6C82BE76DFB0095BE5D /* PopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpView.swift; sourceTree = "<group>"; };
 		2C9439D42BD9B27400313B98 /* FinanceCharts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinanceCharts.swift; sourceTree = "<group>"; };
 		2C9D8A602B6AE6D7004B8A1E /* GradientAccentcColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientAccentcColors.swift; sourceTree = "<group>"; };
 		2CA407232B59511B0038694B /* ContentTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentTabBar.swift; sourceTree = "<group>"; };
@@ -106,8 +112,11 @@
 		2CB1ECF42B6F50720014B5FC /* ColorAndImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorAndImage.swift; sourceTree = "<group>"; };
 		2CB405C32B774AC400CC0F25 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
 		2CB405C82B77AE1900CC0F25 /* GeneralComponentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralComponentView.swift; sourceTree = "<group>"; };
+		2CB76F4D2C597B5200EFBB76 /* InputBalancePopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBalancePopUpView.swift; sourceTree = "<group>"; };
 		2CC24F6F2C1F99F600237A6C /* IncConsCatgListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsCatgListView.swift; sourceTree = "<group>"; };
 		2CC9DD342C13CBCE00196188 /* IncConsSecListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsSecListView.swift; sourceTree = "<group>"; };
+		2CCB85F82C59909B00EF2468 /* InputIncConsSecPopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputIncConsSecPopUpView.swift; sourceTree = "<group>"; };
+		2CCB85FA2C599AF300EF2468 /* GeneralPopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralPopUpView.swift; sourceTree = "<group>"; };
 		2CD172DF2B588128006E3FBD /* BalanceSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceSummaryView.swift; sourceTree = "<group>"; };
 		2CFDF8D72A792E3F00D5C194 /* HouseHoldApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HouseHoldApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CFDF8DA2A792E3F00D5C194 /* HouseHoldAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HouseHoldAppApp.swift; sourceTree = "<group>"; };
@@ -115,6 +124,7 @@
 		2CFDF8DE2A792E4100D5C194 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2CFDF8E12A792E4100D5C194 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2CFDF8EE2A7A733300D5C194 /* SettingMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingMenu.swift; sourceTree = "<group>"; };
+		2CFF78172C641E8400560B6C /* SelectAccentColorPopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectAccentColorPopUpView.swift; sourceTree = "<group>"; };
 		7780B0FB73DE61D4BAF04E14 /* Pods-HouseHoldApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HouseHoldApp.release.xcconfig"; path = "Target Support Files/Pods-HouseHoldApp/Pods-HouseHoldApp.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -378,7 +388,12 @@
 		2CFE157A2C52F4A200475118 /* popUpView */ = {
 			isa = PBXGroup;
 			children = (
-				2C90F6C82BE76DFB0095BE5D /* PopUpView.swift */,
+				2C29817D2C56E6CD00AFA1D9 /* InputPopUpView.swift */,
+				2C02C02C2C5840F90070868A /* DeletePopUpView.swift */,
+				2CB76F4D2C597B5200EFBB76 /* InputBalancePopUpView.swift */,
+				2CCB85F82C59909B00EF2468 /* InputIncConsSecPopUpView.swift */,
+				2CCB85FA2C599AF300EF2468 /* GeneralPopUpView.swift */,
+				2CFF78172C641E8400560B6C /* SelectAccentColorPopUpView.swift */,
 			);
 			path = popUpView;
 			sourceTree = "<group>";
@@ -515,7 +530,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C90F6C92BE76DFB0095BE5D /* PopUpView.swift in Sources */,
 				2C22A64C2B6E414900D220E2 /* BalanceModel.swift in Sources */,
 				2C3CA8232B440AB800EC2D1B /* IncomeConsumeModel.swift in Sources */,
 				2C89BE272BF096AD008E1DFD /* PopUpStatus.swift in Sources */,
@@ -524,6 +538,7 @@
 				2CA911562BE8822800D635A9 /* ViewExtension.swift in Sources */,
 				2C2C30462BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift in Sources */,
 				2CC24F702C1F99F600237A6C /* IncConsCatgListView.swift in Sources */,
+				2C29817E2C56E6CD00AFA1D9 /* InputPopUpView.swift in Sources */,
 				2C5DE0662C3C8C8B005D6436 /* BudgetView.swift in Sources */,
 				2CFDF8DB2A792E3F00D5C194 /* HouseHoldAppApp.swift in Sources */,
 				2CC9DD352C13CBCE00196188 /* IncConsSecListView.swift in Sources */,
@@ -532,7 +547,10 @@
 				2C01F3B82C1A50DC00312EEA /* SwipeActioin.swift in Sources */,
 				2C786B902B72DD0B0033ECB5 /* IncomeConsumeService.swift in Sources */,
 				2C9439D52BD9B27400313B98 /* FinanceCharts.swift in Sources */,
+				2CCB85F92C59909B00EF2468 /* InputIncConsSecPopUpView.swift in Sources */,
+				2CB76F4E2C597B5300EFBB76 /* InputBalancePopUpView.swift in Sources */,
 				2CB1ECEA2B6F2D280014B5FC /* IncConsSectionModel.swift in Sources */,
+				2CCB85FB2C599AF300EF2468 /* GeneralPopUpView.swift in Sources */,
 				2C8AB0C02C4073FD00D4F6B7 /* BudgetService.swift in Sources */,
 				2C1CE1022C2CC3A30035CADC /* PagingIndicator.swift in Sources */,
 				2CB405C42B774AC400CC0F25 /* CalendarService.swift in Sources */,
@@ -544,10 +562,12 @@
 				2C8D99722C37463600931CD8 /* IncConsMonTotalBySec.swift in Sources */,
 				2CFDF8EF2A7A733300D5C194 /* SettingMenu.swift in Sources */,
 				2CB1ECF52B6F50720014B5FC /* ColorAndImage.swift in Sources */,
+				2C02C02D2C5840F90070868A /* DeletePopUpView.swift in Sources */,
 				2C58DE6B2B7EB80D00BF1DB8 /* ColorExtension.swift in Sources */,
 				2C57988C2C530017008AD95F /* SegmentedPicker.swift in Sources */,
 				2C2DB7892B8A01D900B631E9 /* LabelsModel.swift in Sources */,
 				2CA8CFE22BD5BB7900E3419E /* IncConsListPerDayView.swift in Sources */,
+				2CFF78182C641E8400560B6C /* SelectAccentColorPopUpView.swift in Sources */,
 				2CB1ECEC2B6F2DB40014B5FC /* IncConsCategoryModel.swift in Sources */,
 				2C22A64F2B6E42EA00D220E2 /* BalanceService.swift in Sources */,
 				2CA407242B59511B0038694B /* ContentTabBar.swift in Sources */,

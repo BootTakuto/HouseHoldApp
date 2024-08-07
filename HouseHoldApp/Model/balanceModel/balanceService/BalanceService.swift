@@ -10,6 +10,9 @@ import RealmSwift
 
 class BalanceService: CommonService {
 
+    /** 残高登録結果を取得
+     @param sortType 並び順
+     */
     func getBalanceResults() -> Results<BalanceModel> {
         @ObservedResults(BalanceModel.self) var results
         return results
@@ -19,11 +22,11 @@ class BalanceService: CommonService {
      @param 残高名
      @return --
      */
-    func registBalance(balanceNm: String, balAmt: Int, colorIndex: Int) {
+    func registBalance(balanceNm: String, colorIndex: Int) {
         let balance = BalanceModel()
         balance.balanceKey = UUID().uuidString
         balance.balanceNm = balanceNm
-        balance.balanceAmt = balAmt
+        balance.balanceAmt = 0
         balance.colorIndex = colorIndex
         try! realm.write() {
             realm.add(balance)

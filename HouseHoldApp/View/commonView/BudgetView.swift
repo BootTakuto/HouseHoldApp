@@ -15,6 +15,7 @@ struct BudgetView: View {
     @State var popUpFlg = false
     @State var popUpStatus: PopUpStatus = .addBudget
     @State var budgetObj = BudgetService().getBudgetInfo(selectDate: Date())
+    @State var inputBudgetAmt = ""
     /* view */
     let navigationHeight: CGFloat = 70
     let generalView = GeneralComponentView()
@@ -35,16 +36,41 @@ struct BudgetView: View {
             }
         }.navigationBarBackButtonHidden(true)
             .custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
-                PopUpView(accentColors: accentColors,
-                          popUpFlg: $popUpFlg,
-                          status: popUpStatus,
-                          selectDate: selectDate,
-                          inputTitle: popUpStatus == .addBalance ? "予算の設定" : "予算の変更",
-                          inputPlaceHolder: "未設定",
-                          inputText: budgetObj != nil ? String(budgetObj!.budgetAmtTotal) : ""
-                )
-            }
-            .onChange(of: selectDate) {
+//                PopUpView(accentColors: accentColors,
+//                          popUpFlg: $popUpFlg,
+//                          status: popUpStatus,
+//                          selectDate: selectDate,
+//                          inputTitle: popUpStatus == .addBalance ? "予算の設定" : "予算の変更",
+//                          inputPlaceHolder: "未設定",
+//                          inputText: budgetObj != nil ? String(budgetObj!.budgetAmtTotal) : ""
+//                )
+                if self.popUpStatus == .addBudget {
+                    InputPopUpView(accentColors: accentColors,
+                                   popUpFlg: $popUpFlg,
+                                   inputText: $inputBudgetAmt,
+                                   title: "予算の設定",
+                                   placeHolder: "未設定") {
+                        budgetService.registBudget(selectDate: selectDate, amount: inputBudgetAmt)
+                    }
+                } else if self.popUpStatus == .updateBudget {
+                    InputPopUpView(accentColors: accentColors,
+                                   popUpFlg: $popUpFlg,
+                                   inputText: $inputBudgetAmt,
+                                   title: "予算の変更",
+                                   placeHolder: "未設定") {
+                        budgetService.updateBudget(selectDate: selectDate, amount: inputBudgetAmt)
+                    }
+                } else if self.popUpStatus == .changeDate {
+                    GeneralPopUpView(popUpFlg: $popUpFlg) {
+                        let yyyyMM = calendarService.getStringDate(date: selectDate, format: "YYYY年M月")
+                        Text(yyyyMM)
+                            .foregroundStyle(Color.changeableText)
+                            .font(.subheadline)
+                    }
+                }
+            }.onChange(of: selectDate) {
+                budgetObj = budgetService.getBudgetInfo(selectDate: selectDate)
+            }.onChange(of: popUpFlg) {
                 budgetObj = budgetService.getBudgetInfo(selectDate: selectDate)
             }
     }
@@ -60,7 +86,7 @@ struct BudgetView: View {
                     Button(action: {
                         self.budgetDestFlg = false
                     }) {
-                        Image(systemName: "chevron.left")
+                        Image(systemName: "arrow.left")
                             .foregroundStyle(.white)
                             .fontWeight(.bold)
                     }
@@ -70,8 +96,10 @@ struct BudgetView: View {
                             self.popUpFlg = true
                             if budgetObj != nil {
                                 self.popUpStatus = .updateBudget
+                                inputBudgetAmt = String(budgetObj!.budgetAmtTotal)
                             } else {
                                 self.popUpStatus = .addBudget
+                                inputBudgetAmt = ""
                             }
                         }
                     }) {
@@ -97,6 +125,8 @@ struct BudgetView: View {
             Button(action: {
                 withAnimation {
                     self.selectDate = calendarService.previewMonth(date: selectDate)
+                    self.popUpFlg = true
+                    self.popUpStatus = .changeDate
                 }
             }) {
                 Image(systemName: "chevron.left")
@@ -106,6 +136,8 @@ struct BudgetView: View {
             Button(action: {
                 withAnimation {
                     self.selectDate = calendarService.nextMonth(date: selectDate)
+                    self.popUpFlg = true
+                    self.popUpStatus = .changeDate
                 }
             }) {
                 Image(systemName: "chevron.right")

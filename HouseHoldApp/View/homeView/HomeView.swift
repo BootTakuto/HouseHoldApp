@@ -57,15 +57,14 @@ struct HomeView: View {
                             }
                             IncConsCard()
                                 .frame(height: 350)
-                            BalnceCard()
+                            BalnceCard(size: size)
                                 .frame(height: 300)
                         }.padding(.top, 10)
                             .padding(.horizontal, 20)
                             .padding(.bottom, 120)
                     }.scrollIndicators(.hidden)
                 }
-            }
-            .navigationDestination(isPresented: $budgetDestFlg) {
+            }.navigationDestination(isPresented: $budgetDestFlg) {
                 BudgetView(accentColors: accentColors, budgetDestFlg: $budgetDestFlg)
             }.navigationDestination(isPresented: $incConsChartDestFlg) {
                 IncConsSummaryView(accentColors: accentColors,
@@ -85,7 +84,8 @@ struct HomeView: View {
                     .shadow(color: colorScheme == .dark ? .clear : .changeableShadow, radius: 5)
                 VStack(spacing: 0) {
                     HStack {
-                        let day = calendarService.getOnlyComponent(date: selectDate, component: .day)
+//                        let day = calendarService.getOnlyComponent(date: selectDate, component: .day)
+                        let day = calendarService.getStringDate(date: selectDate, format: "M/d")
                         let dayOfWeek = calendarService.getOnlyComponent(date: selectDate, component: .weekday)
                         let dayOfWeekSymbol = calendarService.getDayOfWeekSymbol(dayOfWeek: dayOfWeek)
                         Text("\(day)")
@@ -138,8 +138,10 @@ struct HomeView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Text("今月の予算")
+                        .font(.caption)
+                        .fontWeight(.medium)
                     Spacer()
-                    Image(systemName: "chevron.right")
+                    Image(systemName: "arrow.right")
                         .font(.caption)
                 }.padding(.top, 10)
                     .padding(.horizontal, 10)
@@ -162,11 +164,11 @@ struct HomeView: View {
                             Text("予算残高")
                             Text("¥\(budgetObj!.budgetAmtTotal - consTotal)")
                         } else {
-                            Text("予算はありません。")
+                            Text("未設定")
                                 .foregroundStyle(.gray)
                         }
                     }.font(.caption)
-                        .fontWeight(.medium)
+//                        .fontWeight(.medium)
                 }.padding()
             }.foregroundStyle(Color.changeableText)
         }.onTapGesture {
@@ -187,10 +189,12 @@ struct HomeView: View {
                         HStack {
                             let month = calendarService.getOnlyComponent(date: selectDate, component: .month)
                             Text("\(month)" + "月の収入・支出")
+                                .fontWeight(.medium)
                             Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                        }.padding(.horizontal, 10)
+                            Image(systemName: "arrow.right")
+                                
+                        }.font(.caption)
+                            .padding(.horizontal, 10)
                             .padding(.vertical, 10)
                             .foregroundStyle(Color.changeableText)
                         if isExistMonthData {
@@ -200,8 +204,8 @@ struct HomeView: View {
                                         financeCharts.MonthIncConsCompareChart(selectDate: selectDate)
                                         financeCharts.MonthIncConsRateChart(houseHoldType: 0, date: Date())
                                         financeCharts.MonthIncConsRateChart(houseHoldType: 1, date: Date())
-                                    }.frame(width: iconsRowCount == 1 ? size.width - 60 : iconsRowCount == 2 ?
-                                            size.width - 50 : size.width - 40
+                                    }.frame(width: iconsRowCount == 1 ? abs(size.width - 60) : iconsRowCount == 2 ?
+                                            abs(size.width - 50) : abs(size.width - 40)
                                     ).padding(iconsRowCount == 1 ? 10 : iconsRowCount == 2 ? 5 : 0)
                                 }.scrollTargetLayout()
                                 PagingIndicator(activeTint: .changeableText,
@@ -274,16 +278,18 @@ struct HomeView: View {
     }
     
     @ViewBuilder
-    func BalnceCard() -> some View {
+    func BalnceCard(size: CGSize) -> some View {
         let balTotal = balanceService.getBalanceTotal()
         ZStack {
             generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 10)
                 .shadow(color: colorScheme == .dark ? .clear : .changeableShadow, radius: 5)
             VStack(alignment: .leading, spacing: 0) {
                 Text("現在の残高")
+                    .font(.caption)
+                    .fontWeight(.medium)
                     .padding(.leading, 10)
                     .padding(.top, 10)
-                financeCharts.BalCompareChart()
+                financeCharts.BalCompareChart(size: size)
                     .padding()
                 Rectangle()
                     .fill(colorScheme == .dark ? Color(uiColor: .systemGray5) : .white)
@@ -294,6 +300,7 @@ struct HomeView: View {
                             Spacer()
                             Text("¥\(balTotal)")
                         }.padding(.horizontal, 20)
+                            .font(.footnote)
                     }
             }.foregroundStyle(Color.changeableText)
                 .clipShape(RoundedRectangle(cornerRadius: 10))

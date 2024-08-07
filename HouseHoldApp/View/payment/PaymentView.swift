@@ -11,13 +11,18 @@ import RealmSwift
 struct PaymentView: View {
     /** 表示関連 */
     var accentColors: [Color]
-    @State private var selectDate = Date()      // 選択日付
+    @Binding var popUpFlg: Bool
+    @Binding var popUpStatus: PopUpStatus
+    @Binding var selectDate: Date     // 選択日付
+    @Binding var incConsKey: String
     @State private var selectListView = true    // 収支一覧画面かカレンダー画面か
-    @State private var alertFlg = false         // 削除時アラートフラグ
+//    @State private var alertFlg = false         // 削除時アラートフラグ
     @State private var incConsListType = 0      // 収支情報の表示タイプ
     @State private var dispFlgs: [Bool] =
     IncomeConsumeService().getIncConsDispFlgs(selectDate: Date(),
     listType: 0) // 収支一覧　日付別の表示フラグ配列
+    // 削除情報
+    
     // 遷移情報
     @State var detailPageFlg = false
     @State var incConsObject = IncomeConsumeModel()
@@ -97,19 +102,11 @@ struct PaymentView: View {
                         self.dispFlgs = incConsService.getIncConsDispFlgs(selectDate: selectDate,
                                                                           listType: incConsListType)
                     }
-                }.alert("収支情報の削除", isPresented: $alertFlg) {
-                    Button("削除",role: .destructive) {
-                        withAnimation {
-                            incConsService.deleteIncConsData(incConsKey: self.incConsObject.incConsKey)
-                            self.incConsDic = incConsService.getIncConsPerDate(selectDate: Date(),
-                                                                               listType: incConsListType)
-                        }
-                    }
-                    Button("キャンセル", role: .cancel) {
-                        self.alertFlg = false
-                    }
-                } message: {
-                    Text("⚠️この収支情報は完全に失われます。\nよろしいですか？")
+                }.onChange(of: popUpFlg) {
+                    self.incConsDic = incConsService.getIncConsPerDate(selectDate: selectDate,
+                                                                       listType: incConsListType)
+                    self.dispFlgs = incConsService.getIncConsDispFlgs(selectDate: selectDate,
+                                                                      listType: incConsListType)
                 }
         }
     }
@@ -130,20 +127,24 @@ struct PaymentView: View {
             let cardWidth = size.width - 42
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    Text(String(year))
-                        .font(.title2.bold())
-                    Text("年")
-                        .font(.caption.bold())
-                    Text(String(month))
-//                        .font(.system(.title2, design: .rounded, weight: .bold))
-                        .font(.title2.bold())
-                    Text("月")
-                        .font(.caption.bold())
+                    Group {
+                        Text(String(year))
+                            .font(.title2)
+                        Text("年")
+                            .font(.caption)
+                        Text(String(month))
+                        //                        .font(.system(.title2, design: .rounded, weight: .bold))
+                            .font(.title2)
+                        Text("月")
+                            .font(.caption)
+                    }.fontWeight(.medium)
                     Spacer()
                     Group {
                         Button(action: {
                             withAnimation {
                                 self.selectDate = calendarService.previewMonth(date: selectDate)
+                                self.popUpFlg = true
+                                self.popUpStatus = .changeDate
                             }
                         }) {
                             Image(systemName: "chevron.left")
@@ -151,12 +152,14 @@ struct PaymentView: View {
                         Button(action: {
                             withAnimation {
                                 self.selectDate = calendarService.nextMonth(date: selectDate)
+                                self.popUpFlg = true
+                                self.popUpStatus = .changeDate
                             }
                         }) {
                             Image(systemName: "chevron.right")
                         }
                         .padding(.vertical, 20)
-                    }.fontWeight(.bold)
+                    }.fontWeight(.medium)
                 }.foregroundStyle(Color.white)
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .frame(height: dateSelectorHeight)
@@ -168,7 +171,8 @@ struct PaymentView: View {
                             VStack {
                                 Text("¥\(incTotal)")
 //                                    .font(.system(.body, design: .rounded, weight: .bold))
-                                    .font(.body.bold())
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
                                 Text("収入合計")
@@ -181,7 +185,8 @@ struct PaymentView: View {
                             VStack {
                                 Text("¥\(consTotal)")
 //                                    .font(.system(.body, design: .rounded, weight: .bold))
-                                    .font(.body.bold())
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
                                 Text("支出合計")
@@ -194,7 +199,8 @@ struct PaymentView: View {
                             VStack {
                                 Text("¥\(totalGap)")
 //                                    .font(.system(.body, design: .rounded, weight: .bold))
-                                    .font(.body.bold())
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.5)
                                 Text("収支合計")
@@ -207,7 +213,7 @@ struct PaymentView: View {
                                 .foregroundStyle(.changeable)
                             HStack(spacing: 10) {
                                 Text("月間情報")
-                                Image(systemName: "chevron.right")
+                                Image(systemName: "arrow.right")
                             }.font(.caption)
                                 .foregroundStyle(Color.changeableText)
                                 .frame(width: abs(cardWidth - 30), alignment: .trailing)
@@ -308,7 +314,7 @@ struct PaymentView: View {
             HStack {
                 Text(text)
                     .font(.footnote)
-                    .fontWeight(.medium)
+//                    .fontWeight(.medium)
                 Spacer()
                 Text(symbol + "\(incConsAmt)")
                     .font(.footnote)
@@ -323,7 +329,7 @@ struct PaymentView: View {
             }.foregroundStyle(Color.changeableText)
             .padding(.horizontal, 5)
                 .frame(maxWidth: rectWidth - (iconWH + (iconPadding * 2)))
-            Image(systemName: "chevron.right")
+            Image(systemName: "arrow.right")
                 .foregroundStyle(Color.changeableText)
                 .padding(.leading, 5)
                 .font(.caption)
@@ -340,10 +346,11 @@ struct PaymentView: View {
                     let isSelectType = self.incConsListType == index
                     ZStack {
                         if !isSelectType {
-                            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: 6)
+                            generalView.GlassBlur(effect: .systemUltraThinMaterial, radius: .infinity)
                         } else {
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(Color(uiColor: .systemGray2))
+                            RoundedRectangle(cornerRadius: .infinity)
+//                                .fill(Color(uiColor: .systemGray2))
+                                .fill(accentColors.last ?? .blue)
                         }
                         Text(labels[index])
                             .font(.caption)
@@ -382,7 +389,7 @@ struct PaymentView: View {
                             .padding(.bottom, 5)
                         Spacer()
                         Image(systemName: "chevron.down")
-                            .font(.subheadline)
+                            .font(.caption)
                             .fontWeight(.medium)
                             .rotationEffect(.degrees(self.dispFlgs[index] ? 0 : 180))
                             .foregroundStyle(Color.changeableText)
@@ -422,8 +429,10 @@ struct PaymentView: View {
                                         }) {
                                             Action(buttonColor: .red, iconNm: "trash") {
                                                 withAnimation {
-                                                    self.alertFlg = true
-                                                    self.incConsObject = result
+//                                                    self.alertFlg = true
+                                                    self.popUpFlg = true
+                                                    self.popUpStatus = .deleteIncCons
+                                                    self.incConsKey = result.incConsKey
                                                 }
                                             }
                                         }
@@ -522,8 +531,19 @@ struct PaymentView: View {
     }
 }
 
+//#Preview {
+//    @State var popUpFlg = false
+//    @State var popUpStatus: PopUpStatus = .changeDate
+//    @State var selectDate = Date()
+//    @State var incConsKey = ""
+//    return PaymentView(accentColors: [.orange, .pink],
+//                       popUpFlg: $popUpFlg,
+//                       popUpStatus: $popUpStatus,
+//                       selectDate: $selectDate,
+//                       incConsKey: $incConsKey)
+//}
 #Preview {
-    PaymentView(accentColors: [.orange, .pink])
+    ContentView()
 }
 
 

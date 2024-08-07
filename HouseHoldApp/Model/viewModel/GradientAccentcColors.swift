@@ -32,6 +32,7 @@ struct GradientAccentcColors {
 
 #Preview {
     @State var popUpFlg = false
-    return PopUpView(accentColors: [.purple, .indigo], popUpFlg: $popUpFlg, status: .selectAccentColor)
+    return SelectAccentColorPopUpView(accentColors: [.white, .black],
+                                      popUpFlg: $popUpFlg)
 }
 

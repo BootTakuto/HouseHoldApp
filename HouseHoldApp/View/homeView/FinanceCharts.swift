@@ -14,26 +14,61 @@ class FinanceCharts {
     let balService = BalanceService()
     let incConsService = IncomeConsumeService()
     @State var balResults = BalanceService().getBalanceResults()
-    @ObservedResults(IncomeConsumeModel.self) var incResults
-    @ObservedResults(IncomeConsumeModel.self) var consResults
     // 残高棒グラフ
     @ViewBuilder
-    func BalCompareChart() -> some View {
-        Chart {
-            ForEach(Array(balResults.sorted(by: {$0.balanceAmt > $1.balanceAmt})), id: \.self) { result in
-                BarMark(
-                    x: .value("label", result.balanceNm),
-                    y: .value("amount", result.balanceAmt)
-                ).foregroundStyle(ColorAndImage.colors[result.colorIndex])
-                    .annotation {
-                        Text("¥\(result.balanceAmt)")
-                            .font(.caption2)
-                            .fontWeight(.light)
-                            .foregroundStyle(Color.changeableText)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.5)
+    func BalCompareChart(size: CGSize) -> some View {
+        let resultsCount: CGFloat = CGFloat(balResults.count)
+        if !balResults.isEmpty {
+            Chart {
+                ForEach(Array(balResults.sorted(by: {$0.balanceAmt > $1.balanceAmt})), id: \.self) { result in
+                    BarMark(
+                        x: .value("label", result.balanceNm),
+                        y: .value("amount", result.balanceAmt),
+                        width: self.balResults.count > 5 ? .automatic : .fixed(30)
+                    ).foregroundStyle(ColorAndImage.colors[result.colorIndex])
+//                        .annotation {
+//                            Text("¥\(result.balanceAmt)")
+//                                .font(.caption2)
+//                                .fontWeight(.light)
+//                                .foregroundStyle(Color.changeableText)
+//                                .lineLimit(1)
+//                                .minimumScaleFactor(0.5)
+//                        }
+                }
+            }.chartYAxis {
+                AxisMarks (
+                    values: .automatic(desiredCount: 3)
+                ) { value in
+                    AxisValueLabel {
+                        if let amt = value.as(Int.self) {
+                            let dispAmt =   abs(amt) >= 10000 ? "¥\(amt / 10000)万" :
+                                            abs(amt) >= 100000000 ? "¥\(amt / 100000000)億" : "¥\(amt)"
+                            Text(dispAmt)
+                                .font(.system(size: 8))
+                        }
                     }
+                    AxisGridLine()
+                        .foregroundStyle(Color(.systemGray3))
+                }
+            }.chartXAxis {
+                AxisMarks { value in
+                    AxisValueLabel(
+                        collisionResolution: .automatic,
+                        horizontalSpacing: 10
+                    ) {
+                        if let balNm = value.as(String.self) {
+                            Text(balNm)
+                                .font(.system(size: 8))
+                                .frame(width: size.width / resultsCount)
+                                .lineLimit(1)
+//                                .minimumScaleFactor(0.5)
+                        }
+                    }
+                    AxisGridLine()
+                        .foregroundStyle(.clear)
+                }
             }
+            
         }
     }
     
