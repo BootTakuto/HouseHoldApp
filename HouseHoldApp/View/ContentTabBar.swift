@@ -48,7 +48,7 @@ struct ContentTabBar: View {
                                     }
                                 }.offset(y: -3)
                                 Text("入　力")
-                                    .font(.caption2.bold())
+                                    .font(.caption2)
                                     .foregroundStyle(Color.changeableText)
                             }.frame(maxWidth: .infinity, maxHeight: .infinity)
                         }.frame(height: screen.height / 12)
@@ -110,7 +110,7 @@ struct TabBarButton: View {
                     Text(text)
                         .foregroundStyle(selectedContent == contentIndex ?
                             .changeableText : Color.clear)
-                        .font(.caption2.bold())
+                        .font(.caption2)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

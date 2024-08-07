@@ -13,7 +13,7 @@ extension Color {
 //    let orange": .orange,
     static var salmon      =   Color(red: 1, green: 0.4, blue: 0)
 //      var red": .red,
-    static var scarlet     =   Color(red: 1, green: 0, blue: 0)
+    static var blood       =   Color(red: 0.8, green: 0, blue: 0)
     static var peach       =   Color(red: 1, green: 0.5, blue: 0.6)
     static var lightPink   =   Color(red: 1, green: 0.5, blue: 0.8)
     static var midPink     =   Color(red: 1, green: 0.4, blue: 0.8)
@@ -44,4 +44,16 @@ extension Color {
     static var changeableShadow = Color("ShadowColor")
     static var changeableGlass = Color("GlassColor")
     static var changeableGlassStroke = Color("GlassStrokeColor")
+}
+
+#Preview {
+    @State var popUpFlg = false
+    @State var balNm = ""
+    @State var colorIndex = 0
+    return InputBalancePopUpView(accentColors: [.blue, .mint],
+                                 popUpFlg: $popUpFlg,
+                                 balNm: $balNm,
+                                 colorIndex: $colorIndex) {
+        
+    }
 }

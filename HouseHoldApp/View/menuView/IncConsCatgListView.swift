@@ -15,6 +15,7 @@ struct IncConsCatgListView: View {
     @State var popUpFlg = false
     @State var popUpStatus: PopUpStatus = .addincConsCatg
     @State var incConsCatgObj = IncConsCategoryModel()
+    @State var inputCatgNm = ""
     var incConsSecObj: IncConsSectionModel
     // service
     let incConsSecCatgService = IncConSecCatgService()
@@ -44,30 +45,38 @@ struct IncConsCatgListView: View {
             .onAppear {
                 let secKey = incConsSecObj.incConsSecKey
                 self.incConsCatgResults = incConsSecCatgService.getIncConsCatgResults(secKey: secKey)
+            }.onChange(of: popUpFlg) {
+                if !popUpFlg {
+                    self.inputCatgNm = ""
+                    let secKey = incConsSecObj.incConsSecKey
+                    self.incConsCatgResults = incConsSecCatgService.getIncConsCatgResults(secKey: secKey)
+                }
             }.custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
                 if popUpStatus == .addincConsCatg {
-                    PopUpView(accentColors: accentColors,
-                              popUpFlg: $popUpFlg,
-                              status: popUpStatus,
-                              incConsSecKey: self.incConsSecObj.incConsSecKey,
-                              inputTitle: "カテゴリーの登録",
-                              inputPlaceHolder: "カテゴリー名")
+                    InputPopUpView(accentColors: accentColors,
+                                   popUpFlg: $popUpFlg,
+                                   inputText: $inputCatgNm,
+                                   title: "カテゴリーの登録",
+                                   placeHolder: "カテゴリー名") {
+                            incConsSecCatgService.registIncConsCatg(catgNm: inputCatgNm,
+                                                                    incConsSecKey: incConsSecObj.incConsSecKey)
+                    }
                 } else if popUpStatus == .editIncConsCatg {
-                    PopUpView(accentColors: accentColors,
-                              popUpFlg: $popUpFlg,
-                              status: popUpStatus,
-                              incConsCatgKey: self.incConsCatgObj.incConsCatgKey,
-                              inputTitle: "カテゴリーの登録",
-                              inputPlaceHolder: "カテゴリー名",
-                              inputText: self.incConsCatgObj.incConsCatgNm)
-                }
-                else if popUpStatus == .deleteIncConsCatg {
-                    PopUpView(accentColors: accentColors,
-                              popUpFlg: $popUpFlg,
-                              status: popUpStatus,
-                              delTitle: "カテゴリーの削除",
-                              delExplain: "カテゴリーを削除します。よろしいですか。\n※該当する情報は項目名で表示されます。",
-                              incConsCatgKey: self.incConsCatgObj.incConsCatgKey)
+                    InputPopUpView(accentColors: accentColors,
+                                   popUpFlg: $popUpFlg,
+                                   inputText: $inputCatgNm,
+                                   title: "カテゴリーの変更",
+                                   placeHolder: "カテゴリー名") {
+                            incConsSecCatgService.updateIncConsCatg(catgNm: inputCatgNm,
+                                                                    incConsCatgKey: incConsCatgObj.incConsCatgKey)
+                    }
+                } else if popUpStatus == .deleteIncConsCatg {
+                    DeletePopUpView(accentColors: accentColors,
+                                    popUpFlg: $popUpFlg,
+                                    title: "カテゴリーの削除",
+                                    explain: "カテゴリーを削除します。よろしいですか。\n※該当する情報は項目名で表示されます。") {
+                        incConsSecCatgService.deleteIncConsCatg(catgKey: incConsCatgObj.incConsCatgKey)
+                    }
                 }
             }
     }
@@ -119,6 +128,7 @@ struct IncConsCatgListView: View {
                                 self.incConsCatgObj = result
                                 self.popUpFlg = true
                                 self.popUpStatus = .editIncConsCatg
+                                self.inputCatgNm = result.incConsCatgNm
                             }
                         }
                         Action(buttonColor: .red, iconNm: "trash") {

@@ -22,7 +22,7 @@ struct GradientAccentcColors {
         // 柑橘色
         [.yellow, .salmon],
         [.orange, .pink],
-        [.scarlet, .darkBroun],
+        [.red, .blood],
         // 淡い系
         [.lightPink, .lightPurple],
         [.peach, .pink],
@@ -32,6 +32,7 @@ struct GradientAccentcColors {
 
 #Preview {
     @State var popUpFlg = false
-    return PopUpView(accentColors: [.purple, .indigo], popUpFlg: $popUpFlg, status: .selectAccentColor)
+    return SelectAccentColorPopUpView(accentColors: [.white, .black],
+                                      popUpFlg: $popUpFlg)
 }
 

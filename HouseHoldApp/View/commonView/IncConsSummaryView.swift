@@ -11,13 +11,18 @@ import RealmSwift
 struct IncConsSummaryView: View {
     var accentColors: [Color]
     @Binding var isPresentedFlg: Bool
-    @State var chartIndex: Int
+    @State var chartIndex: Int = 0
     @State var selectDate = Date()
     @Environment(\.colorScheme) var colorScheme
+    // 月間・年間のどちらかを表示するフラグ
+    @State var isDispBothChart = false
     @State var isMonthSummary = true
     @State var selectTerm = 0
     @State var totalDispFlgs = IncomeConsumeService().getMonthTotalDispFlg()
     @State var year = CalendarService().getOnlyComponent(date: Date(), component: .year)
+    // popUp表示用変数
+    @State var popUpFlg = false
+    @State var popUpStatus: PopUpStatus = .changeDate
     // service
     let incConsService = IncomeConsumeService()
     let calendarService = CalendarService()
@@ -65,6 +70,17 @@ struct IncConsSummaryView: View {
                 let month = calendarService.getOnlyComponent(date: selectDate, component: .month)
                 self.selectDate = calendarService.getSettingDate(year: year, month: month)
             }
+        }.custumFullScreenCover(isPresented: $popUpFlg, transition: .opacity) {
+            if popUpStatus == .changeDate {
+                GeneralPopUpView(popUpFlg: $popUpFlg) {
+                    GeneralPopUpView(popUpFlg: $popUpFlg) {
+                        let yyyyMM = calendarService.getStringDate(date: selectDate, format: "YYYY年M月")
+                        Text(isMonthSummary ? yyyyMM : String(year) + "年")
+                            .foregroundStyle(Color.changeableText)
+                            .font(.subheadline)
+                    }
+                }
+            }
         }
     }
     
@@ -83,14 +99,23 @@ struct IncConsSummaryView: View {
                         Image(systemName: "arrow.left")
                             .foregroundStyle(.white)
                     }
-                    SegmentedPicker(selection: $selectTerm,
-                                    texts: ["月間収支", "年間収支"],
-                                    defaultTextColor: .white,
-                                    selectTextColor: .changeableText,
-                                    backColor: .changeable.opacity(0.25),
-                                    selectRectColor: .changeable)
-                    .padding(.horizontal,50)
-                    .padding(.trailing, 20)
+                    if isDispBothChart {
+                        SegmentedPicker(selection: $selectTerm,
+                                        texts: ["月間収支", "年間収支"],
+                                        defaultTextColor: .white,
+                                        selectTextColor: .changeableText,
+                                        backColor: .changeable.opacity(0.25),
+                                        selectRectColor: .changeable)
+                        .padding(.horizontal,50)
+                        .padding(.trailing, 20)
+                    } else {
+                        Spacer()
+                        Text(isMonthSummary ? "月間収支" : "年間収支")
+                            .fontWeight(.medium)
+                            .foregroundStyle(.white)
+                            .offset(x: -6)
+                        Spacer()
+                    }
                 }
                 DateSelector()
                     .padding(.vertical, 10)
@@ -127,6 +152,8 @@ struct IncConsSummaryView: View {
                             self.year -= 1
                         }
                     }
+                    self.popUpFlg = true
+                    self.popUpStatus = .changeDate
                 }
             }) {
                 Image(systemName: "chevron.left")
@@ -142,6 +169,8 @@ struct IncConsSummaryView: View {
                             self.year += 1
                         }
                     }
+                    self.popUpFlg = true
+                    self.popUpStatus = .changeDate
                 }
             }) {
                 Image(systemName: "chevron.right")

@@ -598,7 +598,6 @@ class IncomeConsumeService: CommonService {
         let str_yyyyMM = getStringDate(date: date, format: "yyyyMM")
         let consResults = realm.objects(IncomeConsumeModel.self).where({$0.houseHoldType == 1})
                                                                 .filter("incConsDate LIKE %@", "*\(str_yyyyMM)*")
-        print(consResults)
         consSecResults.forEach { consSecResult in
             let secKey = consSecResult.incConsSecKey
             // 該当月の支出情報から一致する項目の合計金額を取得する
