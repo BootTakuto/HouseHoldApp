@@ -20,7 +20,7 @@ struct ColorAndImage {
         // 3
         .red,
         // 4
-        .scarlet,
+        .blood,
         // 5
         .peach,
         // 6

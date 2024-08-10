@@ -22,7 +22,7 @@ struct GradientAccentcColors {
         // 柑橘色
         [.yellow, .salmon],
         [.orange, .pink],
-        [.scarlet, .darkBroun],
+        [.red, .blood],
         // 淡い系
         [.lightPink, .lightPurple],
         [.peach, .pink],

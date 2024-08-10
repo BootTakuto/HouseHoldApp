@@ -15,7 +15,7 @@ struct HomeView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var selectChart = 0
     @State private var selectDate = Date()
-    @State private var chartIndex = 0
+//    @State private var chartIndex = 0
     // 画面操作
     @State var dispFlg = [true, true, true, true]
     @State var assetsChartDestFlg = false
@@ -67,9 +67,11 @@ struct HomeView: View {
             }.navigationDestination(isPresented: $budgetDestFlg) {
                 BudgetView(accentColors: accentColors, budgetDestFlg: $budgetDestFlg)
             }.navigationDestination(isPresented: $incConsChartDestFlg) {
+//                IncConsSummaryView(accentColors: accentColors,
+//                                   isPresentedFlg: $incConsChartDestFlg,
+//                                   chartIndex: chartIndex)
                 IncConsSummaryView(accentColors: accentColors,
-                                   isPresentedFlg: $incConsChartDestFlg,
-                                   chartIndex: chartIndex)
+                                   isPresentedFlg: $incConsChartDestFlg)
             }
         }
     }
@@ -308,8 +310,6 @@ struct HomeView: View {
     }
 
 }
-
-
 
 #Preview {
     ContentView()

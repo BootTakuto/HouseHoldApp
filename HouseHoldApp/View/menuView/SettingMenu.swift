@@ -31,6 +31,10 @@ struct SettingMenu: View {
                                 changeIncConsSection()
                                 budget()
                             }
+                            HStack(spacing: 40) {
+                                MonthIncConsChart()
+                                YearIncConsChart()
+                            }
                         }.padding()
                     }
                 }
@@ -45,6 +49,16 @@ struct SettingMenu: View {
                     case .budget:
                         BudgetView(accentColors: accentColors,
                                    budgetDestFlg: $isPresented)
+                    case .monthIncCons:
+                        IncConsSummaryView(accentColors: accentColors,
+                                           isPresentedFlg: $isPresented,
+                                           isDispBothChart: false,
+                                           isMonthSummary: true)
+                    case .yearIncCons:
+                        IncConsSummaryView(accentColors: accentColors,
+                                           isPresentedFlg: $isPresented,
+                                           isDispBothChart: false,
+                                           isMonthSummary: false)
                     }
                 }
         }
@@ -110,6 +124,30 @@ struct SettingMenu: View {
         }.compositingGroup()
             .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray4),radius: 8)
     }
+    
+    @ViewBuilder
+    func MonthIncConsChart() -> some View {
+        generalView.menuIconButton(isColorCard: false,
+                                   accentColors: accentColors,
+                                   iconNm: "月間収支",
+                                   imageNm: "chart.pie") {
+            self.isPresented = true
+            self.pageStatus = .monthIncCons
+        }.compositingGroup()
+            .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray4),radius: 8)
+    }
+    
+    @ViewBuilder
+    func YearIncConsChart() -> some View {
+        generalView.menuIconButton(isColorCard: false,
+                                   accentColors: accentColors,
+                                   iconNm: "年間収支",
+                                   imageNm: "chart.bar.xaxis.ascending") {
+            self.isPresented = true
+            self.pageStatus = .yearIncCons
+        }.compositingGroup()
+            .shadow(color: colorScheme == .dark ? .clear : Color(uiColor: .systemGray4),radius: 8)
+    }
 
 }
 
@@ -117,6 +155,8 @@ enum PageStatusFromSetting {
     case howToUse
     case secCatg
     case budget
+    case monthIncCons
+    case yearIncCons
 }
 
 #Preview {

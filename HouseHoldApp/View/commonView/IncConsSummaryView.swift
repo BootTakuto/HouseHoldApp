@@ -11,9 +11,11 @@ import RealmSwift
 struct IncConsSummaryView: View {
     var accentColors: [Color]
     @Binding var isPresentedFlg: Bool
-    @State var chartIndex: Int
+    @State var chartIndex: Int = 0
     @State var selectDate = Date()
     @Environment(\.colorScheme) var colorScheme
+    // 月間・年間のどちらかを表示するフラグ
+    @State var isDispBothChart = false
     @State var isMonthSummary = true
     @State var selectTerm = 0
     @State var totalDispFlgs = IncomeConsumeService().getMonthTotalDispFlg()
@@ -97,14 +99,23 @@ struct IncConsSummaryView: View {
                         Image(systemName: "arrow.left")
                             .foregroundStyle(.white)
                     }
-                    SegmentedPicker(selection: $selectTerm,
-                                    texts: ["月間収支", "年間収支"],
-                                    defaultTextColor: .white,
-                                    selectTextColor: .changeableText,
-                                    backColor: .changeable.opacity(0.25),
-                                    selectRectColor: .changeable)
-                    .padding(.horizontal,50)
-                    .padding(.trailing, 20)
+                    if isDispBothChart {
+                        SegmentedPicker(selection: $selectTerm,
+                                        texts: ["月間収支", "年間収支"],
+                                        defaultTextColor: .white,
+                                        selectTextColor: .changeableText,
+                                        backColor: .changeable.opacity(0.25),
+                                        selectRectColor: .changeable)
+                        .padding(.horizontal,50)
+                        .padding(.trailing, 20)
+                    } else {
+                        Spacer()
+                        Text(isMonthSummary ? "月間収支" : "年間収支")
+                            .fontWeight(.medium)
+                            .foregroundStyle(.white)
+                            .offset(x: -6)
+                        Spacer()
+                    }
                 }
                 DateSelector()
                     .padding(.vertical, 10)
