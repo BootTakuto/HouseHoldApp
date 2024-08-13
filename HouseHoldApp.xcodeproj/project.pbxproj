@@ -11,6 +11,7 @@
 		2C02C02D2C5840F90070868A /* DeletePopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C02C02C2C5840F90070868A /* DeletePopUpView.swift */; };
 		2C0C4FDF2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */; };
 		2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1210E52BC564F300C531C2 /* PaymentView.swift */; };
+		2C1A8FA62C6817D1005106B2 /* UsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1A8FA52C6817D1005106B2 /* UsageView.swift */; };
 		2C1CE1022C2CC3A30035CADC /* PagingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1CE1012C2CC3A30035CADC /* PagingIndicator.swift */; };
 		2C22A64C2B6E414900D220E2 /* BalanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64B2B6E414900D220E2 /* BalanceModel.swift */; };
 		2C22A64F2B6E42EA00D220E2 /* BalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */; };
@@ -79,6 +80,7 @@
 		2C02C02C2C5840F90070868A /* DeletePopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletePopUpView.swift; sourceTree = "<group>"; };
 		2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsBalLinkAmtModel.swift; sourceTree = "<group>"; };
 		2C1210E52BC564F300C531C2 /* PaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentView.swift; sourceTree = "<group>"; };
+		2C1A8FA52C6817D1005106B2 /* UsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageView.swift; sourceTree = "<group>"; };
 		2C1CE1012C2CC3A30035CADC /* PagingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingIndicator.swift; sourceTree = "<group>"; };
 		2C22A64B2B6E414900D220E2 /* BalanceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceModel.swift; sourceTree = "<group>"; };
 		2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceService.swift; sourceTree = "<group>"; };
@@ -327,6 +329,7 @@
 				2C276B822BD8577600A69F87 /* IncConsSummaryView.swift */,
 				2C5DE0652C3C8C8B005D6436 /* BudgetView.swift */,
 				2CB405C82B77AE1900CC0F25 /* GeneralComponentView.swift */,
+				2C1A8FA52C6817D1005106B2 /* UsageView.swift */,
 			);
 			path = commonView;
 			sourceTree = "<group>";
@@ -536,6 +539,7 @@
 				2CFDF8DD2A792E3F00D5C194 /* ContentView.swift in Sources */,
 				2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */,
 				2CA911562BE8822800D635A9 /* ViewExtension.swift in Sources */,
+				2C1A8FA62C6817D1005106B2 /* UsageView.swift in Sources */,
 				2C2C30462BF62A4900CF59D0 /* IncConsBalLinkAmtModelForView.swift in Sources */,
 				2CC24F702C1F99F600237A6C /* IncConsCatgListView.swift in Sources */,
 				2C29817E2C56E6CD00AFA1D9 /* InputPopUpView.swift in Sources */,

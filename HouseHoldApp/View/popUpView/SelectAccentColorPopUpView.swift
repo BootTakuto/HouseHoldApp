@@ -20,8 +20,8 @@ struct SelectAccentColorPopUpView: View {
     
     @ViewBuilder
     func AccentColorAlert() -> some View {
-        let rectWidth: CGFloat = 250
-        let rectHeight: CGFloat = 250
+        let rectWidth: CGFloat = 300
+        let rectHeight: CGFloat = 300
         ZStack {
             UIGlassCard(effect: .systemMaterial)
             VStack {
@@ -31,10 +31,10 @@ struct SelectAccentColorPopUpView: View {
                     .padding(.top, 10)
                 ScrollView {
                     VStack {
-                        ForEach(0..<4, id: \.self) { row in
+                        ForEach(0 ..< 6, id: \.self) { row in
                             HStack(spacing: 15) {
-                                ForEach(0..<3, id: \.self) {col in
-                                    let index = col + (row * 3)
+                                ForEach(0 ..< 4, id: \.self) {col in
+                                    let index = col + (row * 4)
                                     if GradientAccentcColors.gradients.count > index {
                                         Button(action: {
                                             accentColorsIndex = index
@@ -69,8 +69,9 @@ struct SelectAccentColorPopUpView: View {
                         }
                     }) {
                         ZStack {
-                            accentColors.last ?? .black
+                            Color.changeable
                             Text("完了")
+                                .foregroundStyle(Color.changeableText)
                         }
                     }
                 }.frame(height: 40)

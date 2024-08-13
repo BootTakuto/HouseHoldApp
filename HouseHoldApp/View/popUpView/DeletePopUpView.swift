@@ -45,12 +45,13 @@ struct DeletePopUpView: View {
                         }
                     }) {
                         ZStack {
-                            accentColors.last ?? .black
+                            Color.changeable
                             Text("キャンセル")
+                                .foregroundStyle(Color.changeableText)
                         }
                     }
                     generalView.Bar()
-                        .foregroundStyle(.changeable)
+                        .foregroundStyle(.clear)
                     Button(action: {
                         withAnimation {
                             action()
@@ -58,8 +59,9 @@ struct DeletePopUpView: View {
                         }
                     }) {
                         ZStack {
-                            Color.red
+                            Color.changeable
                             Text("削除")
+                                .foregroundStyle(Color.red)
                         }
                     }
                 }.frame(height: 40)

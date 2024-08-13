@@ -31,7 +31,7 @@ struct InputBalancePopUpView: View {
     @ViewBuilder
     func InputBalanceAlert() -> some View {
         let rectWidth: CGFloat = 300
-        let rectHeight: CGFloat = 200
+        let rectHeight: CGFloat = 300
         ZStack {
             UIGlassCard(effect: .systemMaterial)
             VStack {
@@ -65,35 +65,42 @@ struct InputBalancePopUpView: View {
 //                            .frame(width: rectWidth * (2 / 3))
 //                            .keyboardType(.numberPad)
 //                    }
-                    HStack(spacing: 0) {
+                    VStack(alignment: .leading) {
                         Text("識別カラー")
                             .font(.footnote)
-                            .frame(width: rectWidth / 4, alignment: .leading)
-                        ScrollView(.horizontal) {
+                            .frame(width: .infinity, alignment: .leading)
+                        ScrollView {
                             HStack {
-                                ForEach(ColorAndImage.colors.indices, id: \.self) {index in
-                                    let color = ColorAndImage.colors[index]
-                                    Button(action: {
-                                        self.colorIndex = index
-                                    }) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(color)
-                                                .frame(width: 30)
-                                            if self.colorIndex == index {
-                                                Circle()
-                                                    .stroke(lineWidth: 3)
-                                                    .fill(.changeable)
-                                                    .frame(width: 20)
+                                ForEach(0 ..< 6, id: \.self) { col in
+                                    VStack {
+                                        ForEach(0 ..< 5, id: \.self) { row in
+                                            let index = col + (row * 6)
+                                            let color = ColorAndImage.colors[index]
+                                            let circleSize = rectWidth / 6 - 10
+                                            Button(action: {
+                                                self.colorIndex = index
+                                            }) {
+                                                ZStack {
+                                                    Circle()
+                                                        .fill(color)
+                                                        .frame(width: circleSize)
+                                                    if self.colorIndex == index {
+                                                        Circle()
+                                                            .stroke(lineWidth: 3)
+                                                            .fill(.changeable)
+                                                            .frame(width: circleSize - 10)
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }.frame(width: rectWidth * (3 / 4))
-                            .scrollIndicators(.hidden)
+                        }.scrollIndicators(.hidden)
+                            .frame(width: rectWidth)
                     }
-                }.frame(height: rectHeight - 40)
+                }
+                .frame(height: rectHeight - 40)
                     .padding(.horizontal, 15)
                 HStack(spacing: 0) {
                     Button(action: {
@@ -105,12 +112,13 @@ struct InputBalancePopUpView: View {
                         }
                     }) {
                         ZStack {
-                            accentColors.last ?? .black
+                            Color.changeable
                             Text("閉じる")
+                                .foregroundStyle(Color.changeableText)
                         }
                     }
                     generalView.Bar()
-                        .foregroundStyle(.changeable)
+                        .foregroundStyle(.clear)
                     Button(action: {
                         withAnimation {
 //                            balanceService.registBalance(balanceNm: balNm,
@@ -124,8 +132,9 @@ struct InputBalancePopUpView: View {
                         }
                     }) {
                         ZStack {
-                            accentColors.last ?? .black
+                            Color.changeable
                             Text("保存")
+                                .foregroundStyle(Color.changeableText)
                         }
                     }
                 }.frame(height: 40)

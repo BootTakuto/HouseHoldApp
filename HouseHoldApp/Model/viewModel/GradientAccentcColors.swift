@@ -11,6 +11,19 @@ import SwiftUI
 /** 背景色 */
 struct GradientAccentcColors {
     static let gradients: [[Color]] = [
+        // 単色
+        [.yellow, .yellow],
+        [.orange, .orange],
+        [.red, .red],
+        [.peach, .peach],
+        [.lightPurple, .lightPurple],
+        [.purple, .purple],
+        [.navy, .navy],
+        [.blue, .blue],
+        [.cyan, .cyan],
+        [.mint, .mint],
+        [.green, .green],
+        [.mossGreen, .mossGreen],
         // 青系
         [.mint, .blue],
         [.blue, .violet],

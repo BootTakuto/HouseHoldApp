@@ -42,7 +42,7 @@ struct SettingMenu: View {
                 .navigationDestination(isPresented: $isPresented) {
                     switch pageStatus {
                     case .howToUse:
-                        Text("")
+                        UsageView(isPresented: $isPresented)
                     case .secCatg:
                         IncConsSecListView(accentColors: accentColors,
                                            isSecPresented: $isPresented)

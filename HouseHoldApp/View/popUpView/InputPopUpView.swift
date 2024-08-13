@@ -55,12 +55,13 @@ struct InputPopUpView: View {
                         }
                     }) {
                         ZStack {
-                            accentColors.last ?? .black
+                            Color.changeable
                             Text("キャンセル")
+                                .foregroundStyle(Color.changeableText)
                         }
                     }
                     generalView.Bar()
-                        .foregroundStyle(.changeable)
+                        .foregroundStyle(Color.clear)
                     Button(action: {
                         withAnimation {
                             action()
@@ -68,8 +69,9 @@ struct InputPopUpView: View {
                         }
                     }) {
                         ZStack {
-                            accentColors.last ?? .black
+                            Color.changeable
                             Text("保存")
+                                .foregroundStyle(Color.changeableText)
                         }
                     }
                 }.frame(height: 40)
