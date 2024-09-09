@@ -12,6 +12,7 @@
 		2C0C4FDF2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */; };
 		2C1210E62BC564F300C531C2 /* PaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1210E52BC564F300C531C2 /* PaymentView.swift */; };
 		2C1A8FA62C6817D1005106B2 /* UsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1A8FA52C6817D1005106B2 /* UsageView.swift */; };
+		2C1AF2032C6D770200938891 /* ViewModelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1AF2022C6D770200938891 /* ViewModelService.swift */; };
 		2C1CE1022C2CC3A30035CADC /* PagingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1CE1012C2CC3A30035CADC /* PagingIndicator.swift */; };
 		2C22A64C2B6E414900D220E2 /* BalanceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64B2B6E414900D220E2 /* BalanceModel.swift */; };
 		2C22A64F2B6E42EA00D220E2 /* BalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */; };
@@ -81,6 +82,7 @@
 		2C0C4FDE2C0136DF002A3D0D /* IncConsBalLinkAmtModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncConsBalLinkAmtModel.swift; sourceTree = "<group>"; };
 		2C1210E52BC564F300C531C2 /* PaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentView.swift; sourceTree = "<group>"; };
 		2C1A8FA52C6817D1005106B2 /* UsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageView.swift; sourceTree = "<group>"; };
+		2C1AF2022C6D770200938891 /* ViewModelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelService.swift; sourceTree = "<group>"; };
 		2C1CE1012C2CC3A30035CADC /* PagingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingIndicator.swift; sourceTree = "<group>"; };
 		2C22A64B2B6E414900D220E2 /* BalanceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceModel.swift; sourceTree = "<group>"; };
 		2C22A64E2B6E42EA00D220E2 /* BalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceService.swift; sourceTree = "<group>"; };
@@ -164,6 +166,14 @@
 			path = payment;
 			sourceTree = "<group>";
 		};
+		2C1AF2042C6D771100938891 /* viewModelService */ = {
+			isa = PBXGroup;
+			children = (
+				2C1AF2022C6D770200938891 /* ViewModelService.swift */,
+			);
+			path = viewModelService;
+			sourceTree = "<group>";
+		};
 		2C22A64D2B6E42C300D220E2 /* balanceService */ = {
 			isa = PBXGroup;
 			children = (
@@ -222,6 +232,7 @@
 				2C9D8A602B6AE6D7004B8A1E /* GradientAccentcColors.swift */,
 				2C2DB7882B8A01D900B631E9 /* LabelsModel.swift */,
 				2C8D99712C37463600931CD8 /* IncConsMonTotalBySec.swift */,
+				2C1AF2042C6D771100938891 /* viewModelService */,
 			);
 			path = viewModel;
 			sourceTree = "<group>";
@@ -233,8 +244,8 @@
 				2CFDF8DA2A792E3F00D5C194 /* HouseHoldAppApp.swift */,
 				2CA407232B59511B0038694B /* ContentTabBar.swift */,
 				2C2DB7842B89755900B631E9 /* UIGlassCard.swift */,
-				2CFE157A2C52F4A200475118 /* popUpView */,
 				2CB1ECF02B6F36A40014B5FC /* shape */,
+				2CFE157A2C52F4A200475118 /* popUpView */,
 				2CB1ECF12B6F37340014B5FC /* commonView */,
 				2C7C53D02AB26130004458FD /* homeView */,
 				2CD172DD2B588078006E3FBD /* blanceView */,
@@ -546,6 +557,7 @@
 				2C5DE0662C3C8C8B005D6436 /* BudgetView.swift in Sources */,
 				2CFDF8DB2A792E3F00D5C194 /* HouseHoldAppApp.swift in Sources */,
 				2CC9DD352C13CBCE00196188 /* IncConsSecListView.swift in Sources */,
+				2C1AF2032C6D770200938891 /* ViewModelService.swift in Sources */,
 				2CA697642BFAAAF800BFE895 /* BudgetModel.swift in Sources */,
 				2CD172E02B588128006E3FBD /* BalanceSummaryView.swift in Sources */,
 				2C01F3B82C1A50DC00312EEA /* SwipeActioin.swift in Sources */,

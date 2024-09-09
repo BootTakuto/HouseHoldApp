@@ -38,6 +38,7 @@ struct InputBalancePopUpView: View {
                 VStack {
                     Text("残高登録")
                         .fontWeight(.bold)
+                        .padding(.vertical, 10)
                     HStack(spacing: 0) {
                         Text("残高名(必須)")
                             .font(.footnote)

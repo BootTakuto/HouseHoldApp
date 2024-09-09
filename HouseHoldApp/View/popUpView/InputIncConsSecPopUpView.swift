@@ -52,12 +52,12 @@ struct InputIncConsSecPopUpView: View {
                         .font(.footnote)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.vertical, 5)
-                    ScrollView(.horizontal) {
-                        HStack {
-                            ForEach(0 ..< 11, id: \.self) { row in
-                                VStack {
-                                    ForEach(0 ..< 3, id: \.self) { col in
-                                        let index = col + (row * 3)
+                    ScrollView {
+                        VStack {
+                            ForEach(0 ..< 6, id: \.self) { row in
+                                HStack {
+                                    ForEach(0 ..< 6, id: \.self) { col in
+                                        let index = col + (row * 6)
                                         if ColorAndImage.imageNames.count > index {
                                             let incConsImageNm = ColorAndImage.imageNames[index]
                                             Button(action: {
@@ -84,26 +84,27 @@ struct InputIncConsSecPopUpView: View {
                             }
                         }
                     }.frame(height: rectHeight / 4 + 20)
+                        .scrollIndicators(.hidden)
                     Text("カラー")
                         .font(.footnote)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.vertical, 5)
-                    ScrollView(.horizontal) {
-                        HStack {
-                            ForEach(0 ..< 10, id: \.self) { row in
-                                VStack {
-                                    ForEach(0 ..< 3, id: \.self) { col in
-                                        let index = col + (row * 3)
+                    ScrollView {
+                        VStack {
+                            ForEach(0 ..< 5, id: \.self) { row in
+                                HStack {
+                                    ForEach(0 ..< 6, id: \.self) { col in
+                                        let index = col + (row * 6)
                                         if ColorAndImage.colors.count > index {
                                             Button(action: {
                                                 self.incConsColorIndex = index
                                             }) {
                                                 let color = ColorAndImage.colors[index]
-                                                RoundedRectangle(cornerRadius: 10)
+                                                Circle()
                                                     .fill(color)
                                                     .frame(width: 40, height: 40)
                                                     .overlay(
-                                                        RoundedRectangle(cornerRadius: 6.5)
+                                                        Circle()
                                                             .stroke(lineWidth: 3)
                                                             .fill(self.incConsColorIndex == index ? .white : .clear)
                                                             .frame(width: 30, height: 30)
@@ -118,6 +119,7 @@ struct InputIncConsSecPopUpView: View {
                             }
                         }
                     }.frame(height: rectHeight / 4 + 20)
+                        .scrollIndicators(.hidden)
                 }.padding(.top, 20)
                     .padding(.horizontal, 20)
                 Spacer()

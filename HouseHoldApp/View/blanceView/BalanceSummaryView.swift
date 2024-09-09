@@ -168,7 +168,7 @@ struct BalanceSummaryView: View {
                 .fontWeight(.medium)
                 .frame(width: size.width - 40, alignment: .leading)
             charts.BalCompareChart(size: size)
-                .frame(height: 150)
+                .frame(height: 120)
                 .padding(.horizontal, 20)
         }
     }
